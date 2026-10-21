@@ -817,12 +817,18 @@ function waterCard(){
   ${wt.length?`<h3 class="sec" style="margin-top:14px">À reporter</h3>`+wt.map(x=>row(x,false)).join(''):''}
   ${sk.length?`<details><summary>Pas besoin pour l’instant (${sk.length})</summary>${sk.map(x=>row(x,false)).join('')}</details>`:''}</div>`;
 }
+const noGuide=()=>S.custom.map(enrich).filter(s=>!s.g);
+function guideReminder(){
+  const l=noGuide();if(!l.length||Date.now()<(S.gs||0))return '';
+  return `<div class="alert"><span>📝</span><div><b>${l.length} espèce${l.length>1?'s':''} sans guide : ${esc(l.slice(0,3).map(s=>s.n).join(', '))}${l.length>3?'…':''}</b>Demande à Claude de compléter leurs données de taille et d’entretien.<div class="chips" style="margin-top:8px"><button class="btn sm" data-act="askAll">Copier la demande</button><button class="btn sm ghost" data-act="snoozeGs">Plus tard (30 j)</button></div></div></div>`;
+}
 function viewToday(){
   const now=new Date(),m=now.getMonth()+1,y=now.getFullYear();
   const tasks=tasksFor(m,y),done=tasks.filter(t=>S.done[t.id]).length;
   const hr=now.getHours(),hello=hr<6||hr>=19?'Bonne soirée':hr<12?'Bonjour':'Bon après-midi';
   return `<div class="top"><div><h1>${hello} 🌿</h1><p>${now.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</p></div><button class="btn ghost sm" data-act="wx">↻ Actualiser la météo</button></div>
   ${heroHtml()}
+  ${guideReminder()}
   ${alerts().map(a=>`<div class="alert ${a.c}"><span>${a.c==='frost'?'❄️':a.c==='heat'?'🔥':a.c==='wind'?'💨':'🌧️'}</span><div><b>${esc(a.t)}</b>${esc(a.d)}</div></div>`).join('')}
   <div class="grid g2">
     ${waterCard()}
@@ -1232,6 +1238,9 @@ document.addEventListener('click',async ev=>{
     case 'addSp':addPlant(id);break;
     case 'customForm':customForm();break;
     case 'online':onlineSearch();break;
+    case 'snoozeGs':S.gs=Date.now()+30*864e5;save();render();break;
+    case 'askAll':{const m='Ajoute les guides de taille et d’entretien sourcés pour ces espèces de mon app Jardin : '+noGuide().map(s=>s.n+(s.l?' ('+s.l+')':'')).join(' ; ')+'.';
+      (navigator.clipboard?navigator.clipboard.writeText(m):Promise.reject()).then(()=>toast('Message copié : colle-le dans la conversation Claude'),()=>prompt('Copie ce message dans Claude :',m));break}
     case 'askGuide':{const s=getSp(el.dataset.id),m='Ajoute le guide de taille et d’entretien sourcé pour : '+s.n+(s.l?' ('+s.l+')':'')+' — complète ses données dans mon app Jardin.';
       (navigator.clipboard?navigator.clipboard.writeText(m):Promise.reject()).then(()=>toast('Message copié : colle-le dans la conversation Claude'),()=>prompt('Copie ce message dans Claude :',m));break}
     case 'pickOnline':pickOnline(+el.dataset.i);break;
