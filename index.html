@@ -780,7 +780,7 @@ function render(){
   const keep=document.activeElement&&document.activeElement.id==='gq';
   $('#main').innerHTML=v;
   if(keep){const el=$('#gq');el.focus();el.setSelectionRange(el.value.length,el.value.length)}
-  loadImgs(tab==='plantation'?[...CAT,...REC]:CAT);
+  loadImgs(tab==='plantation'?[...S.custom,...CAT,...REC]:[...S.custom,...CAT]);
 }
 
 /* ---------- Aujourd’hui ---------- */
@@ -1114,7 +1114,55 @@ function spSheet(sid){
 function catList(q){
   const own=new Set(S.plants.map(p=>p.sid));
   const items=allSpecies().filter(sp=>!q||(sp.n+' '+sp.l+' '+TYPES[sp.t]).toLowerCase().includes(q.toLowerCase()));
-  return items.map(sp=>`<div class="row">${phHtml(sp,null,'ico')}<div class="tx"><b>${esc(sp.n)}</b><span>${esc(sp.l)} · ${TYPES[sp.t].split(' ')[0]}</span></div><button class="btn sm ${own.has(sp.id)?'ghost':''}" data-act="addSp" data-id="${sp.id}">${own.has(sp.id)?'＋ Une autre':'Ajouter'}</button></div>`).join('')||'<div class="empty">Aucun résultat.</div>';
+  const online=q&&q.trim().length>=3?`<div style="padding:8px 0"><button class="btn" data-act="online">🌐 Chercher « ${esc(q.trim())} » en ligne</button><p class="sub" style="margin:6px 0 0;font-size:12.5px">Base mondiale (Wikidata + Wikipédia) : nom français ou latin.</p></div>`:'';
+  return online+(items.map(sp=>`<div class="row">${phHtml(sp,null,'ico')}<div class="tx"><b>${esc(sp.n)}</b><span>${esc(sp.l)} · ${TYPES[sp.t].split(' ')[0]}</span></div><button class="btn sm ${own.has(sp.id)?'ghost':''}" data-act="addSp" data-id="${sp.id}">${own.has(sp.id)?'＋ Une autre':'Ajouter'}</button></div>`).join('')||(online?'':'<div class="empty">Aucun résultat.</div>'));
+}
+/* ---------- Recherche en ligne (Wikidata + Wikipédia, sans clé) ---------- */
+let ONL=[];
+const WD='https://www.wikidata.org/w/api.php?format=json&origin=*&';
+const PLANT_RE=/plant|arbre|arbuste|conif|liane|végétal|fruitier|tree|shrub|vine|flowering|angiosperm|conifer|fern|herb|grass|cactus|palm/i;
+const cleanName=s=>{s=String(s||'').replace(/\s*\(.*\)\s*$/,'').trim();return s.charAt(0).toUpperCase()+s.slice(1)};
+async function onlineSearch(){
+  const q=($('#cq')&&$('#cq').value||'').trim();if(q.length<2)return;
+  const box=$('#cl');box.innerHTML='<p class="sub">Recherche en ligne…</p>';
+  try{
+    const run=async lang=>{const r=await fetch(WD+'action=wbsearchentities&type=item&limit=15&language='+lang+'&uselang='+lang+'&search='+encodeURIComponent(q));if(!r.ok)throw new Error(r.status);return (await r.json()).search||[]};
+    const [a,b]=await Promise.all([run('fr'),run('en')]);
+    const seen=new Set(),ids=[];[...a,...b].forEach(x=>{if(!seen.has(x.id)){seen.add(x.id);ids.push(x.id)}});
+    const res=[];
+    if(ids.length){
+      const r=await fetch(WD+'action=wbgetentities&props=claims|labels|descriptions&languages=fr|en&ids='+ids.slice(0,30).join('|'));
+      const ents=(await r.json()).entities||{};
+      ids.forEach(id=>{
+        const e=ents[id];if(!e||!e.claims||!e.claims.P225)return;
+        const m=e.claims.P225[0].mainsnak,latin=m&&m.datavalue&&m.datavalue.value;if(!latin)return;
+        const d=((e.descriptions&&e.descriptions.fr||{}).value||'')+' / '+((e.descriptions&&e.descriptions.en||{}).value||'');
+        if(!PLANT_RE.test(d))return;
+        const lab=((e.labels&&(e.labels.fr||e.labels.en))||{}).value||latin;
+        res.push({id,latin,label:lab,desc:((e.descriptions&&(e.descriptions.fr||e.descriptions.en))||{}).value||''});
+      });
+    }
+    ONL=res;
+    box.innerHTML=`<p class="sub" style="margin:4px 0 8px">Résultats en ligne pour « ${esc(q)} » :</p>`+(res.length?res.map((x,i)=>`<div class="row"><div class="tx"><b>${esc(cleanName(x.label))}</b><span><i>${esc(x.latin)}</i>${x.desc?' · '+esc(x.desc):''}</span></div><button class="btn sm" data-act="pickOnline" data-i="${i}">Choisir</button></div>`).join(''):'<div class="empty">Aucune plante trouvée. Essaie le nom latin, ou crée une espèce personnalisée.</div>')+`<div class="sec2"><button class="btn ghost sm" data-act="customForm">✎ Espèce personnalisée</button></div>`;
+  }catch(e){box.innerHTML='<div class="empty">Recherche en ligne impossible (pas de connexion ?).</div>'}
+}
+async function fetchWikiInfo(x){
+  for(const [lang,title] of [['fr',x.label],['fr',x.latin],['en',x.latin]]){
+    try{
+      const r=await fetch('https://'+lang+'.wikipedia.org/w/api.php?action=query&format=json&origin=*&redirects=1&prop=extracts|pageimages&exintro=1&explaintext=1&exchars=420&piprop=thumbnail&pithumbsize=640&titles='+encodeURIComponent(title));
+      if(!r.ok)continue;
+      const pages=Object.values(((await r.json()).query||{}).pages||{}).filter(p=>!p.missing&&p.extract);
+      if(pages[0])return{lang,title:pages[0].title,extract:pages[0].extract,thumb:pages[0].thumbnail&&pages[0].thumbnail.source};
+    }catch(e){}
+  }
+  return null;
+}
+const guessType=t=>/liane|grimpant|vigne|volubile|climbing|vine/i.test(t)?'grimpante':/arbuste|shrub/i.test(t)?'arbuste':/arbre|tree/i.test(t)?'arbre':'arbuste';
+async function pickOnline(i){
+  const x=ONL[i];if(!x)return;toast('Récupération de la fiche…');
+  const info=await fetchWikiInfo(x);
+  const ex=info?info.extract.replace(/\s+/g,' ').trim():'';
+  customForm({n:cleanName(x.label),l:x.latin,t:guessType((info?info.extract:'')+' '+x.desc),note:ex,wi:info});
 }
 function addSheet(){
   openSheet(`<div class="hd"><h2>Ajouter une espèce</h2><button class="x" data-act="close">✕</button></div>
@@ -1123,25 +1171,30 @@ function addSheet(){
   <div class="sec2"><button class="btn ghost" data-act="customForm">✎ Espèce personnalisée</button></div>`);
 }
 const mpick=(name,sel)=>`<div class="mgrid">${MS.map((l,i)=>`<label><input type="checkbox" name="${name}" value="${i+1}" ${sel&&sel.includes(i+1)?'checked':''}><span>${l}</span></label>`).join('')}</div>`;
-function customForm(){
-  openSheet(`<div class="hd"><h2>Espèce personnalisée</h2><button class="x" data-act="close">✕</button></div>
-  <div class="field"><label>Nom</label><input class="in" id="cf-n" placeholder="Ex. Rosier ‘Gruss an Aachen’"></div>
-  <div class="two"><div class="field"><label>Type</label><select class="in" id="cf-t">${Object.entries(TYPES).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></div>
+let CFP=null;
+function customForm(pre){
+  CFP=pre&&pre.n?pre:null;const t=CFP?CFP.t:'arbuste',defPl=t==='fruitier'?[11,12,1,2,3]:[10,11,3];
+  openSheet(`<div class="hd"><h2>${CFP?'Ajouter : '+esc(CFP.n):'Espèce personnalisée'}</h2><button class="x" data-act="close">✕</button></div>
+  ${CFP?`<p class="sub" style="margin-top:0"><i>${esc(CFP.l)}</i> — fiche trouvée via Wikidata/Wikipédia. Ces bases ne contiennent pas les calendriers de taille : vérifie le type, la plantation est pré-remplie avec des mois génériques, ajoute la taille si tu la connais.</p>`:''}
+  <div class="field"><label>Nom</label><input class="in" id="cf-n" value="${esc(CFP?CFP.n:'')}" placeholder="Ex. Rosier ‘Gruss an Aachen’"></div>
+  <div class="two"><div class="field"><label>Type</label><select class="in" id="cf-t">${Object.entries(TYPES).map(([k,v])=>`<option value="${k}" ${k===t?'selected':''}>${v}</option>`).join('')}</select></div>
   <div class="field"><label>Besoin en eau</label><select class="in" id="cf-w"><option value="0">Faible</option><option value="1" selected>Moyen</option><option value="2">Élevé</option></select></div></div>
+  <div class="field"><label>Rusticité approximative</label><select class="in" id="cf-h">${[-5,-8,-10,-12,-15,-20,-25].map(v=>`<option value="${v}" ${v===-15?'selected':''}>${v} °C</option>`).join('')}</select></div>
   <div class="field"><label>Mois de taille</label>${mpick('cf-pr')}</div>
   <div class="field"><label>Précisions sur la taille (facultatif)</label><input class="in" id="cf-prt" placeholder="Ex. rabattre d’un tiers"></div>
-  <div class="field"><label>Mois de plantation</label>${mpick('cf-pl')}</div>
+  <div class="field"><label>Mois de plantation</label>${mpick('cf-pl',defPl)}</div>
   <div class="field"><label>Mois d’engrais</label>${mpick('cf-fd')}</div>
-  <div class="field"><label>Notes</label><input class="in" id="cf-no"></div>
+  <div class="field"><label>Notes</label><textarea class="in" id="cf-no" rows="3">${esc(CFP?CFP.note:'')}</textarea></div>
   <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px"><button class="btn ghost" data-act="close">Annuler</button><button class="btn" data-act="saveCustom">Ajouter</button></div>`);
 }
 const picked=n=>[...document.querySelectorAll('input[name="'+n+'"]:checked')].map(x=>+x.value);
 function saveCustom(){
   const n=$('#cf-n').value.trim();if(!n){toast('Donne un nom à la plante');return}
   const t=$('#cf-t').value,pr=picked('cf-pr'),fd=picked('cf-fd'),pl=picked('cf-pl');
-  const sp={id:'c'+Date.now(),n,l:'',t,e:TYPE_EM[t],w:+$('#cf-w').value,s:'',f:'',h:-15,
+  const sp={id:'c'+Date.now(),n,l:CFP?CFP.l:'',t,e:TYPE_EM[t],w:+$('#cf-w').value,s:'',f:'',h:+$('#cf-h').value,
     pr:pr.length?[[pr,$('#cf-prt').value.trim()||'Période de taille choisie.']]:[],pl,fd:fd.length?[[fd,'Apport d’engrais.']]:[],x:[],note:$('#cf-no').value.trim()};
-  S.custom.push(sp);addPlant(sp.id);
+  if(CFP){sp.wp=[CFP.l,CFP.l];if(CFP.wi&&CFP.wi.thumb){IMG[sp.id]={u:CFP.wi.thumb,t:CFP.wi.title,l:CFP.wi.lang,at:Date.now()};saveImg()}}
+  S.custom.push(sp);CFP=null;addPlant(sp.id);
 }
 function addPlant(sid){
   const P=mkPlant(sid);S.plants.push(P);save();render();plantSheet(P.id);toast('Ajouté au jardin');
@@ -1175,6 +1228,8 @@ document.addEventListener('click',async ev=>{
     case 'add':addSheet();break;
     case 'addSp':addPlant(id);break;
     case 'customForm':customForm();break;
+    case 'online':onlineSearch();break;
+    case 'pickOnline':pickOnline(+el.dataset.i);break;
     case 'saveCustom':saveCustom();break;
     case 'qty':{const P=S.plants.find(p=>p.id===id);if(P){P.qty=Math.max(1,P.qty+(+el.dataset.d));save();render();plantSheet(id)}break}
     case 'del':if(confirm('Retirer cette plante de ton jardin ?')){S.plants=S.plants.filter(p=>p.id!==id);save();closeSheet();render()}break;
@@ -1206,7 +1261,7 @@ document.addEventListener('change',ev=>{
   if(k==='age')P.age=t.value;if(k==='pot')P.pot=t.checked;if(k==='note')P.note=t.value;
   save();render();if(k!=='note')plantSheet(P.id);
 });
-document.addEventListener('keydown',ev=>{if(ev.key==='Enter'&&ev.target.id==='cityq')cityLookup()});
+document.addEventListener('keydown',ev=>{if(ev.key==='Enter'&&ev.target.id==='cityq')cityLookup();if(ev.key==='Enter'&&ev.target.id==='cq')onlineSearch()});
 
 /* ---------- Lieux ---------- */
 async function cityLookup(){
