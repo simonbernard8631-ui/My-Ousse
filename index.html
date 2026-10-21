@@ -659,8 +659,11 @@ function save(){
   saveTimer=setTimeout(writeFile,900);
   schedSync();
 }
-const getSp=sid=>S.custom.find(c=>c.id===sid)||CAT.find(c=>c.id===sid)||REC.find(c=>c.id===sid)||{id:sid,n:'Espèce inconnue',l:'',t:'arbuste',e:'🌱',w:1,s:'',f:'',h:-15,pr:[],pl:[],fd:[],x:[],note:''};
-const allSpecies=()=>[...S.custom,...CAT,...REC];
+/* Fiches enrichies (guides sourcés) pour les espèces ajoutées en ligne, clé = nom latin en minuscules */
+const CUR={};
+const enrich=c=>(c&&c.l&&CUR[c.l.toLowerCase()])?{...c,...CUR[c.l.toLowerCase()]}:c;
+const getSp=sid=>enrich(S.custom.find(c=>c.id===sid))||CAT.find(c=>c.id===sid)||REC.find(c=>c.id===sid)||{id:sid,n:'Espèce inconnue',l:'',t:'arbuste',e:'🌱',w:1,s:'',f:'',h:-15,pr:[],pl:[],fd:[],x:[],note:''};
+const allSpecies=()=>[...S.custom.map(enrich),...CAT,...REC];
 
 /* ============ Météo (Open-Meteo, sans clé) ============ */
 let wx=null,wxAt=0,wxErr=false,wxLoading=false;
@@ -1080,7 +1083,7 @@ function plantSheet(id){
   const a=waterAdvice(P),ds=daysSince(P.lastWater);
   const sec=(t,arr,k)=>arr.length?`<div class="sec2"><h4>${t}</h4>${arr.map(e=>`<p><b style="color:var(--${k})">${e[0].map(m=>MS[m-1]).join(', ')}</b> — ${esc(e[1])}</p>`).join('')}</div>`:'';
   openSheet(`<div class="hd">${phHtml(sp,P,'hdph')}<div><h2>${esc(sp.n)}</h2><div class="sub"><i>${esc(sp.l)}</i></div></div><button class="x" data-act="close">✕</button></div>
-  <div class="chips" style="margin-bottom:10px">${sp.g?`<button class="btn sm" data-act="guide" data-id="${esc(sp.id)}">📖 Guide pas à pas</button>`:''}<label class="btn sm ghost" style="cursor:pointer">📷 Ma photo<input type="file" accept="image/*" id="photoIn" data-id="${P.id}" hidden></label>${P.photo?`<button class="btn sm warn" data-act="rmphoto" data-id="${P.id}">Retirer ma photo</button>`:''}</div>
+  <div class="chips" style="margin-bottom:10px">${sp.g?`<button class="btn sm" data-act="guide" data-id="${esc(sp.id)}">📖 Guide pas à pas</button>`:(String(sp.id).startsWith('c')?`<button class="btn sm" data-act="askGuide" data-id="${esc(sp.id)}">📝 Demander un vrai guide</button>`:'')}<label class="btn sm ghost" style="cursor:pointer">📷 Ma photo<input type="file" accept="image/*" id="photoIn" data-id="${P.id}" hidden></label>${P.photo?`<button class="btn sm warn" data-act="rmphoto" data-id="${P.id}">Retirer ma photo</button>`:''}</div>
   <div class="chips" style="margin-bottom:10px"><span class="pill">${TYPES[sp.t].split(' ')[0].replace(/s$/,'')}</span>${sp.f?`<span class="pill">${esc(sp.f)}</span>`:''}${sp.s?`<span class="pill">${esc(sp.s)}</span>`:''}<span class="pill">${'💧'.repeat(sp.w+1)} eau</span><span class="pill">rustique ≈ ${sp.h} °C</span></div>
   ${stripHtml(sp)}
   ${sp.note?`<p class="sub">${esc(sp.note)}</p>`:''}
@@ -1229,6 +1232,8 @@ document.addEventListener('click',async ev=>{
     case 'addSp':addPlant(id);break;
     case 'customForm':customForm();break;
     case 'online':onlineSearch();break;
+    case 'askGuide':{const s=getSp(el.dataset.id),m='Ajoute le guide de taille et d’entretien sourcé pour : '+s.n+(s.l?' ('+s.l+')':'')+' — complète ses données dans mon app Jardin.';
+      (navigator.clipboard?navigator.clipboard.writeText(m):Promise.reject()).then(()=>toast('Message copié : colle-le dans la conversation Claude'),()=>prompt('Copie ce message dans Claude :',m));break}
     case 'pickOnline':pickOnline(+el.dataset.i);break;
     case 'saveCustom':saveCustom();break;
     case 'qty':{const P=S.plants.find(p=>p.id===id);if(P){P.qty=Math.max(1,P.qty+(+el.dataset.d));save();render();plantSheet(id)}break}
