@@ -1,0 +1,1269 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#4f7a4a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Mon Jardin">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<title>Mon Jardin</title>
+<style>
+:root{
+  --bg:#f3f0e6;--bg2:#eae6d6;--card:#fbf9f3;--ink:#22301f;--muted:#6a7665;--line:#e2ddcb;
+  --green:#4f7a4a;--green-d:#355a33;--leaf:#8fb27a;--sage:#e1e9d6;--clay:#c2674a;--clay-s:#f6e1d8;
+  --sun:#d4a037;--sun-s:#f7ecd0;--sky:#4f89a3;--sky-s:#dcebf1;--plum:#8a5a82;--plum-s:#eddcea;
+  --shadow:0 1px 2px rgba(40,55,35,.06),0 8px 24px rgba(40,55,35,.07);
+  --serif:ui-serif,"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --r:20px;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#141a13;--bg2:#1a2219;--card:#1e271d;--ink:#e7eadc;--muted:#99a692;--line:#2c382a;
+  --green:#7fb069;--green-d:#a5cf8f;--leaf:#6f9a5c;--sage:#26341f;--clay:#e08a6d;--clay-s:#3a2a22;
+  --sun:#e3b653;--sun-s:#3a3220;--sky:#7db4cc;--sky-s:#1f323b;--plum:#c18cb8;--plum-s:#35283a;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);
+}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.45}
+body{min-height:100vh;background:radial-gradient(1200px 500px at 85% -10%,var(--sage),transparent 60%),var(--bg)}
+button,input,select,textarea{font:inherit;color:inherit}
+h1,h2,h3{font-family:var(--serif);font-weight:600;letter-spacing:-.01em;margin:0}
+.app{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+.side{position:sticky;top:0;height:100vh;padding:28px 18px;display:flex;flex-direction:column;gap:6px;border-right:1px solid var(--line);background:color-mix(in srgb,var(--card) 70%,transparent)}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--serif);font-size:22px;font-weight:600;margin-bottom:22px;padding:0 8px}
+.brand i{display:grid;place-items:center;width:36px;height:36px;border-radius:12px;background:var(--green);color:#fff}
+.nav{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:14px;border:0;background:none;cursor:pointer;color:var(--muted);font-weight:500;text-align:left;width:100%}
+.nav svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.nav:hover{background:var(--sage)}
+.nav.on{background:var(--sage);color:var(--green-d);font-weight:600}
+.side small{margin-top:auto;color:var(--muted);padding:0 8px}
+main{padding:32px clamp(16px,4vw,48px) 60px;max-width:1100px;width:100%;min-width:0}
+.tabbar{display:none}
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.top h1{font-size:clamp(26px,4vw,36px)}
+.top p{margin:4px 0 0;color:var(--muted);text-transform:capitalize}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px;box-shadow:var(--shadow)}
+.card h2{font-size:20px;margin-bottom:12px;display:flex;align-items:center;gap:10px;justify-content:space-between}
+.sub{color:var(--muted);font-size:14px}
+.btn{border:0;cursor:pointer;border-radius:12px;padding:10px 16px;background:var(--green);color:#fff;font-weight:600;display:inline-flex;gap:8px;align-items:center}
+.btn:hover{background:var(--green-d)}
+.btn.ghost{background:var(--sage);color:var(--green-d)}
+.btn.warn{background:var(--clay-s);color:var(--clay)}
+.btn.sm{padding:6px 12px;font-size:14px;border-radius:10px}
+.pill{display:inline-block;padding:2px 10px;border-radius:99px;font-size:12px;font-weight:600;background:var(--sage);color:var(--green-d);white-space:nowrap}
+.pill.taille{background:var(--clay-s);color:var(--clay)}
+.pill.engrais{background:var(--sun-s);color:var(--sun)}
+.pill.protection{background:var(--sky-s);color:var(--sky)}
+.pill.traitement{background:var(--plum-s);color:var(--plum)}
+.pill.récolte{background:var(--sun-s);color:#b8742a}
+.pill.soin{background:var(--sage);color:var(--green-d)}
+/* hero météo */
+.hero{border-radius:28px;padding:26px;color:#fff;position:relative;overflow:hidden;box-shadow:var(--shadow);margin-bottom:16px}
+.hero.sun{background:linear-gradient(135deg,#6fa35c,#d3b04c)}
+.hero.cloud{background:linear-gradient(135deg,#6f8a78,#9aaa9f)}
+.hero.rain{background:linear-gradient(135deg,#3f6e84,#6f9a90)}
+.hero.snow{background:linear-gradient(135deg,#7a97a8,#c3d3da)}
+.hero.storm{background:linear-gradient(135deg,#46566a,#6c7a8a)}
+.hero.fog{background:linear-gradient(135deg,#8a9a8f,#b6bfb3)}
+.hero .big{display:flex;align-items:center;gap:16px}
+.hero .t{font-family:var(--serif);font-size:64px;line-height:1;font-weight:500}
+.hero .ic{font-size:56px}
+.hero .loc{opacity:.9;font-size:14px}
+.days{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:20px}
+.day{background:rgba(255,255,255,.17);border-radius:14px;padding:8px 2px;text-align:center;font-size:13px;backdrop-filter:blur(4px)}
+.day b{display:block;font-weight:600;text-transform:capitalize}
+.day .e{font-size:22px}
+.day .r{font-size:11px;opacity:.9;min-height:14px}
+.alert{display:flex;gap:12px;padding:12px 14px;border-radius:14px;margin-bottom:10px;font-size:14.5px}
+.alert.frost{background:var(--sky-s);color:var(--sky)}
+.alert.heat{background:var(--clay-s);color:var(--clay)}
+.alert.wind,.alert.rain{background:var(--plum-s);color:var(--plum)}
+.alert b{display:block}
+.row{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
+.row:first-of-type{border-top:0}
+.row .ico{width:40px;height:40px;border-radius:12px;background:var(--sage);display:grid;place-items:center;font-size:20px;flex:none}
+.row .tx{flex:1;min-width:0}
+.row .tx b{display:block;font-weight:600}
+.row .tx span{color:var(--muted);font-size:14px}
+.chk{appearance:none;width:24px;height:24px;border-radius:8px;border:2px solid var(--leaf);cursor:pointer;flex:none;display:grid;place-items:center;background:none}
+.chk:checked{background:var(--green);border-color:var(--green)}
+.chk:checked::after{content:"✓";color:#fff;font-size:15px;font-weight:700}
+.task.done .tx{opacity:.5;text-decoration:line-through}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:var(--card);padding:6px 14px;border-radius:99px;cursor:pointer;font-size:14px}
+.chip.on{background:var(--green);border-color:var(--green);color:#fff}
+.chips.scroll{flex-wrap:nowrap;overflow-x:auto;padding-bottom:6px;scrollbar-width:none}
+.chips.scroll .chip{flex:none}
+.tips{margin:0;padding-left:20px;color:var(--muted)}
+.tips li{margin:4px 0}
+.tips li::marker{color:var(--leaf)}
+details summary{cursor:pointer;color:var(--muted);font-size:14px;padding:8px 0}
+.search{width:100%;padding:12px 16px;border-radius:14px;border:1px solid var(--line);background:var(--card);outline:none}
+.search:focus,.in:focus{border-color:var(--green);box-shadow:0 0 0 3px color-mix(in srgb,var(--green) 25%,transparent)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+.pc{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;cursor:pointer;text-align:left;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:6px;transition:transform .15s}
+.pc:hover{transform:translateY(-2px)}
+.pc .em{width:44px;height:44px;border-radius:14px;background:var(--sage);display:grid;place-items:center;font-size:24px}
+.pc b{font-family:var(--serif);font-size:17px;line-height:1.2}
+.pc i{font-size:12.5px;color:var(--muted)}
+.pc .tg{display:flex;gap:4px;flex-wrap:wrap;margin-top:auto;padding-top:4px}
+h3.sec{font-size:14px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:26px 0 10px;font-family:var(--sans);font-weight:600}
+.fab{position:fixed;right:20px;bottom:24px;z-index:20;box-shadow:0 8px 24px rgba(40,70,35,.35);border-radius:99px;padding:14px 22px}
+/* feuille */
+.sheet{position:fixed;inset:0;z-index:50;background:rgba(15,25,12,.45);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px)}
+.sheet[hidden]{display:none}
+.sheet .box{background:var(--card);width:min(660px,100%);max-height:92vh;overflow:auto;border-radius:26px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.sheet .hd{display:flex;gap:14px;align-items:center;margin-bottom:14px}
+.sheet .hd .em{width:56px;height:56px;border-radius:18px;background:var(--sage);display:grid;place-items:center;font-size:30px}
+.sheet .x{margin-left:auto;border:0;background:var(--sage);width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:18px}
+.strip{display:grid;grid-template-columns:repeat(12,1fr);gap:4px;margin:8px 0}
+.mc{display:flex;flex-direction:column;align-items:center;gap:5px;padding:6px 0;border-radius:10px;font-size:12px;color:var(--muted)}
+.mc.cur{background:var(--sage);color:var(--green-d);font-weight:700}
+.mc i{width:9px;height:9px;border-radius:50%;background:var(--line)}
+.mc i.p{background:var(--clay)}.mc i.l{background:var(--green)}.mc i.f{background:var(--sun)}
+.legend{display:flex;gap:14px;font-size:12.5px;color:var(--muted);flex-wrap:wrap}
+.legend span::before{content:"";display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;background:var(--c)}
+.field{display:flex;flex-direction:column;gap:6px;margin:12px 0}
+.field label{font-size:13px;color:var(--muted);font-weight:600}
+.in{padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:var(--bg);outline:none;width:100%}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mgrid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.mgrid label{display:block;text-align:center;border:1px solid var(--line);border-radius:10px;padding:6px 0;font-size:13px;cursor:pointer;color:var(--ink);font-weight:500}
+.mgrid input{display:none}
+.mgrid input:checked+span{display:block;background:var(--green);color:#fff;border-radius:8px;margin:-6px 0;padding:6px 0}
+.sec2{border-top:1px solid var(--line);margin-top:16px;padding-top:12px}
+.sec2 h4{margin:0 0 6px;font-size:14px}
+.sec2 p{margin:4px 0;font-size:14.5px}
+.qty{display:flex;align-items:center;gap:10px}
+.qty button{width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:var(--card);cursor:pointer;font-size:18px}
+/* matrice */
+.mx{overflow:auto;border:1px solid var(--line);border-radius:16px;background:var(--card)}
+.mx table{border-collapse:collapse;width:100%;font-size:13px}
+.mx th,.mx td{padding:6px 4px;text-align:center;border-bottom:1px solid var(--line);white-space:nowrap}
+.mx th:first-child,.mx td:first-child{text-align:left;position:sticky;left:0;background:var(--card);padding-left:12px;min-width:150px}
+.mx td.cur,.mx th.cur{background:var(--sage)}
+.mx .d{display:inline-block;width:8px;height:8px;border-radius:50%;margin:0 1px}
+#toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:99px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .25s;z-index:99;max-width:90vw;text-align:center}
+#toast.on{opacity:1}
+.empty{text-align:center;color:var(--muted);padding:24px 10px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:14px;color:var(--muted)}
+.kv b{color:var(--ink);font-weight:600}
+@media (max-width:860px){
+  .app{grid-template-columns:minmax(0,1fr)}
+  main{min-width:0}
+  .side{display:none}
+  main{padding:20px 16px 110px}
+  .tabbar{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;bottom:0;left:0;right:0;z-index:30;background:color-mix(in srgb,var(--card) 92%,transparent);backdrop-filter:blur(14px);border-top:1px solid var(--line);padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
+  .tabbar .nav{flex-direction:column;gap:2px;padding:6px 0;font-size:11.5px;text-align:center;border-radius:12px}
+  .fab{bottom:calc(84px + env(safe-area-inset-bottom));right:16px}
+  .sheet{align-items:flex-end}
+  .sheet .box{border-radius:26px 26px 0 0;max-height:94vh}
+  .hero .t{font-size:52px}
+  .days{gap:4px}.day{font-size:11.5px}.day .e{font-size:18px}
+  #toast{bottom:100px}
+}
+.ph{position:relative;overflow:hidden;background:var(--sage);display:grid;place-items:center;flex:none;font-size:20px}
+.ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.pc .pcph{width:100%;aspect-ratio:4/3;border-radius:14px;font-size:38px}
+.hd .hdph{width:68px;height:68px;border-radius:18px;font-size:32px}
+.lnk{display:block;border:0;background:none;color:var(--green-d);font-weight:600;padding:6px 0 0;cursor:pointer;font-size:13.5px}
+.steps{margin:6px 0;padding-left:22px}.steps li{margin:7px 0}.steps li::marker{color:var(--green);font-weight:700}
+.nogo{margin:6px 0;padding-left:20px;color:var(--clay)}.nogo li{margin:5px 0}
+.credit{font-size:12px;color:var(--muted);margin:10px 0 0}.credit a,.srcs a{color:var(--green-d)}
+.srcs{margin:6px 0;padding-left:18px;font-size:14px}
+.rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.rc{background:var(--card);border:1px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column}
+.rc .ph{width:100%;aspect-ratio:16/10;font-size:46px;cursor:pointer}
+.rc .bd{padding:14px 16px 16px;display:flex;flex-direction:column;gap:8px;flex:1}
+.rc h3{font-size:19px}
+.rc .lat{font-size:12.5px;color:var(--muted);font-style:italic;margin-top:-6px}
+.sc{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;font-size:13px;color:var(--muted);align-items:center}
+.dots{letter-spacing:2px;font-size:13px;color:var(--green)}
+.dots.l0,.dots.l1{color:var(--clay)}.dots.l2{color:var(--sun)}
+.rc p{margin:0;font-size:14px}
+.rc .act{margin-top:auto;display:flex;gap:8px;flex-wrap:wrap}
+.cl2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.cl2 h4{margin:0 0 6px;font-size:15px}.cl2 ul{margin:0;padding-left:18px;font-size:14px;color:var(--muted)}.cl2 li{margin:3px 0}
+.vul{border-left:4px solid var(--clay);padding:4px 0 4px 12px;margin:10px 0}
+.vul.w{border-color:var(--sun)}
+.vul b{display:block}
+.fbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:14px 0 6px}
+@media (max-width:860px){.cl2{grid-template-columns:1fr}.tabbar{grid-template-columns:repeat(5,1fr)!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand"><i><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19c0-8 5-14 15-14 0 10-6 15-14 15"/><path d="M5 19c3-5 6-8 10-10"/></svg></i>Mon Jardin</div>
+    <div id="navSide"></div>
+    <small id="syncState"></small>
+  </aside>
+  <main id="main"></main>
+  <nav class="tabbar" id="navBar"></nav>
+</div>
+<div class="sheet" id="sheet" hidden></div>
+<div id="toast"></div>
+
+<script>
+"use strict";
+/* ============ Utilitaires ============ */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const sum=a=>a.reduce((x,y)=>x+(+y||0),0);
+const MONTHS=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+const MS=['janv','févr','mars','avr','mai','juin','juil','août','sept','oct','nov','déc'];
+const MI=['J','F','M','A','M','J','J','A','S','O','N','D'];
+const TYPES={haie:'Haies',arbuste:'Arbustes',grimpante:'Grimpantes',arbre:'Arbres',fruitier:'Fruitiers & petits fruits'};
+const TYPE_EM={haie:'🌿',arbuste:'🌸',grimpante:'🍃',arbre:'🌳',fruitier:'🍓'};
+const KIND_LABEL={taille:'Taille',engrais:'Engrais',protection:'Protection',traitement:'Surveillance',récolte:'Récolte',soin:'Soin'};
+const inM=(arr,m)=>(arr||[]).filter(e=>e[0].includes(m));
+
+/* ============ Catalogue des espèces ============ */
+/* w = besoin en eau (0 faible, 1 moyen, 2 élevé) · h = rusticité (°C) · pr = tailles · fd = engrais · x = autres tâches · pl = mois de plantation
+   wp = titres Wikipédia [fr, en] pour la photo · now/fut = adaptation 0–3 au climat actuel / à celui de 2050 (jugement, voir onglet Plantation)
+   g = guide pas à pas : q quand · o outils · e étapes · v à éviter · c entretien [[titre,texte]] · s sources [[titre,url]] · th = étapes complétées par des repères généraux */
+const PDF='https://www.promessedefleurs.com/conseil-plantes-jardin/';
+const GBD='https://www.gerbeaud.com/jardin/fiches/';
+const RHS='https://www.rhs.org.uk/';
+const OUT='Sécateur bien affûté et désinfecté à l’alcool à brûler ; ébrancheur ou petite scie pour les branches plus grosses ; gants.';
+const CAT=[
+{id:'elaeagnus',n:'Elaeagnus ebbingei',l:'Elaeagnus × submacrophylla',t:'haie',e:'🌿',w:0,s:'Soleil / mi-ombre',f:'Persistant',h:-20,wp:['Elaeagnus × submacrophylla','Elaeagnus × submacrophylla'],now:3,fut:3,
+ futNote:'Très tolérant au sec et au vent une fois enraciné : aucun souci prévisible à l’horizon 2050.',
+ pr:[[[3],'Taille d’entretien de fin d’hiver : raccourcir les pousses qui dépassent et enlever les branches mal placées. Jeunes plants (3 premières années) : raccourcir chaque jeune pousse d’un tiers.'],[[7,8],'Haie plantée serrée (moins de 1 m entre plants) : un passage léger en plus pour contenir la vigueur.']],
+ pl:[3,4,9,10,11],fd:[[[3],'Poignée de compost mûr au pied, griffée en surface.']],
+ x:[[[9,10,11],'Floraison parfumée très mellifère (sept.–nov.) : ne pas tailler maintenant.','soin']],
+ note:'Rustique (≈ −20 °C), résiste au vent, aux embruns et au sec une fois installé ; éviter les sols très calcaires.',
+ g:{q:'Mars (fin d’hiver). Il fleurit de septembre à novembre : tailler au printemps ne coûte donc pas la floraison.',o:OUT+' Taille-haie pour un linéaire important.',
+  e:['Jeunes plants (3 premières années) : raccourcir chaque jeune pousse d’environ un tiers pour obtenir un port compact et bien ramifié.','Sujet libre : au sécateur, couper les rameaux qui dépassent juste au-dessus d’une feuille, puis les branches qui se croisent ou partent vers l’intérieur.','En haie : tailler les côtés puis le dessus ; garder la base un peu plus large que le sommet pour que la lumière atteigne le bas (principe RHS pour les haies).','Variétés panachées : supprimer systématiquement les branches qui repartent entièrement vertes, sinon elles prennent le dessus.','Terminer par un paillage et un peu de compost au pied.'],
+  v:['Tailler pendant la floraison d’automne (on perd les fleurs, très utiles aux abeilles).','Planter serré (80 cm) sans prévoir plusieurs tailles par an : l’espacement conseillé en haie est d’environ 1,50 m.','Planter en sol très calcaire.'],
+  c:[['Arrosage','Régulier les 2 premières années, ensuite très peu : il supporte bien le sec.'],['Fruits','Drupes rouges mûrissant vers avril, comestibles.']],
+  s:[['Gerbeaud — Elaeagnus ebbingei',GBD+'elaeagnus-ebbingei-chalef-de-ebbing,2581.html'],['RHS — Tailler une haie',RHS+'plants/types/hedges/pruning-hedges']]}},
+{id:'laurier-tin',n:'Laurier-tin',l:'Viburnum tinus',t:'haie',e:'🌿',w:0,s:'Soleil / mi-ombre',f:'Persistant',h:-15,wp:['Viburnum tinus','Viburnum tinus'],now:3,fut:3,
+ futNote:'Arbuste méditerranéen : à l’aise dans un climat plus chaud et plus sec.',
+ pr:[[[3,4],'Après la floraison : couper juste au-dessus d’une ramification le vieux bois et les rameaux qui déséquilibrent ; raccourcir de moitié les rameaux défleuris (en garder quelques-uns si tu veux les baies).'],[[6],'Seconde taille possible si besoin. Recépage (rabattre à la souche) tous les 2–3 ans pour redonner de la vigueur.']],
+ pl:[3,4,10,11],fd:[[[3],'Compost au pied.']],
+ x:[[[12,1,2],'Floraison hivernale : ne pas tailler.','soin'],[[5,6],'Surveiller l’altise du viorne (feuilles dentelées) : ramasser les larves, savon noir.','traitement']],
+ note:'Floraison blanc-rosé de décembre à avril, baies bleu métallique.',
+ g:{q:'Mars–avril, juste après la floraison. Pas besoin de tailler chaque année : le recépage tous les 2–3 ans suffit à redonner de la vigueur.',o:'Sécateur pour l’entretien, ébrancheur pour les vieilles branches. Outils bien aiguisés (coupes nettes) et désinfectés à l’alcool à brûler.',
+  e:['Couper toujours juste au-dessus d’une ramification.','Au sécateur, supprimer le vieux bois, les branches malades et les rameaux qui déséquilibrent la silhouette ou dégarnissent la base.','Raccourcir de moitié les rameaux qui ont fleuri pour favoriser la ramification (en laisser quelques-uns si tu veux les fruits décoratifs de l’automne).','Rajeunissement : à l’ébrancheur, rabattre les vieilles branches au niveau de la souche. Il supporte très bien les tailles sévères et répétées.'],
+  v:['Tailler sans nécessité : n’intervenir que si c’est utile.','Utiliser des outils émoussés ou non désinfectés.'],
+  c:[['Arrosage','Peu exigeant une fois installé ; arroser les 2 premiers étés.'],['Surveillance','Altise du viorne en juin : larves qui perforent les feuilles ; savon noir ou ramassage.']],
+  s:[['Promesse de Fleurs — Comment tailler le laurier-tin',PDF+'tutoriel/comment-tailler-le-laurier-tin/']]}},
+{id:'troene',n:'Troène',l:'Ligustrum',t:'haie',e:'🌿',w:0,s:'Soleil / mi-ombre',f:'Semi-persistant',h:-20,wp:['Troène','Ligustrum ovalifolium'],now:2,fut:2,
+ futNote:'Préfère un sol frais mais tient le sec une fois enraciné ; un paillage épais suffit.',
+ pr:[[[2,3,4],'Avant la reprise de végétation : enlever le bois mort et malade, les branches enchevêtrées ; rabattre de moitié les rameaux pour redensifier une haie dégarnie.'],[[7,8,9],'Taille d’entretien : tailler les côtés puis le dessus. Haie formelle : 2 à 3 passages pendant la saison de pousse.']],
+ pl:[3,4,10,11],fd:[[[3],'Compost ou fumier bien décomposé, chaque année.']],x:[],
+ note:'Supporte les tailles répétées. Pollen allergisant à la floraison (juin).',
+ g:{q:'Février–avril (avant la reprise) pour structurer et rajeunir ; juillet–septembre pour l’entretien courant.',o:'Cisaille ou taille-haie bien affûté, sécateur pour le bois mort.',
+  e:['Supprimer d’abord le bois mort, malade ou enchevêtré au sécateur.','Rajeunissement : rabattre les rameaux de moitié pour faire repartir la base.','Haie : tailler les côtés puis le dessus en gardant la base légèrement plus large que le sommet.','Avant chaque passage, vérifier l’absence de nids (nidification de mars à août).'],
+  v:['Tailler en pleine floraison si tu veux garder les grappes (il fleurit sur le bois de l’année).','Laisser des branches mortes ou entremêlées au centre.'],
+  c:[['Arrosage','Arroser après plantation et pailler ; une fois installé il résiste au sec mais préfère un sol frais.'],['Engrais','Un apport annuel de compost ou de fumier, au printemps ou dès l’automne.']],
+  s:[['Promesse de Fleurs — Troène',PDF+'fichefamille/troene-ligustrum-planter-tailler-entretenir/'],['RHS — Tailler une haie',RHS+'plants/types/hedges/pruning-hedges']],th:1}},
+{id:'photinia',n:'Photinia ‘Red Robin’',l:'Photinia × fraseri',t:'haie',e:'🍂',w:0,s:'Soleil / mi-ombre',f:'Persistant',h:-15,wp:['Photinia × fraseri','Photinia × fraseri'],now:2,fut:2,
+ futNote:'Résiste bien au sec une fois installé ; les taches du feuillage dépendent surtout de l’humidité de printemps.',
+ pr:[[[7],'Taille en juillet après la floraison : elle déclenche une repousse rouge dès septembre. Jeunes sujets : taille assez franche pour bien ramifier ; sujets formés : égaliser la longueur des branches.']],
+ pl:[3,4,10,11],fd:[[[3],'Un apport annuel au printemps (engrais rosiers/hortensias ou compost).']],
+ x:[[[4,5,6,9,10],'Taches rouges sur feuilles : arroser au pied (pas sur le feuillage), ramasser les feuilles tombées, aérer la haie.','traitement'],[[5,6,7],'Rosacée : si des rameaux brunissent comme brûlés (feu bactérien, frappe le cotonéaster voisin), couper 30 cm sous la zone atteinte, désinfecter l’outil, ne pas composter, prévenir la FREDON.','traitement']],
+ note:'Pousses rouge-bronze décoratives après chaque taille. Éviter les gelées tardives et le vent froid pour les jeunes plants.',
+ g:{q:'Juillet, juste après la floraison. Des coupes répétées donnent régulièrement de jeunes feuilles rouges (en haie).',o:OUT+' Taille-haie pour une haie.',
+  e:['Jeunes sujets : tailler assez sévèrement pour obtenir une bonne ramification.','Sujets formés : il suffit d’égaliser la longueur des branches.','Haie : la laisser libre une moitié de l’année pour profiter de la floraison, puis modeler à volonté.','Pour une nouvelle vague rouge : un deuxième passage léger est possible plus tard dans la saison.'],
+  v:['Planter en ombre franche (floraison réduite).','Exposer les jeunes plants aux vents froids et gelées tardives.','Faire une haie 100 % photinia sans persistants variés (aspect sombre vu de loin, d’après Gerbeaud).'],
+  c:[['Arrosage','Très résistant au sec une fois installé ; paillage au pied (écorces, compost fibreux).'],['Engrais','Un apport annuel au printemps en pleine terre.'],['Santé','Gerbeaud le dit « pratiquement insensible » aux maladies ; en climat humide, les taches rouges du feuillage restent fréquentes en pratique : ramasse les feuilles tombées.']],
+  s:[['Gerbeaud — Photinia',GBD+'photinia.php3'],['DRAAF/FREDON — Feu bactérien (cotonéaster cité, photinia non cité)','https://draaf.pays-de-la-loire.agriculture.gouv.fr/IMG/pdf/2021-11_fiche_info_feu_bacterien_draaf_fredon_nouvelle_aquitaine.pdf']]}},
+{id:'charmille',n:'Charmille',l:'Carpinus betulus',t:'haie',e:'🌿',w:1,s:'Soleil / mi-ombre',f:'Caduc (marcescent)',h:-25,wp:['Charme commun','Carpinus betulus'],now:3,fut:2,
+ futNote:'Aime la fraîcheur : paillage et arrosage des 2 premières années indispensables ; supportera moins bien les étés très secs sur sol léger.',
+ pr:[[[8,9],'Taille de la haie en fin d’été : côtés puis dessus, base un peu plus large que le sommet.'],[[11,12,1],'Taille de structure ou rabattage hors gel, de préférence avant la montée de sève (le charme « saigne » si on le coupe au printemps).']],
+ pl:[11,12,1,2,3],fd:[[[3],'Compost.']],
+ x:[[[12,1,2],'Les feuilles sèches restent sur la haie en hiver : c’est normal (marcescence).','soin']],
+ note:'Haie champêtre dense, très rustique. Arroser la 1ʳᵉ et la 2ᵉ année.',
+ g:{q:'Une fois par an de mi à fin d’été (référence RHS pour une haie formelle de charme) ; rabattage éventuel en hiver hors gel.',o:'Taille-haie ou cisaille bien affûtée ; sécateur pour le bois mort.',
+  e:['Jeune haie : en hiver, juste après la plantation puis l’hiver suivant, raccourcir les pousses verticales d’environ un tiers, au-dessus d’un bourgeon.','Haie en place : tailler d’abord les côtés, en inclinant légèrement les faces (base plus large), puis le dessus.','Vérifier l’absence de nids avant d’intervenir.','Rajeunissement : le charme repart du vieux bois, on peut réduire fortement en hiver.'],
+  v:['Tailler au printemps en pleine montée de sève (écoulement de sève).','Laisser une haie jeune sans arrosage les 2 premières années.'],
+  c:[['Arrosage','Régulier les 2 premières années, avec paillage.'],['Feuillage','Marcescent : les feuilles sèches restent en hiver, c’est normal.']],
+  s:[['RHS — Tailler une haie',RHS+'plants/types/hedges/pruning-hedges'],['RHS — Saignement de sève',RHS+'pruning/bleeding-from-cuts']],th:1}},
+{id:'lonicera',n:'Lonicera arbustif',l:'Lonicera nitida (à confirmer)',t:'haie',e:'🌿',w:0,s:'Soleil / mi-ombre',f:'Persistant',h:-15,wp:['Lonicera nitida','Lonicera nitida'],now:2,fut:2,
+ futNote:'Tolère le sec une fois installé ; apprécie un paillage les étés très chauds.',
+ pr:[[[4,9],'Tailler 2 à 3 fois par an (avril puis septembre pour le nitida) : raccourcir les pousses, enlever le vieux bois.']],
+ pl:[3,4,10,11],fd:[],x:[],
+ note:'Si c’est L. fragrantissima (chèvrefeuille d’hiver) : tailler seulement après floraison, en mars.',
+ g:{q:'Avril et septembre pour le L. nitida (2 à 3 passages par an en haie). Si c’est un Lonicera fragrantissima : seulement après la floraison hivernale.',o:'Cisaille ou taille-haie, sécateur pour le vieux bois.',
+  e:['Raccourcir les pousses au rendu souhaité (topiaire stricte ou forme plus libre).','Éliminer le vieux bois et les rameaux secs.','Après la coupe, les rameaux grêles font une masse un peu hirsute pendant quelques semaines : c’est normal.'],
+  v:['Tailler trop souvent si tu veux des baies (elles disparaissent).','Confondre nitida et fragrantissima : vérifier l’espèce avant de tailler.'],
+  c:[['Arrosage','Régulier les 2 premières années.'],['Santé','Très peu sensible aux maladies et ravageurs.']],
+  s:[['Promesse de Fleurs — Chèvrefeuille arbustif',PDF+'fichefamille/chevrefeuille-arbustif-planter-tailler-et-entretenir/']],th:1}},
+{id:'abelia',n:'Abélia',l:'Abelia × grandiflora',t:'arbuste',e:'🌸',w:0,s:'Soleil',f:'Semi-persistant',h:-12,wp:['Abelia × grandiflora','Abelia × grandiflora'],now:3,fut:3,
+ futNote:'Résiste à la sécheresse une fois installé et adore la chaleur : gagnant du réchauffement.',
+ pr:[[[3,4],'Fin d’hiver : la taille n’est pas indispensable ; enlever bois mort, gelé et branches mal orientées. Taille plus franche seulement tous les 3–4 ans si l’arbuste s’emmêle.']],
+ pl:[4,5,9,10],fd:[[[4],'Compost ou engrais floraison.']],
+ x:[[[6,7,8,9,10],'Floraison de juin à octobre : retirer les tiges défleuries pour prolonger.','soin'],[[11,12],'Pailler le pied les 2 premiers hivers.','protection']],
+ note:'Fleurs rose pâle parfumées, très appréciées des pollinisateurs.',
+ g:{q:'Fin d’hiver (mars–avril), après les derniers gros froids.',o:'Sécateur propre.',
+  e:['Repérer et couper à la base le bois mort ou abîmé par le gel.','Supprimer les branches mal orientées ou qui se croisent.','Tous les 3–4 ans environ, si besoin, tailler plus franchement pour renouveler (RHS : taille sévère possible).'],
+  v:['Tailler en été ou à l’automne (on retire des fleurs ou on expose à un nouveau gel).','Sol mal drainé ou ombre épaisse.'],
+  c:[['Arrosage','Résistant à la sécheresse une fois installé ; garder le sol frais sans excès à la reprise.'],['Rusticité','≈ −12 °C : plus à l’aise au pied d’un mur ensoleillé.']],
+  s:[['Gerbeaud — Abelia',GBD+'abelia.php'],['RHS — Abelia × grandiflora',RHS+'plants/100036/i-abelia-i-%C3%97-i-grandiflora-i/details']],th:1}},
+{id:'buddleia',n:'Arbre à papillons',l:'Buddleja davidii',t:'arbuste',e:'🦋',w:0,s:'Soleil',f:'Caduc',h:-20,wp:['Buddleja davidii','Buddleja davidii'],now:3,fut:3,
+ futNote:'Pousse même en terrain pauvre et sec, aime la chaleur.',
+ pr:[[[3],'Taille sévère de fin d’hiver : rabattre les rameaux de l’an dernier à environ 5 cm du vieux bois, au-dessus d’une fourche ou de deux yeux opposés ; raccourcir à 40–50 cm les tiges qui partent du sol.'],[[5,6],'Seconde taille facultative : couper de moitié les jeunes pousses pour prolonger la floraison.'],[[7,8,9],'Couper régulièrement les panicules fanées.']],
+ pl:[3,4,10,11],fd:[[[3],'Compost, peu d’azote.']],x:[],
+ note:'Peut se ressemer abondamment : supprimer les fleurs fanées.',
+ g:{q:'Mars (taille d’hiver). Facultatif : seconde taille en mai–juin pour prolonger la floraison.',o:'Sécateur ; scie d’élagage à main pour les vieilles branches de forte section.',
+  e:['Rabattre les rameaux de l’année précédente à environ 5 cm du vieux bois.','Couper au-dessus d’une fourche ou de deux yeux opposés : on obtient deux départs au lieu d’un.','Tiges qui partent directement du sol : les raccourcir fortement, à 40–50 cm.','En mai–juin (optionnel), couper de moitié les jeunes pousses.','Sujet âgé : scier les grosses branches quand une tige jeune et vigoureuse part de la base dans la même direction.','Pendant la floraison, retirer les fleurs fanées.'],
+  v:['Ne pas tailler du tout : le port devient dégingandé, la floraison diminue.','Laisser monter en graines (ressemis abondants).'],
+  c:[['Arrosage','Peu exigeant, supporte le sec.'],['Engrais','Compost ; trop d’azote donne du feuillage au détriment des fleurs.']],
+  s:[['Gerbeaud — Taille du buddleia',GBD+'buddleia-taille.php'],['Promesse de Fleurs — 12 arbustes pour sol sec (le buddleia y figure)',PDF+'ficheconseil/12-arbustes-pour-sol-sec-ou-filtrant/']]}},
+{id:'millepertuis',n:'Millepertuis',l:'Hypericum',t:'arbuste',e:'🌼',w:0,s:'Soleil / mi-ombre',f:'Semi-persistant',h:-15,wp:['Millepertuis','Hypericum calycinum'],now:3,fut:3,
+ futNote:'Tient un mois d’été sans arrosage une fois installé ; surveiller la rouille par temps chaud et humide.',
+ pr:[[[3,4,10,11],'Contenir le millepertuis, qui s’étend vite : tailler en mars–avril ou en octobre–novembre ; raccourcir d’un tiers à la moitié pour un port dense.']],
+ pl:[3,4,10,11],fd:[[[3],'Compost.']],
+ x:[[[6,7,8],'Rouille (pustules orangées sous les feuilles, chaleur + humidité) : ramasser et jeter à la poubelle les feuilles malades.','traitement']],
+ note:'Floraison jaune de juin à septembre, très peu exigeant.',
+ g:{q:'Mars–avril ou octobre–novembre (Gerbeaud).',o:'Sécateur ou cisaille.',
+  e:['Raccourcir les tiges d’un tiers à la moitié pour garder un port dense (repère général).','Contenir l’extension, surtout en massif.','Ramasser les feuilles malades au pied.'],
+  v:['Le laisser s’étendre sans contrôle.','Oublier d’arroser un sujet en pot.'],
+  c:[['Arrosage','Pas besoin d’arrosage une fois installé (sauf en pot) ; il peut rester un mois d’été sans eau.'],['Rouille','H. calycinum et H. × inodorum y sont sensibles par temps chaud et humide : ramasser les feuilles malades.']],
+  s:[['Gerbeaud — Millepertuis',GBD+'millepertuis.php3']],th:1}},
+{id:'cotoneaster',n:'Cotonéaster',l:'Cotoneaster',t:'arbuste',e:'🍒',w:0,s:'Soleil / mi-ombre',f:'Selon variété',h:-20,wp:['Cotoneaster','Cotoneaster horizontalis'],now:3,fut:3,
+ futNote:'Supporte bien le sec ; surtout à surveiller pour le feu bactérien.',
+ pr:[[[2,3],'Années 1–2 : taille de formation en février. Ensuite taille légère de fin d’hiver, après avoir profité des baies : raccourcir les branches trop longues.']],
+ pl:[3,4,10,11],fd:[],
+ x:[[[5,6,7],'Hôte du feu bactérien : rameaux brunis « comme brûlés », crosse en bout de pousse → couper bien en dessous de la zone atteinte, désinfecter l’outil, brûler les déchets, prévenir la FREDON.','traitement']],
+ note:'Baies rouges appréciées des oiseaux en automne-hiver.',
+ g:{q:'Février pour la formation des 2 premières années ; ensuite fin d’hiver, après la période des baies (RHS : tailler après fructification).',o:OUT,
+  e:['Années 1 et 2 : taille de formation en février pour structurer.','Ensuite : raccourcir les branches trop longues et enlever le bois mort.','Après chaque coupe, désinfecter l’outil (alcool) si tu soupçonnes le feu bactérien.'],
+  v:['Tailler avant la chute des baies si tu veux nourrir les oiseaux.','Composter des rameaux suspects de feu bactérien : les brûler.'],
+  c:[['Arrosage','Par temps sec l’année qui suit la plantation, pour l’enracinement.'],['Feu bactérien','Le cotonéaster figure parmi les hôtes cités par la fiche DRAAF/FREDON : surveiller les pousses brunies en crosse, surtout après orage ou grêle ; pas de traitement curatif.']],
+  s:[['Gerbeaud — Cotoneaster',GBD+'cotoneaster.php'],['DRAAF/FREDON — Fiche feu bactérien','https://draaf.pays-de-la-loire.agriculture.gouv.fr/IMG/pdf/2021-11_fiche_info_feu_bacterien_draaf_fredon_nouvelle_aquitaine.pdf'],['RHS — Tailler une haie',RHS+'plants/types/hedges/pruning-hedges']],th:1}},
+{id:'camelia',n:'Camélia',l:'Camellia japonica',t:'arbuste',e:'🌺',w:1,s:'Mi-ombre',f:'Persistant',h:-12,wp:['Camélia','Camellia japonica'],now:3,fut:2,
+ futNote:'Craint le soleil direct, la sécheresse d’été (chute des boutons) et le calcaire de l’eau : paillage épais et eau de pluie deviennent importants.',
+ pr:[[[3,4],'Pas de taille régulière. Si besoin de remodeler : juste après la floraison (jamais en été-automne : on couperait les boutons). Rajeunissement sévère possible en mars, mais floraison reprise après 2 ans ou plus.']],
+ pl:[10,11,3],fd:[[[3,4],'Engrais terre de bruyère dès le début du printemps ; plus d’engrais après fin juillet.']],
+ x:[[[7,8,9,10],'Les boutons se forment en été : sol toujours frais, arroser au pied (eau de pluie si possible), sinon chute des boutons.','soin'],[[12,1,2],'Fleurs gelées puis frappées par le soleil du matin = brunissement : abriter si possible ; paillis épais avant les grands froids.','protection'],[[3,4,5],'Pailler (écorces, compost) pour garder le sol frais et acide.','soin']],
+ note:'Sol acide (terre de bruyère), pas de calcaire ; planter large et peu profond.',
+ g:{q:'Après la floraison (mars–avril) pour remodeler ; rajeunissement sévère en mars. Taille d’entretien inutile.',o:'Sécateur bien affûté ; scie à main pour un rabattage.',
+  e:['Retirer les fleurs fanées (plus belle floraison, moins de maladies).','Remodeler : raccourcir les branches qui dépassent juste après la floraison.','Rajeunir un vieux sujet : rabattre fortement en mars, en acceptant 2 ans ou plus sans belle floraison.','Pailler après la taille avec des feuilles ou de l’écorce.'],
+  v:['Tailler en été ou en automne (boutons formés dès l’été).','Planter en plein soleil direct, au vent froid, ou dans un sol calcaire.','Laisser l’eau stagner.'],
+  c:[['Arrosage','Régulier les 18 premiers mois ; en été, sol toujours frais, surtout pendant la formation des boutons. Eau de pluie préférable à l’eau dure.'],['Engrais','Engrais spécial terre de bruyère au début du printemps ; rien après fin juillet.'],['Gel','En pot, protéger des gelées ; en pleine terre, pailler avant les grands froids ; voile d’hivernage si besoin.']],
+  s:[['RHS — Camélia (guide de culture)',RHS+'plants/camellia/growing-guide'],['Gerbeaud — Camélia',GBD+'fp_camelia.php3']]}},
+{id:'hortensia',n:'Hortensias',l:'Hydrangea macrophylla',t:'arbuste',e:'💠',w:2,s:'Mi-ombre',f:'Caduc',h:-15,wp:['Hortensia','Hydrangea macrophylla'],now:2,fut:1,
+ futNote:'Le plus gourmand en eau de ton jardin : feuillage brûlé et floraison réduite lors des canicules ; prévoir ombre, paillage épais et arrosage au pied.',
+ alt:['lagerstroemia','vitex','caryopteris'],
+ pr:[[[2,3],'Sortie d’hiver : couper chaque fleur fanée juste au-dessus du dernier bourgeon, enlever le bois mort, couper à ras les plus vieilles branches. Ne pas tout rabattre.']],
+ pl:[10,11,3,4],fd:[[[3],'Engrais hortensia / terre de bruyère.'],[[5],'2ᵉ apport.']],
+ x:[[[11,12,1],'Laisser les fleurs fanées : elles protègent les bourgeons du gel.','protection'],[[6,7,8],'Gros besoin d’eau : arrosage copieux 2 à 3 fois par semaine par forte chaleur, au pied, tôt le matin.','soin']],
+ note:'Très gourmand en eau l’été. Paillage épais conseillé.',
+ g:{q:'À la sortie de l’hiver (février–mars), quand les gros gels sont passés. Les fleurs fanées gardées tout l’hiver protègent les bourgeons.',o:'Sécateur propre ; petite scie ou ébrancheur pour les vieilles branches.',
+  e:['Nettoyer : couper chaque fleur fanée juste au-dessus du dernier bourgeon de la tige ; retirer le bois mort (noirci) et les brindilles les plus faibles.','Renouveler la base : repérer les vieilles branches (plus fortes, plus blanches, très ramifiées) et les couper à ras ; garder les plus jeunes.','Aérer : supprimer certaines tiges à un embranchement, ou juste au-dessus d’une pousse vigoureuse, pour laisser entrer la lumière.'],
+  v:['Rabattre toute la touffe : on perd une année de floraison.','Ne jamais tailler : fleurs plus petites avec le temps.','Seulement raccourcir toutes les branches sans retirer les plus vieilles : la base ne se renouvelle pas.'],
+  c:[['Arrosage','Copieux et régulier l’été, au pied ; paillage épais.'],['Engrais','Engrais hortensia/terre de bruyère au printemps.']],
+  s:[['Gerbeaud — Taille des hortensias',GBD+'hortensia-taille.php3']]}},
+{id:'solanum',n:'Solanum',l:'Solanum jasminoides',t:'grimpante',e:'🤍',w:1,s:'Soleil',f:'Semi-persistant',h:-8,wp:['Solanum laxum','Solanum laxum'],now:2,fut:3,
+ futNote:'Gelées moins fréquentes et étés plus chauds lui conviennent (résiste à la sécheresse estivale).',
+ pr:[[[3,4],'Au printemps, avant la floraison et après les fortes gelées : rabattre fortement les tiges en laissant 3 à 4 bourgeons (≈ 30 cm du sol), enlever vieux rameaux et tiges cassées.']],
+ pl:[4,5],fd:[[[4],'Engrais floraison.']],
+ x:[[[11,12],'Pailler le pied et prévoir un voile d’hivernage si gel annoncé.','protection']],
+ note:'Floraison de juin à octobre. Peut repartir du pied après un gel sévère. Vigoureux : peut devenir envahissant.',
+ g:{q:'Au printemps, avant la floraison ; jamais à l’automne.',o:'Sécateur propre ; échelle ou escabeau stable si palissé en hauteur.',
+  e:['Rabattre fortement les tiges en laissant trois à quatre bourgeons (environ 30 cm du sol).','Supprimer les vieux rameaux et les tiges cassées.','Retirer le bois mort et les branches fragiles.','Rafraîchir la liane en cours de saison pour contrôler la croissance et favoriser la ramification ; repalisser.'],
+  v:['Tailler à l’automne : plante fragilisée avant l’hiver.','Oublier le support : il lui faut un palissage.'],
+  c:[['Sol','Sol ordinaire, ameubli et bien drainé ; résiste à la sécheresse estivale.'],['Hiver','Rustique zones USDA 8–11 ; pailler le pied et voiler en cas de gel fort.']],
+  s:[['Promesse de Fleurs — Tailler le solanum',PDF+'tutoriel/tailler-solanum/']]}},
+{id:'jasmin',n:'Jasmin étoilé',l:'Trachelospermum jasminoides',t:'grimpante',e:'🌼',w:1,s:'Soleil / mi-ombre',f:'Persistant',h:-12,wp:['Trachelospermum jasminoides','Trachelospermum jasminoides'],now:3,fut:3,
+ futNote:'Enracinée, se débrouille seule même en été très sec ; le principal danger reste l’excès d’humidité hivernale.',
+ pr:[[[3,8],'Une fois par an : en fin d’hiver (mars) pour maîtriser son développement, ou après la floraison (août). Raccourcir les tiges, retirer le bois mort.']],
+ pl:[4,5,9,10],fd:[[[3,4],'Engrais floraison.'],[[10],'À partir de la 2ᵉ année : engrais organique à libération lente, griffé au pied.']],
+ x:[[[6,7],'Floraison parfumée ; arroser les jeunes sujets en cas de sécheresse.','soin'],[[12,1],'Jeunes sujets : pailler le pied ; voile d’hivernage si gel très fort, sol plutôt sec.','protection']],
+ note:'Rustique ≈ −12 °C. Les feuilles peuvent rougir puis tomber sous l’effet du froid ou de la sécheresse. Toxique.',
+ g:{q:'Une fois par an : mars, ou après la floraison.',o:'Sécateur ; gants (plante toxique).',
+  e:['Raccourcir les tiges pour maîtriser l’extension.','Retirer le bois mort ou abîmé par le froid.','Repalisser sur le support (arche, mur, treillage) ; ses racines aériennes lui permettent aussi de s’accrocher.'],
+  v:['Sol lourd et asphyxiant (chlorose) ou excès d’humidité en hiver.','Négliger l’arrosage les deux premières années.','Manipuler sans gants : alcaloïdes toxiques.'],
+  c:[['Arrosage','Les 2 premières années, arroser en été ou en période sèche ; ensuite autonome.'],['Gel','≈ −10 à −12 °C : voile d’hivernage contre les gels très forts.']],
+  s:[['Promesse de Fleurs — Jasmin étoilé',"https://www.promessedefleurs.com/grimpantes/grimpantes-par-variete/trachelospermum/jasmin-etoile-trachelospermum-jasminoides.html"]],th:1}},
+{id:'vigne-vierge',n:'Vigne vierge',l:'Parthenocissus',t:'grimpante',e:'🍁',w:0,s:'Tous types',f:'Caduc',h:-25,wp:['Vigne vierge','Parthenocissus quinquefolia'],now:3,fut:3,
+ futNote:'Supporte très bien la sécheresse, aucune inquiétude.',
+ pr:[[[2,3],'Tailler pour dégager fenêtres, gouttières, toiture et volets.'],[[7,8],'Deuxième passage : contenir la croissance (jusqu’à 15 m !).']],
+ pl:[10,11,3],fd:[],x:[],
+ note:'Rouge flamboyant à l’automne. Très envahissante : surveiller gouttières, tuiles, volets.',
+ g:{q:'Deux fois par an : février–mars et juillet–août.',o:'Sécateur, ébrancheur, échelle stable ; gants.',
+  e:['Dégager gouttières, tuiles, volets et fenêtres : couper les tiges au ras de la zone à protéger.','Pincer ou couper les tiges volubiles mal orientées.','Rabattre ce qui dépasse l’espace prévu : la plante accepte la taille en toute saison.'],
+  v:['La laisser entrer dans les gouttières et sous les tuiles.','La mettre sur un mur en mauvais état.'],
+  c:[['Arrosage','Aucun une fois installée.'],['Vigueur','Croissance rapide, très envahissante ; ses vrilles à ventouses s’accrochent à tout support.']],
+  s:[['Promesse de Fleurs — Vigne vierge',"https://www.promessedefleurs.com/grimpantes/grimpantes-par-variete/vigne-vierge/vigne-vierge-parthenocissus-quinquefolia.html"]]}},
+{id:'lierre',n:'Lierre grimpant',l:'Hedera helix',t:'grimpante',e:'🌱',w:0,s:'Ombre / mi-ombre',f:'Persistant',h:-25,wp:['Hedera helix','Hedera helix'],now:3,fut:3,
+ futNote:'Très résistant, même au sec une fois installé ; refuge utile pour la faune.',
+ pr:[[[2,3,4],'Fin d’hiver–début de printemps : rabattre sans crainte (il repart sur le vieux bois), limiter hauteur et épaisseur. Vérifier l’absence de nids avant.']],
+ pl:[3,4,9,10],fd:[],
+ x:[[[9,10,11],'Floraison tardive très mellifère, baies pour les oiseaux en hiver : éviter de tailler.','soin']],
+ note:'Refuge pour la faune. Ne pas le laisser atteindre gouttières et toitures.',
+ g:{q:'Fin d’hiver ou début de printemps (Gerbeaud) ; mi-printemps pour couper les pousses en excès (RHS).',o:'Sécateur, cisaille ; manches longues et gants (peut irriter la peau).',
+  e:['Limiter la hauteur et l’épaisseur : rabattre jusqu’au bois si nécessaire.','Dégager gouttières, toitures, volets.','Panaché : supprimer dès qu’elles apparaissent les pousses qui reviennent entièrement vertes.','Jeunes plants : les guider pour qu’ils s’accrochent à leur support.'],
+  v:['Amender à la plantation (terreau, fumure, engrais, terre de bruyère).','Le laisser monter sur gouttière ou toiture.','Tailler en dehors de la période conseillée ou pendant la nidification (mars–août) sans contrôle des nids.'],
+  c:[['Arrosage','Éviter les sols gorgés d’eau ; arroser au pied, pas sur le feuillage.'],['Faune','Floraison tardive très mellifère, abri permanent pour oiseaux et insectes.']],
+  s:[['Gerbeaud — Lierres décoratifs',GBD+'lierres-decoratifs.php'],['RHS — Lierre (guide de culture)',RHS+'plants/ivy/growing-guide']]}},
+{id:'nandina',n:'Nandina',l:'Nandina domestica',t:'arbuste',e:'🍂',w:0,s:'Soleil / mi-ombre',f:'Persistant',h:-12,wp:['Nandina domestica','Nandina domestica'],now:3,fut:3,
+ futNote:'Sobre, apprécie la chaleur ; seule limite : jeune sujet par gel fort.',
+ pr:[[[3,4],'Fin d’hiver : couper à la base un tiers des plus vieilles tiges (à 2–5 cm du sol), enlever le bois mort, éclaircir. Pas de taille « en boule ».']],
+ pl:[3,4,9,10],fd:[[[3],'Compost.']],
+ x:[[[12,1,2],'Gel fort : protéger les jeunes sujets (le feuillage rougit en hiver : normal).','protection']],
+ note:'Baies rouges persistantes. Toxique en cas d’ingestion (animaux, enfants).',
+ g:{q:'Mars–avril, avant le redémarrage. Taille légère possible à la fin de l’été après la floraison. Jamais pendant les gels.',o:'Sécateur propre et bien affûté ; scie d’élagage pour les tiges épaisses ; gants.',
+  e:['Éliminer le bois mort : couper les tiges sèches ou abîmées à leur base.','Repérer les anciennes tiges, plus épaisses et plus foncées, souvent dégarnies à la base.','En couper environ un tiers, à 2 à 5 cm du sol.','Éclaircir si la touffe est dense : retirer à la base les tiges qui se croisent ou poussent vers l’intérieur.','Raccourcir les tiges trop longues juste au-dessus d’un nœud orienté vers l’extérieur ; garder des hauteurs variées.','Variétés naines : retirer seulement les tiges sèches ou mal orientées.','Nettoyer le pied et pailler (feuilles mortes, compost mûr, BRF).'],
+  v:['Tailler pendant une période de gel.','Couper toutes les tiges d’un coup (limite : un tiers).','Intervenir trop souvent : croissance lente.'],
+  c:[['Arrosage','Modéré si la terre est sèche, surtout au redémarrage par temps doux.']],
+  s:[['Promesse de Fleurs — Tailler le nandina',PDF+'tutoriel/comment-tailler-nandina-bambou-sacre/']]}},
+{id:'acer-freemanii',n:'Érable de Freeman',l:'Acer × freemanii',t:'arbre',e:'🍁',w:1,s:'Soleil',f:'Caduc',h:-30,wp:['Acer × freemanii','Acer × freemanii'],now:3,fut:2,
+ futNote:'Aime les sols frais ; les étés de plus en plus secs imposent paillage et arrosages profonds les premières années.',
+ pr:[[[11,12],'Après la chute des feuilles et avant janvier : seulement du bois mort, des branches croisées ou mal formées. Évite la fin d’hiver et le printemps (saignement de sève).']],
+ pl:[10,11,12,1,2,3],fd:[[[3],'Compost au pied.']],
+ x:[[[3,4,5],'Pailler au pied (sans toucher le tronc) et tuteurer les jeunes sujets.','soin']],
+ note:'Coloration orange-rouge à l’automne. Maintenir le sol humide les 2 premiers étés.',
+ g:{q:'En dormance, après la chute des feuilles et avant janvier (règle RHS pour limiter le saignement des érables).',o:'Sécateur, scie d’élagage ; échelle stable.',
+  e:['Retirer le bois mort et les branches mal formées ou qui se croisent.','Garder une charpente aérée : peu de coupes mais nettes.','Ne pas appliquer de mastic ni bander la plaie : laisser cicatriser à l’air (RHS).'],
+  v:['Tailler de la fin de l’hiver au printemps : écoulement de sève.','Coupes sévères inutiles.'],
+  c:[['Arrosage','Sol humide pendant les deux premiers étés ; tuteurs posés dès la plantation.'],['Plantation','Automne de préférence.']],
+  s:[['Promesse de Fleurs — Érables',PDF+'fichefamille/erables-planter-tailler-entretenir/'],['RHS — Saignement de sève',RHS+'pruning/bleeding-from-cuts']],th:1}},
+{id:'erable-japonais',n:'Érable du Japon',l:'Acer palmatum',t:'arbre',e:'🍁',w:2,s:'Mi-ombre abritée',f:'Caduc',h:-20,wp:['Acer palmatum','Acer palmatum'],now:2,fut:1,
+ futNote:'Feuillage brûlé par soleil + vent + sécheresse : sera de plus en plus sensible aux canicules ; ombre de l’après-midi, paillage épais, arrosage soutenu.',
+ alt:['cercis','acer-monspessulanum','cornus-mas'],
+ pr:[[[11,12],'Taille minimale en dormance, après la chute des feuilles : bois mort, branches croisées, pousses en surnombre, en douceur.'],[[7,8],'Bois mort : plus facile à repérer en feuilles — seule exception à la règle novembre–mars.']],
+ pl:[10,11,3],fd:[[[3],'Engrais organique léger.']],
+ x:[[[6,7,8],'Protéger du soleil brûlant et du vent, arrosage régulier ; en pot, arroser tous les jours en canicule.','soin']],
+ note:'Feuillage fragile : brûlures si soleil + vent + sécheresse. Armillaire = ennemi n°1 (sols lourds).',
+ g:{q:'Novembre à mars (Gerbeaud), idéalement juste après la chute des feuilles et avant janvier (RHS). Seule exception : retirer le bois mort en été.',o:'Sécateur très propre ; scie fine pour un rare gros rameau.',
+  e:['Repérer le bois mort (plus facile en feuilles) et le couper à sa base.','En dormance, supprimer en douceur les pousses en surnombre ou mal placées, les branches croisées.','S’arrêter là : l’intervention est épisodique, souvent inutile pendant plusieurs années.'],
+  v:['Tailler de février à avril (saignement de sève).','Planter trop serré (prévoir 1 à 3 m) ou dans une terre compacte, détrempée ou calcaire.','Exposer au plein soleil ou au vent froid.'],
+  c:[['Arrosage','Très sensible au manque d’eau, surtout en bac ; craint aussi le sol détrempé.'],['Armillaire','La plus grave maladie : dessèchement rapide en sols lourds riches en matière organique mal décomposée.'],['Gel','Abriter des vents froids et des gelées de printemps qui brûlent les jeunes feuilles.']],
+  s:[['Gerbeaud — Érable du Japon',GBD+'erable_du_japon.php3'],['RHS — Saignement de sève',RHS+'pruning/bleeding-from-cuts']]}},
+{id:'ginkgo',n:'Ginkgo biloba',l:'Ginkgo biloba',t:'arbre',e:'🍂',w:0,s:'Soleil',f:'Caduc',h:-30,wp:['Ginkgo biloba','Ginkgo biloba'],now:3,fut:3,
+ futNote:'Extrêmement tolérant (chaleur, sécheresse, pollution) : un des meilleurs paris à long terme.',
+ pr:[],pl:[10,11,3,4],fd:[],x:[],
+ note:'Pas de taille. Craint surtout l’humidité stagnante. Arbre mâle = pas d’odeur de fruits.',
+ g:{q:'Pas de taille régulière : il ne l’apprécie pas.',o:'—',
+  e:['Retirer seulement une branche morte ou cassée, proprement.','Planter au printemps après les gels (mars–avril) ou début octobre.','Trou deux fois plus large et profond que la motte ; ameublir le fond (racine pivotante) ; compost mûr, un peu de sable si compact.','Après plantation : environ 10 L d’eau, puis paillage.'],
+  v:['Tailler sans nécessité (plaies inutiles, structure déséquilibrée).','Sol qui retient l’eau en hiver.','Choisir un pied femelle (odeur de beurre rance des ovules).'],
+  c:[['Arrosage','Humidité modérée au pied les premières années ; paillage ; arroser de temps en temps seulement si l’été est très sec.'],['Sanitaire','Aucune maladie ni ravageur connus.']],
+  s:[['Promesse de Fleurs — Ginkgo biloba',PDF+'fichefamille/ginkgo-biloba-arbre-aux-quarante-ecus-plantation-entretien-et-utilisation/']]}},
+{id:'frene',n:'Frêne',l:'Fraxinus',t:'arbre',e:'🌳',w:1,s:'Soleil / mi-ombre',f:'Caduc',h:-30,wp:['Frêne élevé','Fraxinus excelsior'],now:1,fut:1,
+ futNote:'Double peine : chalarose (champignon qui tue les frênes) et sécheresse (résistance « moyenne »). Pas de remplacement urgent, mais ne replante pas de frêne.',
+ alt:['quercus-pyrenaica','celtis','tilia-tomentosa'],
+ pr:[[[11,12,1,2],'Taille légère hors fortes gelées : aérer le centre du houppier, retirer le bois mort. Coupes sévères à éviter.']],
+ pl:[11,12,1,2,3],fd:[],
+ x:[[[7,8,9],'Chalarose : flétrissement des feuilles du houppier, rameaux nécrosés, cime qui se dégarnit. Aucun traitement ; surveiller et faire expertiser si l’arbre dépérit près d’un passage.','traitement']],
+ note:'La chalarose touche fortement l’espèce en France. Pollen allergisant.',
+ g:{q:'Janvier–février, mai–août ou novembre–décembre, une fois par an maximum ; éviter fortes gelées, débourrement et chute des feuilles.',o:'Sécateur, scie d’élagage ou élagueur pour un grand arbre.',
+  e:['Retirer le bois mort et les branches cassées (possible en fin de printemps, quand les feuilles sont sorties).','Aérer le centre du houppier et limiter la couronne environ tous les 3 ans, seulement si l’arbre devient trop volumineux.','Couper de préférence de petits diamètres.'],
+  v:['Coupes sévères répétées.','Planter un jeune frêne là où la chalarose est présente (plantations compromises selon la FREDON).'],
+  c:[['Arrosage','Arroser régulièrement l’été suivant la plantation, puis protéger des sécheresses prolongées pendant un an de plus ; paillage.'],['Chalarose','Champignon (Hymenoscyphus fraxineus) : flétrissements, nécroses, rameaux atteints, risque de mort si le collet est infecté. La FREDON indique que les coupes sont inefficaces.']],
+  s:[['Promesse de Fleurs — Frêne commun','https://www.promessedefleurs.com/arbustes/arbustes-par-variete/frene-fraxinus/fraxinus-excelsior-frene-commun.html'],['FREDON — La chalarose du frêne','https://www.fredon.fr/cvl/sites/default/files/La%20Chalarose%20du%20fr%C3%AAne.pdf']]}},
+{id:'bouleau',n:'Bouleau',l:'Betula',t:'arbre',e:'🌳',w:1,s:'Soleil',f:'Caduc',h:-30,wp:['Bouleau verruqueux','Betula pendula'],now:2,fut:1,
+ futNote:'Racines superficielles, feuilles jaunies dès l’été chaud : de plus en plus stressé. Arrosage les 3 premières années puis surveillance.',
+ alt:['cercis','sorbus-torminalis','acer-monspessulanum'],
+ pr:[[[11,12],'Adulte : aucune taille, seulement branches abîmées ou malades, en début d’hiver. Jeune : relever la couronne jusqu’à ≈ 2 m en début-milieu d’hiver. Jamais en fin d’hiver (sève).']],
+ pl:[11,12,1,2,3],fd:[],
+ x:[[[6,7,8],'Feuilles jaunies précocement = stress hydrique : arrosage profond des jeunes sujets, paillage.','soin']],
+ note:'Racines traçantes : loin des canalisations et terrasses. Pollen très allergisant.',
+ g:{q:'Début d’hiver pendant la dormance ; éviter toute taille de fin d’hiver (la sève « pleure » de janvier à juillet).',o:'Sécateur ou scie d’élagage propre.',
+  e:['Adulte : retirer seulement les branches abîmées ou malades.','Jeune arbre : relever progressivement la couronne jusqu’à environ 2 m pour dégager le tronc.','Ne pas poser de mastic ni de bandage sur les plaies : laisser à l’air.'],
+  v:['Tailler au printemps ou en fin d’hiver (saignement important).','Taille sévère.','Planter près d’une canalisation ou d’une terrasse.'],
+  c:[['Arrosage','Régulier la 1ʳᵉ année, puis en périodes sèches pendant 3 ans ; paillis d’au moins 5 cm sans toucher le tronc.'],['Santé','Dépérissement : armillaire, phytophthora ; jaunissement et chute précoce en été chaud et sec.']],
+  s:[['RHS — Bouleau',RHS+'plants/birch/how-to-grow-birch'],['Gerbeaud — Bouleau',GBD+'bouleau.php']]}},
+{id:'sapin-nordmann',n:'Sapin Nordmann',l:'Abies nordmanniana',t:'arbre',e:'🌲',w:1,s:'Soleil / mi-ombre',f:'Persistant',h:-25,wp:['Sapin de Nordmann','Abies nordmanniana'],now:2,fut:1,
+ futNote:'Conifère de montagne (Caucase) : sensible à la chaleur et à la sécheresse ; à surveiller.',
+ alt:['quercus-ilex','quercus-pubescens','celtis'],
+ pr:[],pl:[10,11,3,4],fd:[[[3,4],'Compost ou engrais conifères léger.']],
+ x:[[[6,7,8,9],'Sensible à la sécheresse les premières années : paillage + arrosage profond ; surveiller pucerons/adelgides et aiguilles jaunies.','soin']],
+ note:'Ne se taille pas (ne repart pas sur le vieux bois).',
+ g:{q:'Aucune taille nécessaire (RHS).',o:'—',
+  e:['Retirer seulement une flèche concurrente ou une branche morte.','Pailler au pied et maintenir le sol frais mais drainé.'],
+  v:['Étêter ou tailler dans le vif : il ne repart pas.','Sol détrempé ou compact.'],
+  c:[['Sol','Frais mais bien drainé, légèrement acide à neutre ; plein soleil, abrité.'],['Problèmes','Pucerons et adelgides ; sensible à l’armillaire.']],
+  s:[['RHS — Abies nordmanniana',RHS+'plants/53/abies-nordmanniana/details'],['Gerbeaud — Replanter un sapin en pot',GBD+'replanter-sapin-de-noel-en-pot,2723.html']],th:1}},
+{id:'mimosa',n:'Mimosa',l:'Acacia dealbata',t:'arbre',e:'🌼',w:0,s:'Plein soleil, abrité',f:'Persistant',h:-9,wp:['Acacia dealbata','Acacia dealbata'],now:2,fut:3,
+ futNote:'Hivers plus doux = moins de risque de gel ; sol acide à neutre et abri du vent froid restent essentiels.',
+ pr:[[[4],'En avril, une fois le risque de gel passé, après la floraison : raccourcir les rameaux fleuris à 2–3 bourgeons sous les fleurs fanées, enlever bois mort et branches abîmées par le gel. Ne pas couper la flèche d’un jeune arbre.']],
+ pl:[4,5],fd:[],
+ x:[[[11,12,1,2],'Rustique ≈ −8 à −10 °C : paillis épais (30–50 cm) au pied, voile d’hivernage dès −5 °C.','protection']],
+ note:'Sol non calcaire, bien drainé, à l’abri du vent frais. Durée de vie courte (15–25 ans), drageons possibles. Ne pas fertiliser à la plantation.',
+ g:{q:'Avril, quand le risque de gel est passé (RHS), après la floraison.',o:'Sécateur, scie d’élagage ; échelle stable.',
+  e:['Adulte : taille minimale — retirer bois mort, malade ou abîmé, branches mal placées.','Fleurs fanées : raccourcir les rameaux latéraux à deux ou trois bourgeons sous les fleurs.','Éclaircir si la ramure est très dense.','Gel tardif : retirer les branches abîmées (une taille supplémentaire peut être nécessaire).'],
+  v:['Couper la flèche centrale d’un jeune arbre.','Tailler fortement un sujet adulte non drageonnant (l’A. dealbata, lui, drageonne et peut repartir).','Tailler avant la fin du risque de gel.'],
+  c:[['Hiver','Paillis de 30–50 cm sur 60–80 cm de diamètre au pied ; voile d’hivernage en deux épaisseurs dès −5 °C.'],['Sol','Drainé, plutôt sableux ; craint argile lourde et calcaire.'],['Plantation','Tuteur installé avant l’arbre ; pas d’engrais à la plantation ; ne pas casser la motte.']],
+  s:[['RHS — Taille de l’acacia',RHS+'plants/acacia/pruning-guide'],['Gerbeaud — Mimosa',GBD+'fp_mimosa.php3']]}},
+{id:'lilas',n:'Lilas',l:'Syringa vulgaris',t:'arbre',e:'💜',w:0,s:'Plein soleil',f:'Caduc',h:-30,wp:['Lilas commun','Syringa vulgaris'],now:3,fut:2,
+ futNote:'Très rustique, apprécie le calcaire ; supporte le sec mais les étés caniculaires fatiguent le feuillage.',
+ pr:[[[5,6],'Juste après la floraison : couper les fleurs fanées sous l’inflorescence, éclaircir, enlever le bois mort ; garder les meilleurs rejets du pied.']],
+ pl:[10,11,3],fd:[[[3],'Compost mûr.']],x:[],
+ note:'Floraison sur le bois de l’année précédente : ne pas tailler trop sévèrement. Aime les sols neutres à calcaires.',
+ g:{q:'Juste après la floraison (mai–juin). Rajeunissement plus sévère possible en mars (conseil de forum Gerbeaud).',o:'Sécateur propre, ébrancheur pour le vieux bois.',
+  e:['Couper les fleurs fanées juste sous l’inflorescence : deux petits bourgeons apparaissent et portent les fleurs de l’année suivante.','Enlever le bois mort ou dépérissant.','Rajeunissement : supprimer progressivement les plus vieux bois à la base ; les jeunes pousses prennent le relais.','Garder les rejets les plus vigoureux au pied plutôt que de tout couper.'],
+  v:['Tailler en hiver ou avant la floraison (on perd les fleurs).','Tailler trop sévèrement d’un coup.'],
+  c:[['Sol','Frais mais drainé, neutre à calcaire ; plein soleil.'],['Santé','Mineuse, brûlure du lilas, armillaire, oïdium selon la RHS.']],
+  s:[['RHS — Syringa vulgaris',RHS+'plants/99011/syringa-vulgaris/details'],['Gerbeaud — Rabattre un vieux lilas (forum)','https://www.gerbeaud.com/jardin/faq/qr-28778-rabattre-un-vieux-lilas.html']],th:1}},
+{id:'figuier',n:'Figuier bifère',l:'Ficus carica',t:'fruitier',e:'🫒',w:1,s:'Plein soleil, abrité',f:'Caduc',h:-12,wp:['Figuier commun','Ficus carica'],now:3,fut:3,
+ futNote:'Un des grands gagnants du réchauffement ; arroser en été pour de belles figues.',
+ pr:[[[2,3],'Fin d’hiver : ne PAS couper les rameaux de l’an dernier (ils portent les figues-fleurs). Retirer bois mort, branches croisées, basses, gelées ; ébourgeonner les rameaux à figues-fleurs en gardant le 1ᵉʳ œil extérieur à leur base.'],[[7,8],'Après la 1ʳᵉ récolte : couper au-dessus du bourgeon laissé en mars (devenu rameau) et pincer l’extrémité des nouveaux rameaux pour la récolte d’automne.'],[[10,11],'Après la récolte d’automne : supprimer les plus vieilles branches de la souche pour renouveler.']],
+ pl:[3,4,10,11],fd:[[[3],'Compost ; peu d’azote (feuillage au détriment des fruits).']],
+ x:[[[11,12,1,2],'Pailler le pied, protéger les jeunes sujets en cas de gel fort.','protection'],[[6,7],'1ʳᵉ récolte (figues-fleurs).','récolte'],[[8,9,10],'2ᵉ récolte (figues d’été-automne).','récolte']],
+ note:'Arrosage en été pendant le grossissement des fruits ; très régulier si en pot.',
+ g:{q:'Fin d’hiver (février–mars) pour la charpente ; aussi après la récolte (août, puis octobre–novembre) dans les régions douces pour un bifère.',o:'Sécateur, coupe-branche, scie d’élagage, tous désinfectés et affûtés ; gants (la sève irrite et brûle sous le soleil) ; mastic cicatrisant. Ne jamais tailler sous la pluie.',
+  e:['Février–mars : ne pas couper les rameaux de l’année précédente. Leurs bourgeons globuleux donnent les figues-fleurs ; les pointus donnent feuilles et bois. En cas de doute, attendre que les bourgeons se développent.','Supprimer le bois mort ou malade, les branches croisées ou qui poussent vers l’intérieur, les branches trop basses et les rameaux gelés ou trop fins.','Couper en biais (≈ 45°) au-dessus d’un œil orienté vers l’extérieur.','Sur les rameaux à figues-fleurs : supprimer les bourgeons à feuilles, sauf le premier, orienté vers l’extérieur, à la base de chaque branche.','Fin juillet–août (après la 1ʳᵉ récolte) : couper au-dessus du bourgeon laissé en mars, devenu rameau.','Sur ces nouveaux rameaux, tailler l’extrémité pour éviter un allongement excessif et favoriser la récolte de septembre–octobre.','Après la récolte d’automne : supprimer les plus vieilles branches de la souche.','Appliquer un mastic cicatrisant sur les plaies (protection contre le chancre et les gelées tardives).'],
+  v:['Tailler trop tard dans la saison ou trop sévèrement (feuillage au détriment des fruits).','Confondre unifère et bifère et couper le bois qui porte les fruits.','Utiliser des outils non désinfectés.','Tailler un jeune arbre trop tôt.'],
+  c:[['Arrosage','Pendant le grossissement des fruits en été ; très régulier en pot.'],['Hiver','Pailler le pied ; jeunes sujets à protéger en cas de gel fort.'],['Rajeunissement','Tous les 20–25 ans environ : rabattre les branches de la souche à ≈ 50 cm du sol.']],
+  s:[['Promesse de Fleurs — Tailler le figuier',PDF+'tutoriel/tailler-figuier/']]}},
+{id:'framboisier',n:'Framboisier',l:'Rubus idaeus',t:'fruitier',e:'🍓',w:2,s:'Soleil / mi-ombre',f:'Caduc',h:-25,wp:['Framboisier','Rubus idaeus'],now:2,fut:1,
+ futNote:'Racines superficielles, très gourmand en eau : un des plus fragiles face à des étés plus secs ; paillage épais, mi-ombre, arrosage régulier.',
+ alt:['figuier','goji','jujubier'],
+ pr:[[[8],'Remontant : après la 2ᵉ récolte, couper au ras du sol les cannes qui ont fructifié deux fois (bois sec et foncé).'],[[2,3],'Remontant : raccourcir de moitié l’extrémité des cannes ayant porté à l’automne (récolte d’été) ; ne garder que ≈ 15 cannes/m, les plus vigoureuses.'],[[7,8,9,10],'Non remontant : après la récolte, couper au ras les cannes qui ont fructifié (brun-gris) ; garder les jeunes cannes vertes, 10–15 par mètre.']],
+ pl:[11,12,1,2,3],fd:[[[3],'Compost + paillage épais.']],
+ x:[[[3,4],'Pailler épais : racines superficielles.','soin'],[[6,7],'Récolte (non remontants).','récolte'],[[9,10],'Récolte (remontants).','récolte']],
+ note:'Arrosage régulier surtout pendant la fructification.',
+ g:{q:'Remontant : août (cannes ayant fructifié) + février–mars. Non remontant : juste après la récolte (juillet–août) ou septembre–octobre.',o:'Sécateur affûté ; gants épais (épines) ; fils de fer et piquets pour palisser.',
+  e:['Remontant, août : couper au ras du sol les tiges qui ont fructifié deux fois (bois sec et foncé).','Remontant, hiver : raccourcir de moitié l’extrémité des tiges ayant fructifié à l’automne — elles redonneront des fruits au début de l’été suivant.','Si les pousses sont trop nombreuses : ne garder que ≈ 15 tiges par mètre, les plus vigoureuses ; rabattre les faibles.','Non remontant : après la récolte, couper au ras du sol les tiges ayant fructifié ; conserver les jeunes tiges vertes (10–15 par mètre).','Palisser sur des fils tendus entre deux piquets solides.','Supprimer à la bêche les drageons qui sortent au-delà de la zone de plantation.'],
+  v:['Tarder à tailler les remontants après la fructification d’automne.','Couper trop bas toutes les cannes en hiver (pas de récolte d’été).','Laisser les pousses trop denses.','Manquer d’eau ou de soleil.'],
+  c:[['Arrosage','Régulier, indispensable pendant la fructification ; paillis épais.'],['Engrais','Compost riche ou engrais organique au pied dès le printemps.']],
+  s:[['Promesse de Fleurs — Taille des framboisiers',PDF+'ficheconseil/la-taille-des-framboisiers-quand-comment/']]}},
+{id:'fraisier',n:'Fraisier',l:'Fragaria × ananassa',t:'fruitier',e:'🍓',w:2,s:'Soleil',f:'Vivace',h:-20,wp:['Fraisier','Fragaria × ananassa'],now:2,fut:1,
+ futNote:'Gourmand en eau et sensible aux fortes chaleurs : paillage, ombre d’été légère et goutte-à-goutte.',
+ alt:['figuier','goji','jujubier'],
+ pr:[[[8],'Après la récolte : couper le feuillage abîmé, supprimer les stolons inutiles ; en garder quelques-uns pour repiquer (fin d’été).']],
+ pl:[8,9,3,4],fd:[[[3],'Compost ou engrais fraisier.']],
+ x:[[[4],'Pailler (paille) à la floraison pour garder les fruits propres.','soin'],[[5,6],'Récolte.','récolte'],[[9],'Remplacer les plants de plus de 3 ans (le rendement baisse).','soin']],
+ note:'Renouveler le carré tous les 3 ans, sur un emplacement différent.',
+ g:{q:'Plantation en août–septembre (récolte plus abondante l’année suivante) ou au printemps ; entretien après la récolte.',o:'Sécateur ou ciseaux ; paille ou paillis.',
+  e:['Placer le collet au niveau du sol, refermer avec de la terre fine, arroser copieusement ; espacer de ≈ 35 cm.','Pailler pour garder la fraîcheur et limiter les éclaboussures source de maladies.','Après la récolte : nettoyer le feuillage abîmé et couper les stolons inutiles (repère général).','Repiquer des stolons en fin d’été pour agrandir la parcelle.','Tous les 3 ans : renouveler la planche sur un autre emplacement.'],
+  v:['Réinstaller des fraisiers sur la même parcelle avant 3–4 ans.','Utiliser des plants non certifiés.'],
+  c:[['Sol','Profond, humifère, souple, légèrement acide et drainé ; terre humide : butter les plants de 10–20 cm.'],['Santé','Anthracnose en fin d’été : le feuillage se reconstitue avec le retour de la chaleur.']],
+  s:[['Promesse de Fleurs — Fraisiers',PDF+'fichefamille/fraisier-planter-tailler-et-entretenir/']],th:1}}
+];
+
+/* ============ Espèces à planter (onglet Plantation) ============
+   so = sols acceptés : A acide · N neutre · C calcaire · L lourd/argileux
+   r = rôles : sec (sans arrosage une fois installé) · ombre · haie · fleur · comest · pollin · persist
+   now / fut = adaptation 0–3 au climat actuel de Pau / à celui de ≈ 2050 (jugement personnel, voir encart de l’onglet) */
+const REC_RAW=[
+/* ----- Arbres ----- */
+{id:'quercus-ilex',n:'Chêne vert',l:'Quercus ilex',t:'arbre',e:'🌳',w:0,s:'Soleil',f:'Persistant',h:-15,wp:['Quercus ilex','Quercus ilex'],now:2,fut:3,so:'ANCL',r:['sec','ombre','persist'],pl:[4,5,9,10],hs:'10–20 m',
+ why:'Arbre du Midi qui supportera des étés plus chauds et plus secs ; en Béarn, les gels très forts restent le seul risque pour les jeunes plants.',tip:'Planter jeune (godet ou petit conteneur), le protéger du gel les 2 premiers hivers, éviter les replantations de gros sujets.',pr:[],fd:[],x:[]},
+{id:'quercus-pubescens',n:'Chêne pubescent',l:'Quercus pubescens',t:'arbre',e:'🌳',w:0,s:'Soleil',f:'Caduc (marcescent)',h:-25,wp:['Quercus pubescens','Quercus pubescens'],now:3,fut:3,so:'NCL',r:['sec','ombre'],pl:[10,11,12,1,2,3],hs:'10–15 m',
+ why:'Chêne du Sud-Ouest, supporte le sec et le calcaire, très rustique ; lent mais durable, bon support pour la faune.',tip:'Planter en automne-hiver, paillage et arrosage régulier les 2–3 premiers étés.',pr:[],fd:[],x:[]},
+{id:'quercus-pyrenaica',n:'Chêne tauzin',l:'Quercus pyrenaica',t:'arbre',e:'🌳',w:0,s:'Soleil / mi-ombre',f:'Caduc (marcescent)',h:-20,wp:['Quercus pyrenaica','Quercus pyrenaica'],now:3,fut:3,so:'AN',r:['sec','ombre'],pl:[10,11,12,1,2,3],hs:'12–20 m',
+ why:'Chêne local des sols acides du Sud-Ouest atlantique : adapté au climat de ta région et aux étés secs ; remplaçant sensé du frêne.',tip:'Sol acide à neutre (évite le calcaire) ; jeunes plants, tuteur léger, paillage.',pr:[],fd:[],x:[]},
+{id:'acer-monspessulanum',n:'Érable de Montpellier',l:'Acer monspessulanum',t:'arbre',e:'🍁',w:0,s:'Soleil / mi-ombre',f:'Caduc',h:-20,wp:['Acer monspessulanum','Acer monspessulanum'],now:3,fut:3,so:'NC',r:['sec','ombre'],pl:[10,11,12,1,2,3],hs:'6–10 m',
+ why:'Petit érable tolérant au sec et au calcaire, belle couleur d’automne ; remplaçant plus robuste de l’érable du Japon pour un plein soleil.',tip:'Taille uniquement en dormance, avant janvier (saignement de sève des érables).',pr:[],fd:[],x:[]},
+{id:'cercis',n:'Arbre de Judée',l:'Cercis siliquastrum',t:'arbre',e:'🌸',w:0,s:'Soleil',f:'Caduc',h:-20,wp:['Cercis siliquastrum','Cercis siliquastrum'],now:3,fut:3,so:'ANC',r:['sec','fleur','pollin'],pl:[10,11,3,4],hs:'5–8 m',
+ why:'Floraison rose vif en avril sur le bois nu, vraiment sobre une fois enraciné ; parfaitement adapté à des étés plus chauds.',tip:'Ne supporte pas bien d’être déplacé : choisir son emplacement définitif ; éviter les sols qui restent détrempés l’hiver.',pr:[],fd:[],x:[]},
+{id:'celtis',n:'Micocoulier de Provence',l:'Celtis australis',t:'arbre',e:'🌳',w:0,s:'Soleil',f:'Caduc',h:-15,wp:['Celtis australis','Celtis australis'],now:3,fut:3,so:'ANCL',r:['sec','ombre'],pl:[10,11,12,1,2,3],hs:'15–25 m',
+ why:'Grand arbre d’ombre résistant à la chaleur, à la sécheresse et à presque tous les sols : l’un des plus sûrs pour 2050 (utile pour rafraîchir la maison).',tip:'Prévoir beaucoup de place (racines puissantes) : à 8 m minimum des bâtiments et réseaux.',pr:[],fd:[],x:[]},
+{id:'tilia-tomentosa',n:'Tilleul argenté',l:'Tilia tomentosa',t:'arbre',e:'🌳',w:1,s:'Soleil',f:'Caduc',h:-25,wp:['Tilia tomentosa','Tilia tomentosa'],now:3,fut:3,so:'ANC',r:['ombre','pollin'],pl:[10,11,12,1,2,3],hs:'20–25 m',
+ why:'Plus tolérant à la chaleur et au sec que le tilleul commun ; ombre dense et floraison très mellifère.',tip:'Arrosage les 2–3 premiers étés ; grand arbre, prévoir l’espace.',pr:[],fd:[],x:[]},
+{id:'sorbus-torminalis',n:'Alisier torminal',l:'Sorbus torminalis',t:'arbre',e:'🍂',w:0,s:'Soleil / mi-ombre',f:'Caduc',h:-25,wp:['Sorbus torminalis','Sorbus torminalis'],now:3,fut:3,so:'ANCL',r:['sec','pollin'],pl:[10,11,12,1,2,3],hs:'8–15 m',
+ why:'Arbre champêtre indigène, floraison mellifère puis belles couleurs d’automne et petits fruits pour les oiseaux ; tient bien le sec.',tip:'Croissance lente : l’acheter déjà formé ; peu d’entretien.',pr:[],fd:[],x:[]},
+{id:'lagerstroemia',n:'Lilas des Indes',l:'Lagerstroemia indica',t:'arbre',e:'🌸',w:1,s:'Plein soleil',f:'Caduc',h:-12,wp:['Lagerstroemia indica','Lagerstroemia indica'],now:3,fut:3,so:'ANC',r:['fleur','pollin'],pl:[10,11,3,4],hs:'3–6 m',
+ why:'Floraison de juillet à septembre, pile quand tout le reste est fané ; il adore la chaleur et se contente de peu d’eau une fois établi.',tip:'Plein soleil et chaleur indispensables ; taille de fin d’hiver sur le bois de l’année ; protéger les jeunes sujets par gel fort.',
+ pr:[[[2,3],'Fin d’hiver : raccourcir les rameaux de l’an dernier à 2–3 yeux et enlever le bois mort ou croisé.']],fd:[],x:[]},
+{id:'arbutus',n:'Arbousier',l:'Arbutus unedo',t:'arbre',e:'🍒',w:0,s:'Soleil / mi-ombre',f:'Persistant',h:-15,wp:['Arbutus unedo','Arbutus unedo'],now:3,fut:3,so:'AN',r:['sec','persist','fleur','comest','pollin'],pl:[4,5,9,10],hs:'4–6 m',
+ why:'Persistant décoratif qui fleurit et fructifie à l’automne ; rustique ≈ −15 °C (fiche Promesse de Fleurs), sobre en eau : très bien armé pour 2050.',tip:'Sol acide à neutre, bien drainé ; évite le calcaire.',pr:[],fd:[],x:[[[10,11,12],'Fruits rouges (comestibles, farineux) : récolter à pleine maturité.','récolte']]},
+{id:'cornus-mas',n:'Cornouiller mâle',l:'Cornus mas',t:'arbre',e:'🌼',w:0,s:'Soleil / mi-ombre',f:'Caduc',h:-25,wp:['Cornus mas','Cornus mas'],now:3,fut:3,so:'ANCL',r:['sec','fleur','comest','pollin'],pl:[10,11,12,1,2,3],hs:'4–6 m',
+ why:'Fleurs jaunes dès février, premiers butineurs, fruits comestibles ; rustique et tolérant au sec, au calcaire comme à l’argile.',tip:'Peu d’entretien ; il peut se tailler en haie libre.',pr:[],fd:[],x:[]},
+/* ----- Arbustes / haies ----- */
+{id:'laurus',n:'Laurier-sauce',l:'Laurus nobilis',t:'haie',e:'🌿',w:0,s:'Soleil / mi-ombre',f:'Persistant',h:-12,wp:['Laurus nobilis','Laurus nobilis'],now:3,fut:3,so:'ANCL',r:['sec','haie','persist','comest'],pl:[3,4,9,10],hs:'3–8 m',
+ why:'Haie persistante méditerranéenne, aromatique, qui tolère le sec ; une alternative solide si le troène ou la charmille souffrent.',tip:'Protéger du vent froid les jeunes plants ; taille au sécateur (feuilles abîmées au taille-haie).',pr:[[[6,7,8],'Taille d’entretien en été, au sécateur de préférence pour ne pas abîmer les grandes feuilles.']],fd:[],x:[]},
+{id:'phillyrea',n:'Filaire à feuilles étroites',l:'Phillyrea angustifolia',t:'haie',e:'🌿',w:0,s:'Soleil / mi-ombre',f:'Persistant',h:-15,wp:['Phillyrea angustifolia','Phillyrea angustifolia'],now:3,fut:3,so:'ANCL',r:['sec','haie','persist'],pl:[3,4,9,10],hs:'2–4 m',
+ why:'Persistant dense, très résistant à la sécheresse, taillable en haie ou en boule ; croissance lente mais fiable.',tip:'Acheter assez grand : il pousse lentement.',pr:[[[5,6],'Après la floraison de printemps : tailler en forme.']],fd:[],x:[]},
+{id:'tamaris',n:'Tamaris',l:'Tamarix',t:'arbuste',e:'🌸',w:0,s:'Plein soleil',f:'Caduc',h:-20,wp:['Tamarix','Tamarix'],now:3,fut:3,so:'ANCL',r:['sec','haie','fleur'],pl:[3,4,10,11],hs:'3–5 m',
+ why:'Rose en grappes plumeuses, résiste au vent, aux embruns et à la sécheresse (≈ −20 °C d’après Promesse de Fleurs).',tip:'Port léger, à tailler après floraison pour éviter qu’il se dégarnisse.',pr:[[[3,6],'Fin d’hiver pour les tamaris à floraison estivale ; juste après la floraison pour ceux qui fleurissent au printemps : raccourcir les rameaux défleuris.']],fd:[],x:[]},
+{id:'vitex',n:'Gattilier',l:'Vitex agnus-castus',t:'arbuste',e:'💜',w:0,s:'Plein soleil',f:'Caduc',h:-15,wp:['Vitex agnus-castus','Vitex agnus-castus'],now:3,fut:3,so:'NC',r:['sec','fleur','pollin'],pl:[4,5,9,10],hs:'2–4 m',
+ why:'Épis bleu-mauve de juillet à septembre, feuillage aromatique, très mellifère ; il aime la chaleur et supporte la sécheresse.',tip:'Rabattre en fin d’hiver pour renouveler les tiges fleuries ; protéger le pied les 2 premiers hivers.',
+ pr:[[[3],'Fin d’hiver : raccourcir les tiges d’un tiers à la moitié pour obtenir de nouvelles pousses fleuries.']],fd:[],x:[]},
+{id:'caryopteris',n:'Spirée bleue',l:'Caryopteris × clandonensis',t:'arbuste',e:'💙',w:0,s:'Plein soleil',f:'Caduc',h:-15,wp:['Caryopteris × clandonensis','Caryopteris × clandonensis'],now:3,fut:3,so:'NC',r:['sec','fleur','pollin'],pl:[3,4,9,10],hs:'0,8–1,2 m',
+ why:'Fleurs bleues de fin d’été, feuillage argenté, très apprécié des abeilles et papillons ; sobre, bon remplaçant de l’hortensia en plein soleil sec.',tip:'Sol drainant, plein soleil ; taille sévère en mars.',pr:[[[3],'Mars : rabattre à 10–15 cm du sol.']],fd:[],x:[]},
+{id:'perovskia',n:'Sauge de Russie',l:'Salvia yangii (Perovskia atriplicifolia)',t:'arbuste',e:'💜',w:0,s:'Plein soleil',f:'Caduc',h:-20,wp:['Salvia yangii','Salvia yangii'],now:3,fut:3,so:'NC',r:['sec','fleur','pollin'],pl:[3,4,9,10],hs:'0,8–1,2 m',
+ why:'Nuage violet-bleu de juillet à octobre, feuillage argenté, sobre en eau ; très rustique.',tip:'Sol drainant ; rabattre en mars.',pr:[[[3],'Mars : rabattre à environ 20–30 cm du sol.']],fd:[],x:[]},
+{id:'cistus',n:'Ciste',l:'Cistus',t:'arbuste',e:'🌸',w:0,s:'Plein soleil',f:'Persistant',h:-10,wp:['Cistus','Cistus'],now:2,fut:3,so:'AN',r:['sec','fleur','pollin','persist'],pl:[3,4,9,10],hs:'0,6–1,5 m',
+ why:'Fleurs éphémères mais renouvelées en continu (Promesse de Fleurs), mellifère, parfaitement sec ; le risque actuel est le gel : choisir C. laurifolius ou des hybrides réputés rustiques.',tip:'Sol léger et drainant, jamais détrempé l’hiver ; ne pas tailler dans le vieux bois.',pr:[[[6,7],'Après la floraison, raccourcir légèrement les rameaux sans entrer dans le vieux bois.']],fd:[],x:[]},
+{id:'ceanothus',n:'Céanothe',l:'Ceanothus',t:'arbuste',e:'💙',w:0,s:'Soleil',f:'Persistant ou caduc',h:-10,wp:['Ceanothus','Ceanothus'],now:2,fut:3,so:'AN',r:['sec','fleur','pollin','persist'],pl:[4,5,9],hs:'1–3 m',
+ why:'Bleu intense, peu d’entretien (Promesse de Fleurs) et résistant au sec ; les persistants craignent le gel, les caducs (‘Gloire de Versailles’) sont plus rustiques.',tip:'Éviter le calcaire marqué et les emplacements humides en hiver ; abri contre le vent froid.',pr:[[[6,7],'Après la floraison de printemps, raccourcir légèrement ; les caducs se taillent en mars.']],fd:[],x:[]},
+{id:'rosmarinus',n:'Romarin',l:'Rosmarinus officinalis',t:'arbuste',e:'🌿',w:0,s:'Plein soleil',f:'Persistant',h:-12,wp:['Rosmarinus officinalis','Rosmarinus officinalis'],now:3,fut:3,so:'NC',r:['sec','comest','pollin','persist','fleur'],pl:[3,4,9,10],hs:'0,5–1,5 m',
+ why:'Aromatique, mellifère, aucune attente d’eau une fois installé ; il va se plaire de plus en plus.',tip:'Sol drainant (butte ou graviers en sol argileux) ; tailler après la floraison, jamais dans le vieux bois nu.',pr:[[[4,5],'Après la floraison : raccourcir de moitié les tiges, en gardant des feuilles.']],fd:[],x:[]},
+{id:'lavandula',n:'Lavande',l:'Lavandula angustifolia',t:'arbuste',e:'💜',w:0,s:'Plein soleil',f:'Persistant',h:-20,wp:['Lavandula angustifolia','Lavandula angustifolia'],now:3,fut:3,so:'NC',r:['sec','fleur','pollin','persist'],pl:[3,4,9,10],hs:'0,4–0,8 m',
+ why:'Très mellifère, odorante, sobre ; en Béarn, l’excès d’humidité hivernale est son principal ennemi.',tip:'Sol drainant, éviter le paillage organique épais (préférer des graviers) ; couper après floraison en gardant du feuillage.',pr:[[[8,9],'Après la floraison : couper les tiges florales et 2–3 cm de feuillage, jamais dans le bois nu.']],fd:[],x:[]},
+{id:'spartium',n:'Genêt d’Espagne',l:'Spartium junceum',t:'arbuste',e:'🌼',w:0,s:'Plein soleil',f:'Semi-persistant',h:-12,wp:['Spartium junceum','Spartium junceum'],now:3,fut:3,so:'ANC',r:['sec','fleur','pollin'],pl:[3,4,10],hs:'2–3 m',
+ why:'Floraison jaune parfumée de juin à septembre sur sol pauvre et sec ; supporte les étés brûlants.',tip:'Sol pauvre, bien drainé ; toxique ; tailler après floraison pour éviter l’aspect dégarni.',pr:[[[9,10],'Après la floraison : raccourcir les tiges défleuries d’un tiers.']],fd:[],x:[]},
+{id:'hippophae',n:'Argousier',l:'Hippophae rhamnoides',t:'arbuste',e:'🍊',w:0,s:'Plein soleil',f:'Caduc',h:-30,wp:['Hippophae rhamnoides','Hippophae rhamnoides'],now:3,fut:2,so:'ANC',r:['sec','haie','comest','pollin'],pl:[10,11,12,1,2,3],hs:'2–4 m',
+ why:'Très rustique (jusqu’à ≈ −34 °C selon Promesse de Fleurs), sols pauvres et secs, fruits orangés comestibles ; arbuste de climats frais, donc je le note un cran en dessous pour 2050.',tip:'Planter un mâle pour 4–6 femelles ; épineux (haie défensive) ; drageonne.',pr:[],fd:[],x:[[[9,10],'Récolte des baies (acides, riches en vitamine C).','récolte']]},
+{id:'nerium',n:'Laurier-rose',l:'Nerium oleander',t:'arbuste',e:'🌸',w:0,s:'Plein soleil',f:'Persistant',h:-8,wp:['Nerium oleander','Nerium oleander'],now:2,fut:3,so:'NC',r:['sec','fleur','persist'],pl:[4,5,9],hs:'2–4 m',
+ why:'Floraison de juin à septembre, supporte la sécheresse et les embruns (Promesse de Fleurs) ; en Béarn le gel fort l’abîme : choisir un emplacement abrité.',tip:'Très toxique (feuilles, fleurs, fumées de brûlage) : gants, pas de compostage des tailles ; éloigner enfants et animaux.',pr:[[[3,4],'Après les gels : retirer bois mort et branches gelées.']],fd:[],x:[]},
+/* ----- Grimpantes ----- */
+{id:'campsis',n:'Bignone de Virginie',l:'Campsis radicans',t:'grimpante',e:'🧡',w:0,s:'Plein soleil',f:'Caduc',h:-20,wp:['Campsis radicans','Campsis radicans'],now:3,fut:3,so:'ANCL',r:['sec','fleur','pollin'],pl:[3,4,10],hs:'5–10 m',
+ why:'Trompettes orange de juillet à octobre en plein soleil ; supporte la chaleur et le sec. Remplaçant de la vigne vierge si tu veux plus de fleurs.',tip:'Très vigoureuse : à éloigner des joints et gouttières ; taille hivernale à 2–3 yeux.',pr:[[[2,3],'Fin d’hiver : raccourcir les tiges latérales à 2–3 yeux.']],fd:[],x:[]},
+{id:'passiflora',n:'Passiflore bleue',l:'Passiflora caerulea',t:'grimpante',e:'💠',w:1,s:'Soleil',f:'Semi-persistant',h:-12,wp:['Passiflora caerulea','Passiflora caerulea'],now:2,fut:3,so:'AN',r:['fleur','pollin'],pl:[4,5],hs:'5–8 m',
+ why:'Fleurs spectaculaires de juin à octobre ; hivers plus doux = moins de dégâts de gel, mais prévoir un abri jusqu’à la formation du pied.',tip:'Pailler le pied l’hiver ; taille en mars.',pr:[[[3],'Mars : rabattre fortement les tiges abîmées par le gel.']],fd:[],x:[]},
+/* ----- Fruitiers ----- */
+{id:'olivier',n:'Olivier',l:'Olea europaea',t:'fruitier',e:'🫒',w:0,s:'Plein soleil',f:'Persistant',h:-10,wp:['Olea europaea','Olea europaea'],now:2,fut:3,so:'NC',r:['sec','comest','persist'],pl:[4,5],hs:'3–6 m',
+ why:'Futur évident au Sud-Ouest, mais aujourd’hui les gels forts et les sols lourds détrempés l’hiver restent un risque (record Pau −15 °C). Choisir une variété rustique.',tip:'Planter au printemps, sol drainant (butte en sol argileux), emplacement abrité ; fruits meilleurs avec un arrosage occasionnel.',
+ pr:[[[3,4],'Fin d’hiver–printemps : aérer le centre pour laisser passer la lumière, retirer gourmands et bois mort.']],fd:[],x:[]},
+{id:'punica',n:'Grenadier',l:'Punica granatum',t:'fruitier',e:'🍎',w:0,s:'Plein soleil',f:'Caduc',h:-12,wp:['Punica granatum','Punica granatum'],now:2,fut:3,so:'NC',r:['sec','comest','fleur'],pl:[3,4,10],hs:'2–4 m',
+ why:'Fleurs orange en été, fruits en automne ; aime la chaleur et le sec.',tip:'Plein soleil, abrité ; protéger les jeunes sujets par gel fort.',pr:[],fd:[],x:[[[10,11],'Récolte des grenades à pleine couleur.','récolte']]},
+{id:'diospyros',n:'Kaki',l:'Diospyros kaki',t:'fruitier',e:'🍊',w:1,s:'Soleil',f:'Caduc',h:-15,wp:['Diospyros kaki','Diospyros kaki'],now:3,fut:2,so:'ANCL',r:['comest','ombre'],pl:[10,11,3],hs:'4–7 m',
+ why:'Rustique, beaux fruits d’automne et feuillage rouge ; apprécie la chaleur mais demande de l’eau les premières années : au milieu.',tip:'Variété autofertile comme ‘Fuyu’ (sans astringence) ; arroser en été les 2–3 premières années.',pr:[],fd:[],x:[[[10,11],'Récolte des kakis (à maturité complète pour les variétés astringentes).','récolte']]},
+{id:'jujubier',n:'Jujubier',l:'Ziziphus jujuba',t:'fruitier',e:'🍎',w:0,s:'Plein soleil',f:'Caduc',h:-25,wp:['Ziziphus jujuba','Ziziphus jujuba'],now:2,fut:3,so:'ANC',r:['sec','comest'],pl:[3,4,10,11],hs:'3–5 m',
+ why:'Fruitier très résistant à la sécheresse et au froid ; il valorisera les étés chauds.',tip:'Choisir une variété greffée autofertile ; feuillage tardif au printemps : patience.',pr:[],fd:[],x:[[[9,10],'Récolte des jujubes.','récolte']]},
+{id:'goji',n:'Goji',l:'Lycium barbarum',t:'fruitier',e:'🔴',w:0,s:'Soleil',f:'Caduc',h:-25,wp:['Lycium barbarum','Lycium barbarum'],now:3,fut:3,so:'ANCL',r:['sec','comest','pollin'],pl:[10,11,3,4],hs:'2–3 m',
+ why:'Fruitier cité parmi les résistants au sec par Promesse de Fleurs (≈ 2 m, récolte août–septembre) ; alternative au framboisier moins exigeante en eau.',tip:'Palisser, tailler en fin d’hiver ; il drageonne.',pr:[[[2,3],'Fin d’hiver : raccourcir les tiges trop longues et éclaircir.']],fd:[],x:[[[8,9],'Récolte des baies.','récolte']]},
+{id:'cognassier',n:'Cognassier',l:'Cydonia oblonga',t:'fruitier',e:'🍐',w:1,s:'Soleil',f:'Caduc',h:-25,wp:['Cydonia oblonga','Cydonia oblonga'],now:3,fut:2,so:'ANL',r:['comest','fleur','pollin'],pl:[10,11,12,1,2,3],hs:'3–5 m',
+ why:'Cité par Promesse de Fleurs parmi les fruitiers de haie libre résistants au sec ; rosacée sensible au feu bactérien (comme le cotonéaster) : à surveiller.',tip:'Sol frais mais pas détrempé ; paillage.',pr:[],fd:[],x:[[[10],'Récolte des coings avant les gelées.','récolte']]},
+{id:'corylus',n:'Noisetier',l:'Corylus avellana',t:'fruitier',e:'🌰',w:1,s:'Soleil / mi-ombre',f:'Caduc',h:-25,wp:['Corylus avellana','Corylus avellana'],now:3,fut:2,so:'ANCL',r:['haie','comest','pollin','ombre'],pl:[11,12,1,2,3],hs:'3–5 m',
+ why:'Haie champêtre comestible ; supporte la mi-ombre mais aime un sol frais : en baisse pour 2050 sauf à l’abri avec paillage.',tip:'Planter deux variétés pour la pollinisation ; chatons dès février.',pr:[],fd:[],x:[[[9,10],'Récolte des noisettes.','récolte']]},
+{id:'amandier',n:'Amandier',l:'Prunus dulcis',t:'fruitier',e:'🌸',w:0,s:'Plein soleil',f:'Caduc',h:-20,wp:['Prunus dulcis','Prunus dulcis'],now:2,fut:2,so:'NC',r:['sec','fleur','comest','pollin'],pl:[10,11,12,1,2,3],hs:'3–6 m',
+ why:'Sobre en eau mais fleurit en février : en Béarn, les gelées tardives détruisent régulièrement les fleurs ; choisir une variété tardive (‘Ferragnès’, ‘Lauranne’) et un lieu abrité.',tip:'Les hivers plus doux avancent la floraison : le risque de gelée tardive ne diminue pas forcément.',pr:[],fd:[],x:[[[9],'Récolte des amandes.','récolte']]},
+{id:'feijoa',n:'Feijoa',l:'Acca sellowiana',t:'fruitier',e:'🥝',w:0,s:'Soleil',f:'Persistant',h:-12,wp:['Acca sellowiana','Acca sellowiana'],now:2,fut:3,so:'ANC',r:['sec','comest','persist','fleur','pollin'],pl:[4,5,9],hs:'2–4 m',
+ why:'Cité parmi les fruitiers résistants au sec par Promesse de Fleurs ; fleurs comestibles et fruits d’automne, supporte la chaleur ; protéger du gel fort les premières années.',tip:'Abri contre le vent froid ; fruits à ramasser tombés.',pr:[],fd:[],x:[[[10,11],'Récolte des fruits (tombés à maturité).','récolte']]}
+];
+const REC=REC_RAW;
+
+const SEED=CAT.map(c=>c.id);
+
+/* ============ Calendrier général (Sud-Ouest, climat océanique doux) ============ */
+const GENERAL={
+1:['Tailler arbres caducs et haies de structure hors gel','Protéger les plantes frileuses si gel annoncé','Affûter et nettoyer les outils','Planter à racines nues tant que le sol n’est pas gelé'],
+2:['Fin de taille des arbustes à floraison estivale (buddleia, hortensias)','Rabattre les framboisiers remontants','Préparer la terre : décompacter sans retourner','Pailler après les pluies'],
+3:['Apport de compost sur tous les massifs','Tailler après floraison ce qui en a besoin (camélia) ; mimosa en avril, une fois le gel passé','Planter arbustes et haies','Surveiller les premiers pucerons'],
+4:['Planter les espèces frileuses (mimosa, solanum, jasmin étoilé)','Pailler pour limiter l’évaporation estivale','Désherber avant montée en graines','Premier arrosage des jeunes plantations si sec'],
+5:['Tailler après floraison (lilas, laurier-tin)','Installer l’arrosage goutte-à-goutte si besoin','Pincer et palisser les grimpantes','Surveiller maladies du feuillage après les pluies'],
+6:['Première coupe des haies (troène, photinia, charmille)','Arrosage profond des jeunes arbres et des hortensias','Récolte des premières figues-fleurs et fraises','Pailler épais avant l’été'],
+7:['Arroser tôt le matin ou le soir, au pied','Couper les fleurs fanées pour prolonger la floraison','Surveiller le stress hydrique (feuilles jaunies, enroulées)','Éviter toute taille sévère par forte chaleur'],
+8:['Taille légère des haies (2ᵉ passage) et grimpantes','Couper les cannes de framboisiers non remontants','Planter fraisiers en fin de mois','Poursuivre l’arrosage des jeunes sujets'],
+9:['Planter : le sol est encore chaud, les pluies reviennent','Dernière taille des haies avant l’automne','Récolte des figues de seconde saison','Diviser les vivaces'],
+10:['Plantation d’automne : arbres, arbustes et haies','Ramasser les feuilles pour le compost/paillage','Érables et bouleau : ne les tailler qu’en dormance (novembre–décembre), jamais en fin d’hiver','Réduire l’arrosage'],
+11:['Plantation à racines nues à partir de novembre','Pailler les pieds frileux avant les gelées','Protéger les jeunes sujets du vent','Nettoyer les gouttières (vigne vierge, lierre)'],
+12:['Voiles d’hivernage pour mimosa, solanum, nandina jeunes','Tailler hors gel les arbres caducs en repos','Surveiller les tuteurs après tempête','Planifier les achats du printemps']
+};
+
+/* ============ État & stockage ============ */
+const KEY='jardin.v1', WXKEY='jardin.wx';
+const mkPlant=(sid)=>({id:'p'+Math.random().toString(36).slice(2,9),sid,qty:1,age:'young',pot:false,lastWater:null,note:''});
+function defaults(){return{v:1,loc:{name:'Pau',lat:43.2951,lon:-0.3708},plants:SEED.map(mkPlant),custom:[],done:{},updated:Date.now()}}
+let S=(()=>{try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.plants)return s}catch(e){}return defaults()})();
+let fileHandle=null, saveTimer=null, syncMsg='';
+function save(){
+  S.updated=Date.now();
+  try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){syncMsg='Stockage du navigateur plein : exporte tes données ou retire des photos.'}
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(writeFile,900);
+}
+const getSp=sid=>S.custom.find(c=>c.id===sid)||CAT.find(c=>c.id===sid)||REC.find(c=>c.id===sid)||{id:sid,n:'Espèce inconnue',l:'',t:'arbuste',e:'🌱',w:1,s:'',f:'',h:-15,pr:[],pl:[],fd:[],x:[],note:''};
+const allSpecies=()=>[...S.custom,...CAT,...REC];
+
+/* ============ Météo (Open-Meteo, sans clé) ============ */
+let wx=null,wxAt=0,wxErr=false,wxLoading=false;
+const locKey=()=>S.loc.lat+','+S.loc.lon;
+try{const c=JSON.parse(localStorage.getItem(WXKEY));if(c&&c.k===locKey()){wx=c.data;wxAt=c.at}}catch(e){}
+const todayStr=()=>new Date().toLocaleDateString('sv');
+const T=()=>{if(!wx)return 7;const i=wx.daily.time.indexOf(todayStr());return i<0?-1:i};
+async function refreshWx(force){
+  if(wxLoading)return;
+  if(!force&&wx&&Date.now()-wxAt<3600e3&&T()>=0)return;
+  wxLoading=true;
+  try{
+    const u='https://api.open-meteo.com/v1/forecast?latitude='+S.loc.lat+'&longitude='+S.loc.lon+
+    '&current=temperature_2m,weather_code,relative_humidity_2m,wind_speed_10m'+
+    '&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,et0_fao_evapotranspiration,wind_gusts_10m_max'+
+    '&timezone=auto&past_days=7&forecast_days=7';
+    const r=await fetch(u);if(!r.ok)throw new Error(r.status);
+    wx=await r.json();wxAt=Date.now();wxErr=false;
+    try{localStorage.setItem(WXKEY,JSON.stringify({k:locKey(),at:wxAt,data:wx}))}catch(e){}
+  }catch(e){wxErr=true}
+  wxLoading=false;render();
+}
+const WMO=c=>{
+  if(c===0)return['☀️','Ciel dégagé','sun'];if(c===1)return['🌤️','Peu nuageux','sun'];if(c===2)return['⛅','Éclaircies','sun'];
+  if(c===3)return['☁️','Couvert','cloud'];if(c===45||c===48)return['🌫️','Brouillard','fog'];
+  if(c>=51&&c<=57)return['🌦️','Bruine','rain'];if(c>=61&&c<=67)return['🌧️','Pluie','rain'];
+  if(c>=71&&c<=77||c===85||c===86)return['🌨️','Neige','snow'];if(c>=80&&c<=82)return['🌦️','Averses','rain'];
+  if(c>=95)return['⛈️','Orage','storm'];return['⛅','Variable','cloud'];
+};
+
+/* ============ Logique d’arrosage ============ */
+const daysSince=iso=>iso?Math.floor((Date.now()-new Date(iso).getTime())/864e5):null;
+function litres(sp,young,pot){
+  if(pot)return sp.t==='arbre'?10:4;
+  const base={haie:6,arbuste:10,grimpante:8,arbre:25,fruitier:10}[sp.t]||8;
+  const L=sp.id==='fraisier'?2:sp.id==='framboisier'?8:base;
+  return Math.round(young?L:L*1.2);
+}
+function waterAdvice(P){
+  const sp=getSp(P.sid);const i=T();
+  if(!wx||i<0)return{s:'na',r:'Météo indisponible'};
+  const d=wx.daily,m=new Date().getMonth()+1,young=P.age!=='old',pot=!!P.pot;
+  const ds=daysSince(P.lastWater);
+  const n=Math.max(0,Math.min(i,ds==null?7:Math.min(7,ds)));
+  const sl=a=>a.slice(i-n,i);
+  const et=sum(sl(d.et0_fao_evapotranspiration)),rain=sum(sl(d.precipitation_sum));
+  const deficit=Math.max(0,et-0.8*rain);
+  let thr=[32,22,14][sp.w];if(young)thr*=0.6;if(pot)thr*=0.5;
+  if((d.temperature_2m_max[i]||0)>=32)thr*=0.75;
+  const soon=(d.precipitation_sum[i]||0)+(d.precipitation_sum[i+1]||0);
+  const winter=[11,12,1,2].includes(m);
+  const L=litres(sp,young,pot);
+  if(winter&&!pot)return{s:'skip',r:'Repos hivernal'};
+  if((d.temperature_2m_min[i]??5)<=0)return{s:'skip',r:'Gel : ne pas arroser'};
+  if(ds!=null&&ds<2)return{s:'skip',r:'Arrosé récemment'};
+  if(deficit>=thr){
+    if(soon>=5)return{s:'wait',r:'Pluie annoncée ('+Math.round(soon)+' mm) : attendre',L};
+    return{s:'water',r:'Déficit hydrique '+Math.round(deficit)+' mm sur '+(n||7)+' j',L};
+  }
+  return{s:'skip',r:'Sol encore frais ('+Math.round(deficit)+' / '+Math.round(thr)+' mm)'};
+}
+function alerts(){
+  if(!wx)return[];const i=T();if(i<0)return[];const d=wx.daily,out=[];
+  const dn=k=>new Date(d.time[k]+'T12:00').toLocaleDateString('fr-FR',{weekday:'long'});
+  for(let k=i;k<Math.min(d.time.length,i+7);k++){
+    const mn=d.temperature_2m_min[k];
+    if(mn<=0){
+      const tender=S.plants.filter(P=>{const sp=getSp(P.sid);return mn<=sp.h+(P.age!=='old'?10:8)});
+      const names=[...new Set(tender.map(P=>getSp(P.sid).n))];
+      out.push({c:'frost',t:'Gel prévu '+(k===i?'aujourd’hui':dn(k))+' ('+Math.round(mn)+' °C)',d:names.length?'À protéger : '+names.join(', ')+'.':'Rien de sensible à protéger dans ton jardin.'});
+      break;
+    }
+  }
+  for(let k=i;k<Math.min(d.time.length,i+5);k++){
+    if(d.temperature_2m_max[k]>=35){out.push({c:'heat',t:'Canicule '+(k===i?'aujourd’hui':dn(k))+' ('+Math.round(d.temperature_2m_max[k])+' °C)',d:'Arroser copieusement tôt le matin : jeunes arbres, pots, hortensias, érable du Japon. Pailler.'});break}
+  }
+  for(let k=i;k<Math.min(d.time.length,i+3);k++){
+    if(d.wind_gusts_10m_max[k]>=70){out.push({c:'wind',t:'Vent fort '+(k===i?'aujourd’hui':dn(k))+' (rafales '+Math.round(d.wind_gusts_10m_max[k])+' km/h)',d:'Vérifier tuteurs et attaches des jeunes arbres.'});break}
+  }
+  for(let k=i;k<Math.min(d.time.length,i+3);k++){
+    if(d.precipitation_sum[k]>=30){out.push({c:'rain',t:'Fortes pluies '+(k===i?'aujourd’hui':dn(k))+' ('+Math.round(d.precipitation_sum[k])+' mm)',d:'Inutile d’arroser ; vérifier l’évacuation des eaux autour des jeunes plantations.'});break}
+  }
+  return out;
+}
+
+/* ============ Tâches du mois ============ */
+function tasksFor(m,y){
+  const seen=new Set(),out=[];
+  S.plants.forEach(P=>{
+    if(seen.has(P.sid))return;seen.add(P.sid);const sp=getSp(P.sid);
+    inM(sp.pr,m).forEach((e,k)=>out.push({id:sp.id+'|taille|'+k+'|'+y+'-'+m,sp,kind:'taille',text:e[1]}));
+    inM(sp.fd,m).forEach((e,k)=>out.push({id:sp.id+'|engrais|'+k+'|'+y+'-'+m,sp,kind:'engrais',text:e[1]}));
+    inM(sp.x,m).forEach((e,k)=>out.push({id:sp.id+'|'+e[2]+'|'+k+'|'+y+'-'+m,sp,kind:e[2],text:e[1]}));
+  });
+  const order=['protection','taille','engrais','soin','traitement','récolte'];
+  return out.sort((a,b)=>order.indexOf(a.kind)-order.indexOf(b.kind)||a.sp.n.localeCompare(b.sp.n));
+}
+const taskRow=t=>`<div class="row task ${S.done[t.id]?'done':''}">${phHtml(t.sp,null,'ico')}<div class="tx"><b>${esc(t.sp.n)} <span class="pill ${t.kind}">${KIND_LABEL[t.kind]}</span></b><span>${esc(t.text)}</span>${t.sp.g?`<button class="lnk" data-act="guide" data-id="${esc(t.sp.id)}">📖 Guide pas à pas</button>`:''}</div><input type="checkbox" class="chk" data-act="task" data-id="${esc(t.id)}" ${S.done[t.id]?'checked':''}></div>`;
+
+/* ============ Navigation / rendu ============ */
+const NAV=[
+ ['today','Aujourd’hui','<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>'],
+ ['garden','Jardin','<path d="M5 19c0-8 5-14 15-14 0 10-6 15-14 15"/><path d="M5 19c3-5 6-8 10-10"/>'],
+ ['calendar','Calendrier','<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/>'],
+ ['plantation','Plantation','<path d="M12 21v-9"/><path d="M12 13c0-4-3-6-7-6 0 4 3 6 7 6z"/><path d="M12 15c0-3 2.5-5 6-5 0 3-2.5 5-6 5z"/>'],
+ ['settings','Réglages','<path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/>']
+];
+let tab=(location.hash||'#today').slice(1);if(!NAV.some(n=>n[0]===tab))tab='today';
+let calM=new Date().getMonth()+1,gFilter='all',gQuery='';
+function go(t){tab=t;history.replaceState(null,'','#'+t);window.scrollTo(0,0);render()}
+function navHtml(){return NAV.map(n=>`<button class="nav ${n[0]===tab?'on':''}" data-act="go" data-id="${n[0]}"><svg viewBox="0 0 24 24">${n[2]}</svg>${n[1]}</button>`).join('')}
+
+function render(){
+  $('#navSide').innerHTML=navHtml();$('#navBar').innerHTML=navHtml();
+  $('#syncState').textContent=fileHandle?'☁︎ Sauvegarde liée au fichier':'Données stockées sur cet appareil';
+  const v={today:viewToday,garden:viewGarden,calendar:viewCalendar,plantation:viewPlantation,settings:viewSettings}[tab]();
+  const keep=document.activeElement&&document.activeElement.id==='gq';
+  $('#main').innerHTML=v;
+  if(keep){const el=$('#gq');el.focus();el.setSelectionRange(el.value.length,el.value.length)}
+  loadImgs(tab==='plantation'?[...CAT,...REC]:CAT);
+}
+
+/* ---------- Aujourd’hui ---------- */
+function heroHtml(){
+  const loc=esc(S.loc.name);
+  if(!wx||T()<0){
+    return `<div class="hero cloud"><div class="loc">${loc}</div><div class="big"><div class="ic">⏳</div><div><div style="font-size:20px;font-weight:600">${wxErr?'Météo indisponible':'Chargement de la météo…'}</div><div class="loc">${wxErr?'Hors-ligne ? Les conseils d’arrosage nécessitent la météo.':''}</div></div></div>${wxErr?'<p><button class="btn ghost sm" data-act="wx">Réessayer</button></p>':''}</div>`;
+  }
+  const i=T(),d=wx.daily,c=wx.current;const [em,lab,cls]=WMO(c?c.weather_code:d.weather_code[i]);
+  const days=[];for(let k=i;k<Math.min(d.time.length,i+7);k++){
+    const w=WMO(d.weather_code[k]);
+    days.push(`<div class="day"><b>${k===i?'Auj.':new Date(d.time[k]+'T12:00').toLocaleDateString('fr-FR',{weekday:'short'})}</b><div class="e">${w[0]}</div>${Math.round(d.temperature_2m_max[k])}° <span style="opacity:.75">${Math.round(d.temperature_2m_min[k])}°</span><div class="r">${d.precipitation_sum[k]>=0.5?'💧'+Math.round(d.precipitation_sum[k])+' mm':''}</div></div>`);
+  }
+  const rain7=sum(d.precipitation_sum.slice(Math.max(0,i-7),i));
+  return `<div class="hero ${cls}"><div class="loc">📍 ${loc} · mis à jour ${new Date(wxAt).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</div>
+  <div class="big"><div class="ic">${em}</div><div class="t">${Math.round(c?c.temperature_2m:d.temperature_2m_max[i])}°</div>
+  <div><div style="font-size:20px;font-weight:600">${lab}</div><div class="loc">Min ${Math.round(d.temperature_2m_min[i])}° · Max ${Math.round(d.temperature_2m_max[i])}°${c?' · humidité '+c.relative_humidity_2m+' %':''}<br>Pluie des 7 derniers jours : ${Math.round(rain7)} mm</div></div></div>
+  <div class="days">${days.join('')}</div></div>`;
+}
+function waterCard(){
+  if(!S.plants.length)return '';
+  const list=S.plants.map(P=>({P,sp:getSp(P.sid),a:waterAdvice(P)}));
+  if(list.every(x=>x.a.s==='na'))return `<div class="card"><h2>Arrosage</h2><div class="empty">En attente de la météo…</div></div>`;
+  const w=list.filter(x=>x.a.s==='water'),wt=list.filter(x=>x.a.s==='wait'),sk=list.filter(x=>x.a.s==='skip');
+  const row=(x,btn)=>`<div class="row">${phHtml(x.sp,x.P,'ico')}<div class="tx"><b>${esc(x.sp.n)}${x.P.qty>1?' ×'+x.P.qty:''}${x.P.pot?' <span class="pill">pot</span>':''}</b><span>${esc(x.a.r)}${x.a.L?' · ≈ '+x.a.L+' L'+(x.P.qty>1?' / plant':''):''}</span></div>${btn?`<button class="btn sm ghost" data-act="watered" data-id="${x.P.id}">💧 Fait</button>`:''}</div>`;
+  const i=T(),d=wx.daily;
+  const info=`Pluie 7 j : ${Math.round(sum(d.precipitation_sum.slice(Math.max(0,i-7),i)))} mm · évapotranspiration : ${Math.round(sum(d.et0_fao_evapotranspiration.slice(Math.max(0,i-7),i)))} mm · prévu 48 h : ${Math.round((d.precipitation_sum[i]||0)+(d.precipitation_sum[i+1]||0))} mm`;
+  return `<div class="card"><h2>Arrosage <span class="pill" style="${w.length?'background:var(--sky-s);color:var(--sky)':''}">${w.length?w.length+' à arroser':'rien à faire'}</span></h2>
+  <p class="sub" style="margin:-4px 0 8px">${info}</p>
+  ${w.length?w.map(x=>row(x,true)).join('')+`<p style="margin:12px 0 0"><button class="btn sm" data-act="wateredAll">Tout marquer comme arrosé</button></p><p class="sub">Au pied, tôt le matin ou le soir, copieusement plutôt que souvent.</p>`:'<div class="empty" style="padding:12px 0">Aucun arrosage nécessaire aujourd’hui.</div>'}
+  ${wt.length?`<h3 class="sec" style="margin-top:14px">À reporter</h3>`+wt.map(x=>row(x,false)).join(''):''}
+  ${sk.length?`<details><summary>Pas besoin pour l’instant (${sk.length})</summary>${sk.map(x=>row(x,false)).join('')}</details>`:''}</div>`;
+}
+function viewToday(){
+  const now=new Date(),m=now.getMonth()+1,y=now.getFullYear();
+  const tasks=tasksFor(m,y),done=tasks.filter(t=>S.done[t.id]).length;
+  const hr=now.getHours(),hello=hr<6||hr>=19?'Bonne soirée':hr<12?'Bonjour':'Bon après-midi';
+  return `<div class="top"><div><h1>${hello} 🌿</h1><p>${now.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</p></div><button class="btn ghost sm" data-act="wx">↻ Actualiser la météo</button></div>
+  ${heroHtml()}
+  ${alerts().map(a=>`<div class="alert ${a.c}"><span>${a.c==='frost'?'❄️':a.c==='heat'?'🔥':a.c==='wind'?'💨':'🌧️'}</span><div><b>${esc(a.t)}</b>${esc(a.d)}</div></div>`).join('')}
+  <div class="grid g2">
+    ${waterCard()}
+    <div class="card"><h2>À faire en ${MONTHS[m-1]} <span class="pill">${done}/${tasks.length}</span></h2>
+      ${tasks.length?tasks.map(taskRow).join(''):'<div class="empty">Rien de particulier ce mois-ci.</div>'}</div>
+    <div class="card"><h2>Conseils de saison</h2><ul class="tips">${GENERAL[m].map(t=>`<li>${esc(t)}</li>`).join('')}</ul></div>
+  </div>`;
+}
+
+/* ---------- Jardin ---------- */
+function stripHtml(sp){
+  const cur=new Date().getMonth()+1;
+  return `<div class="strip">${MI.map((l,i)=>{const m=i+1;return `<div class="mc ${m===cur?'cur':''}" title="${MONTHS[i]}"><span>${l}</span><i class="${inM(sp.pr,m).length?'p':''}"></i><i class="${sp.pl.includes(m)?'l':''}"></i><i class="${inM(sp.fd,m).length?'f':''}"></i></div>`}).join('')}</div>
+  <div class="legend"><span style="--c:var(--clay)">Taille</span><span style="--c:var(--green)">Plantation</span><span style="--c:var(--sun)">Engrais</span></div>`;
+}
+function viewGarden(){
+  const cur=new Date().getMonth()+1;
+  let list=S.plants.map(P=>({P,sp:getSp(P.sid)}));
+  if(gFilter!=='all')list=list.filter(x=>x.sp.t===gFilter);
+  if(gQuery)list=list.filter(x=>(x.sp.n+' '+x.sp.l).toLowerCase().includes(gQuery.toLowerCase()));
+  const groups=Object.keys(TYPES).map(t=>({t,items:list.filter(x=>x.sp.t===t).sort((a,b)=>a.sp.n.localeCompare(b.sp.n))})).filter(g=>g.items.length);
+  return `<div class="top"><div><h1>Mon jardin</h1><p style="text-transform:none">${S.plants.length} espèce${S.plants.length>1?'s':''} plantée${S.plants.length>1?'s':''}</p></div><button class="btn" data-act="add">＋ Ajouter une espèce</button></div>
+  <input class="search" id="gq" placeholder="Rechercher une plante…" value="${esc(gQuery)}" autocomplete="off">
+  <div class="chips scroll" style="margin:12px 0 4px">${[['all','Tout'],...Object.entries(TYPES)].map(([k,v])=>`<button class="chip ${gFilter===k?'on':''}" data-act="filter" data-id="${k}">${k==='all'?v:TYPE_EM[k]+' '+v.split(' ')[0]}</button>`).join('')}</div>
+  ${groups.length?groups.map(g=>`<h3 class="sec">${TYPES[g.t]}</h3><div class="cards">${g.items.map(({P,sp})=>{
+    const tg=[];
+    if(inM(sp.pr,cur).length)tg.push('<span class="pill taille">à tailler</span>');
+    if(inM(sp.fd,cur).length)tg.push('<span class="pill engrais">engrais</span>');
+    if(P.age!=='old')tg.push('<span class="pill">jeune</span>');
+    if(P.pot)tg.push('<span class="pill">pot</span>');
+    return `<button class="pc" data-act="plant" data-id="${P.id}">${phHtml(sp,P,'pcph')}<b>${esc(sp.n)}${P.qty>1?' ×'+P.qty:''}</b><i>${esc(sp.l)}</i><div class="tg">${tg.join('')}</div></button>`}).join('')}</div>`).join(''):`<div class="empty">Aucune plante ne correspond.</div>`}`;
+}
+
+/* ---------- Calendrier ---------- */
+function viewCalendar(){
+  const y=new Date().getFullYear(),cur=new Date().getMonth()+1;
+  const tasks=tasksFor(calM,y);
+  const uniq=[],seen=new Set();S.plants.forEach(P=>{if(!seen.has(P.sid)){seen.add(P.sid);uniq.push(getSp(P.sid))}});
+  uniq.sort((a,b)=>Object.keys(TYPES).indexOf(a.t)-Object.keys(TYPES).indexOf(b.t)||a.n.localeCompare(b.n));
+  const dot=(c,on)=>on?`<span class="d" style="background:${c}"></span>`:'';
+  return `<div class="top"><div><h1>Calendrier</h1><p style="text-transform:none">Taille, plantation et entretien tout au long de l’année</p></div></div>
+  <div class="chips scroll">${MS.map((l,i)=>`<button class="chip ${calM===i+1?'on':''}" data-act="month" data-id="${i+1}" style="${cur===i+1&&calM!==i+1?'border-color:var(--green)':''}">${l}.</button>`).join('')}</div>
+  <div class="grid g2" style="margin-top:16px">
+    <div class="card"><h2 style="text-transform:capitalize">${MONTHS[calM-1]}</h2>${tasks.length?tasks.map(taskRow).join(''):'<div class="empty">Aucune tâche spécifique.</div>'}</div>
+    <div class="grid" style="align-content:start">
+      <div class="card"><h2>À planter</h2><div class="chips">${allSpecies().filter(sp=>sp.pl.includes(calM)).map(sp=>`<button class="chip" data-act="spinfo" data-id="${sp.id}">${sp.e} ${esc(sp.n)}</button>`).join('')||'<span class="sub">Période peu favorable à la plantation.</span>'}</div></div>
+      <div class="card"><h2>Conseils généraux</h2><ul class="tips">${GENERAL[calM].map(t=>`<li>${esc(t)}</li>`).join('')}</ul></div>
+    </div>
+  </div>
+  <h3 class="sec">Vue annuelle</h3>
+  <div class="mx"><table><thead><tr><th>Espèce</th>${MI.map((l,i)=>`<th class="${i+1===cur?'cur':''}">${l}</th>`).join('')}</tr></thead><tbody>
+  ${uniq.map(sp=>`<tr><td>${sp.e} ${esc(sp.n)}</td>${MI.map((_,i)=>{const m=i+1;return `<td class="${m===cur?'cur':''}">${dot('var(--clay)',inM(sp.pr,m).length)}${dot('var(--green)',sp.pl.includes(m))}${dot('var(--sun)',inM(sp.fd,m).length)}</td>`}).join('')}</tr>`).join('')}
+  </tbody></table></div>
+  <div class="legend" style="margin-top:10px"><span style="--c:var(--clay)">Taille</span><span style="--c:var(--green)">Plantation</span><span style="--c:var(--sun)">Engrais</span></div>`;
+}
+
+/* ---------- Réglages ---------- */
+function viewSettings(){
+  const fsa='showSaveFilePicker' in window;
+  return `<div class="top"><div><h1>Réglages</h1></div></div>
+  <div class="grid g2">
+   <div class="card"><h2>Localisation</h2>
+     <div class="kv"><span>Lieu</span><b>${esc(S.loc.name)}</b><span>Coordonnées</span><b>${(+S.loc.lat).toFixed(3)}, ${(+S.loc.lon).toFixed(3)}</b></div>
+     <div class="field"><label>Rechercher une commune</label><div style="display:flex;gap:8px"><input class="in" id="cityq" placeholder="Ex. Ousse"><button class="btn" data-act="city">Chercher</button></div></div>
+     <div id="cityres"></div>
+     <button class="btn ghost sm" data-act="geo">📍 Utiliser ma position</button>
+     <p class="sub">Plus la commune est précise, plus la météo l’est (relief, vallée). Source : Open-Meteo.</p></div>
+   <div class="card"><h2>Données & sauvegarde</h2>
+     <p class="sub" style="margin-top:0">Tout est stocké localement. Pour retrouver ton jardin sur tous tes appareils, utilise un fichier de sauvegarde placé dans iCloud Drive.</p>
+     <div style="display:flex;gap:8px;flex-wrap:wrap">
+       <button class="btn" data-act="export">⬇︎ Exporter</button>
+       <label class="btn ghost" style="cursor:pointer">⬆︎ Importer<input type="file" id="imp" accept=".json,application/json" hidden></label>
+     </div>
+     ${fsa?`<div class="sec2"><h4>Synchronisation automatique (ordinateur)</h4>
+       <p class="sub">${fileHandle?'✓ Fichier lié : chaque modification est enregistrée automatiquement.':'Lie un fichier .json situé dans ton dossier iCloud Drive : l’app l’enregistre à chaque modification.'}</p>
+       <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn ghost sm" data-act="linkNew">Créer le fichier</button>
+        <button class="btn ghost sm" data-act="linkOpen">Ouvrir un fichier existant</button>
+        ${fileHandle?'<button class="btn warn sm" data-act="unlink">Délier</button>':''}
+        ${!fileHandle&&idbHandle?'<button class="btn sm" data-act="relink">Reconnecter</button>':''}
+       </div></div>`:`<div class="sec2"><p class="sub">Ce navigateur ne permet pas la liaison automatique à un fichier. Utilise Exporter / Importer : sur iPhone, « Exporter » ouvre le menu de partage → <b>Enregistrer dans Fichiers → iCloud Drive</b>.</p></div>`}
+     ${syncMsg?`<p class="sub">${esc(syncMsg)}</p>`:''}</div>
+   <div class="card"><h2>Comment l’arrosage est calculé</h2>
+     <p class="sub" style="margin-top:0">Pour chaque plante, l’app compare l’évaporation des sept derniers jours (évapotranspiration de référence) à 80 % de la pluie tombée depuis le dernier arrosage. Quand ce déficit dépasse un seuil, elle recommande d’arroser. Le seuil baisse pour les plantes gourmandes (hortensia, érable du Japon, framboisier), les jeunes plantations (moins de 2 ans), les pots et les journées chaudes. Elle diffère l’arrosage si au moins 5 mm de pluie sont annoncés sous 48 h, et ne propose rien en cas de gel ou en plein repos hivernal (hors pots).</p>
+     <p class="sub">C’est un guide, pas un capteur : le type de sol, l’exposition et le paillage changent la donne. Ajuste l’âge et « en pot » dans la fiche de chaque plante.</p></div>
+   <div class="card"><h2>Zone de danger</h2><p class="sub" style="margin-top:0">Remet le jardin à la liste initiale et efface les tâches cochées.</p><button class="btn warn" data-act="reset">Réinitialiser</button></div>
+  </div>`;
+}
+
+/* ============ Photos (Wikipédia / Wikimedia Commons + tes propres photos) ============ */
+const IMGK='jardin.img';
+let IMG={};try{IMG=JSON.parse(localStorage.getItem(IMGK))||{}}catch(e){}
+const saveImg=()=>{try{localStorage.setItem(IMGK,JSON.stringify(IMG))}catch(e){}};
+const imgUrl=sp=>IMG[sp.id]&&IMG[sp.id].u;
+function phHtml(sp,P,cls){
+  const src=(P&&P.photo)||imgUrl(sp);
+  return `<div class="ph ${cls||''}" data-sid="${esc(sp.id)}" ${P?'data-pid="'+esc(P.id)+'"':''}><span>${sp.e}</span>${src?`<img src="${esc(src)}" alt="${esc(sp.n)}" loading="lazy" onerror="this.remove()">`:''}</div>`;
+}
+function updateImgs(){
+  document.querySelectorAll('.ph[data-sid]').forEach(el=>{
+    if(el.querySelector('img'))return;
+    const sp=getSp(el.dataset.sid),P=el.dataset.pid?S.plants.find(p=>p.id===el.dataset.pid):null;
+    const src=(P&&P.photo)||imgUrl(sp);
+    if(src){const im=document.createElement('img');im.src=src;im.alt=sp.n;im.loading='lazy';im.onerror=()=>im.remove();el.appendChild(im)}
+  });
+}
+async function wikiThumbs(lang,titles){
+  const out={};
+  for(let i=0;i<titles.length;i+=25){
+    const batch=titles.slice(i,i+25);
+    const u='https://'+lang+'.wikipedia.org/w/api.php?action=query&format=json&prop=pageimages&piprop=thumbnail&pithumbsize=640&redirects=1&origin=*&titles='+encodeURIComponent(batch.join('|'));
+    const r=await fetch(u);if(!r.ok)throw new Error(r.status);
+    const q=(await r.json()).query||{};
+    const norm={},redir={},byTitle={};
+    (q.normalized||[]).forEach(x=>norm[x.from]=x.to);(q.redirects||[]).forEach(x=>redir[x.from]=x.to);
+    Object.values(q.pages||{}).forEach(p=>byTitle[p.title]=p);
+    batch.forEach(t=>{let k=t;if(norm[k])k=norm[k];if(redir[k])k=redir[k];const p=byTitle[k];if(p&&p.thumbnail&&p.thumbnail.source)out[t]={u:p.thumbnail.source,t:p.title}});
+  }
+  return out;
+}
+let imgBusy=false;
+async function loadImgs(list){
+  if(imgBusy)return;
+  const old=Date.now()-7*864e5;
+  let pending=list.filter(sp=>sp.wp&&(!IMG[sp.id]||(!IMG[sp.id].u&&IMG[sp.id].at<old)));
+  if(!pending.length)return;
+  imgBusy=true;
+  try{
+    for(const [lang,idx] of [['fr',0],['en',1]]){
+      if(!pending.length)break;
+      const titles=[...new Set(pending.map(sp=>sp.wp[idx]||sp.wp[0]))];
+      const res=await wikiThumbs(lang,titles);
+      pending=pending.filter(sp=>{const h=res[sp.wp[idx]||sp.wp[0]];if(h){IMG[sp.id]={u:h.u,t:h.t,l:lang,at:Date.now()};return false}return true});
+      saveImg();updateImgs();
+    }
+    pending.forEach(sp=>IMG[sp.id]={u:null,at:Date.now()});
+    saveImg();
+  }catch(e){/* réseau indisponible : on réessaiera plus tard, sans mémoriser d’échec */}
+  imgBusy=false;
+}
+const creditHtml=sp=>{
+  const m=IMG[sp.id];if(!m||!m.u)return '';
+  const lat=encodeURIComponent((sp.l||sp.n).replace(/\s*\(.*\)/,''));
+  return `<p class="credit">Photo : <a href="https://${m.l}.wikipedia.org/wiki/${encodeURIComponent(m.t.replace(/ /g,'_'))}" target="_blank" rel="noopener">Wikipédia — ${esc(m.t)}</a> (licence libre, auteur indiqué sur la page) · <a href="https://commons.wikimedia.org/w/index.php?search=${lat}&ns6=1" target="_blank" rel="noopener">Plus de photos</a></p>`;
+};
+function readPhoto(file){
+  return new Promise((res,rej)=>{
+    const fr=new FileReader();
+    fr.onload=()=>{const im=new Image();im.onload=()=>{
+      const sc=Math.min(1,720/Math.max(im.width,im.height)),c=document.createElement('canvas');
+      c.width=Math.round(im.width*sc);c.height=Math.round(im.height*sc);
+      c.getContext('2d').drawImage(im,0,0,c.width,c.height);res(c.toDataURL('image/jpeg',.72))};
+      im.onerror=rej;im.src=fr.result};
+    fr.onerror=rej;fr.readAsDataURL(file);
+  });
+}
+
+/* ============ Guide pas à pas ============ */
+function guideSheet(sid){
+  const sp=getSp(sid),g=sp.g;if(!g){spSheet(sid);return}
+  openSheet(`<div class="hd">${phHtml(sp,null,'hdph')}<div><h2>Guide : ${esc(sp.n)}</h2><div class="sub"><i>${esc(sp.l)}</i></div></div><button class="x" data-act="close">✕</button></div>
+  ${g.th?`<div class="alert wind" style="margin:0 0 6px"><span>ℹ️</span><div><b>Repères généraux</b>Les sources que j’ai pu lire sont partielles pour cette espèce : certaines étapes complètent avec des pratiques courantes de jardinage.</div></div>`:''}
+  <div class="sec2"><h4>Quand</h4><p>${esc(g.q)}</p></div>
+  <div class="sec2"><h4>Outils</h4><p>${esc(g.o)}</p></div>
+  <div class="sec2"><h4>Étape par étape</h4><ol class="steps">${g.e.map(x=>`<li>${esc(x)}</li>`).join('')}</ol></div>
+  ${g.v&&g.v.length?`<div class="sec2"><h4>À éviter</h4><ul class="nogo">${g.v.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`:''}
+  ${g.c&&g.c.length?`<div class="sec2"><h4>Entretien</h4>${g.c.map(x=>`<p><b>${esc(x[0])}.</b> ${esc(x[1])}</p>`).join('')}</div>`:''}
+  <div class="sec2"><h4>Sources</h4><ul class="srcs">${g.s.map(x=>`<li><a href="${esc(x[1])}" target="_blank" rel="noopener">${esc(x[0])}</a></li>`).join('')}</ul>
+  <p class="sub" style="font-size:12.5px">Contenu reformulé à partir de ces pages ; ouvre-les pour le détail et les photos des gestes.</p></div>
+  ${creditHtml(sp)}
+  <div style="display:flex;justify-content:flex-end;margin-top:16px"><button class="btn" data-act="close">Fermer</button></div>`);
+  loadImgs([sp]);
+}
+
+/* ============ Plantation ============ */
+const ROLE={sec:'Sans arrosage',ombre:'Ombrage',haie:'Haie',fleur:'Floraison',comest:'Comestible',pollin:'Pollinisateurs',persist:'Persistant'};
+const SOILS=[['','Je ne sais pas'],['A','Acide'],['N','Neutre'],['C','Calcaire'],['L','Argileux / lourd']];
+const SC_LABEL=['très mal adapté','fragile','correct','très bien adapté'];
+const dots=n=>`<span class="dots l${n}" title="${SC_LABEL[n]}">${'●'.repeat(n)}${'○'.repeat(3-n)}</span>`;
+let pf={type:'all',role:'all',now:false};
+const soilLabel=so=>so.split('').map(c=>({A:'acide',N:'neutre',C:'calcaire',L:'argileux'}[c])).join(' · ');
+const recScore=(sp,m)=>sp.now+1.3*sp.fut+(sp.pl.includes(m)?0.6:0);
+function recCard(sp,own,m){
+  const plantable=sp.pl.includes(m);
+  return `<div class="rc"><div class="ph" data-sid="${esc(sp.id)}" data-act="spinfo" data-id="${esc(sp.id)}"><span>${sp.e}</span>${imgUrl(sp)?`<img src="${esc(imgUrl(sp))}" alt="${esc(sp.n)}" loading="lazy" onerror="this.remove()">`:''}</div>
+  <div class="bd"><h3>${esc(sp.n)}</h3><div class="lat">${esc(sp.l)} · ${sp.hs||''}</div>
+  <div class="sc"><span>Aujourd’hui</span>${dots(sp.now)}<span>Vers 2050</span>${dots(sp.fut)}</div>
+  <p>${esc(sp.why)}</p>
+  <div class="chips">${sp.r.map(r=>`<span class="pill">${ROLE[r]}</span>`).join('')}${plantable?`<span class="pill" style="background:var(--green);color:#fff">plantable en ${MONTHS[m-1]}</span>`:''}</div>
+  <p class="sub" style="font-size:12.5px">Sol : ${soilLabel(sp.so)} · rustique ≈ ${sp.h} °C · eau : ${'💧'.repeat(sp.w+1)}</p>
+  <div class="act"><button class="btn ghost sm" data-act="spinfo" data-id="${esc(sp.id)}">Fiche</button>${own?'<span class="pill">✓ dans ton jardin</span>':`<button class="btn sm" data-act="addSp" data-id="${esc(sp.id)}">＋ Ajouter</button>`}</div></div></div>`;
+}
+function viewPlantation(){
+  const m=new Date().getMonth()+1,own=new Set(S.plants.map(p=>p.sid));
+  let list=REC.slice();
+  if(pf.type!=='all')list=list.filter(sp=>sp.t===pf.type);
+  if(pf.role!=='all')list=list.filter(sp=>sp.r.includes(pf.role));
+  if(S.soil)list=list.filter(sp=>sp.so.includes(S.soil));
+  if(pf.now)list=list.filter(sp=>sp.pl.includes(m));
+  list.sort((a,b)=>recScore(b,m)-recScore(a,m)||a.n.localeCompare(b.n));
+  const nowCount=REC.filter(sp=>sp.pl.includes(m)).length;
+  /* ton jardin face à 2050 */
+  const mine=[...new Set(S.plants.map(p=>p.sid))].map(getSp).filter(sp=>sp.fut!=null);
+  const frag=mine.filter(sp=>sp.fut<=1),watch=mine.filter(sp=>sp.fut===2&&sp.now>sp.fut),solid=mine.filter(sp=>!frag.includes(sp)&&!watch.includes(sp));
+  const altChips=sp=>(sp.alt||[]).map(getSp).filter(a=>a&&a.n!=='Espèce inconnue').map(a=>`<button class="chip" data-act="spinfo" data-id="${esc(a.id)}">${a.e} ${esc(a.n)}</button>`).join('');
+  return `<div class="top"><div><h1>Plantation</h1><p style="text-transform:none">Quoi planter ici, aujourd’hui et dans le climat de 2050</p></div></div>
+  <div class="card" style="margin-bottom:16px"><h2>Ton climat : ${esc(S.loc.name)} hier, aujourd’hui, demain</h2>
+   <div class="cl2"><div><h4>Aujourd’hui (normales 1991–2020, Pau-Uzein)</h4><ul>
+     <li>13,7 °C de moyenne, 1 094 mm de pluie par an</li><li>≈ 29 jours de gel par an, dont ≈ 3 à −5 °C ou moins (record de la fiche : −15 °C en 1956)</li><li>≈ 20 jours à 30 °C ou plus ; pointes à 41 °C en juin 2022 (AUDAP)</li></ul></div>
+    <div><h4>Vers 2050 (trajectoire de réchauffement de référence)</h4><ul>
+     <li>+2,7 °C en France d’ici 2050 (+2 °C en 2030, +4 °C en 2100)</li><li>Sud-Aquitain : jours à plus de 35 °C de 1 à ≈ 6 par an ; jours de sol sec de 24 à ≈ 32 ; pluies d’automne de 360 à ≈ 334 mm</li><li>Étés plus secs, hivers/automnes légèrement plus humides, moins de gel — mais les gelées tardives restent possibles</li></ul></div></div>
+   <p class="sub" style="margin:12px 0 0"><b>Ce que ça change pour le choix des plantes :</b> le stress hydrique d’été devient le premier critère ; les sols saturés en hiver gênent lavande, olivier et romarin ; les floraisons précoces (amandier) restent exposées aux gelées tardives.</p>
+   <details><summary>Sources et limites</summary>
+    <ul class="srcs"><li><a href="https://object.files.data.gouv.fr/meteofrance/data/synchro_ftp/REF_STATION/FICHECLIM_64549001.pdf" target="_blank" rel="noopener">Météo-France — fiche climatologique Pau-Uzein</a></li>
+    <li><a href="https://www.ecologie.gouv.fr/sites/default/files/documents/27012026_DP_TRACC.pdf" target="_blank" rel="noopener">Ministère de la Transition écologique — dossier TRACC (trajectoire de réchauffement)</a></li>
+    <li><a href="https://www.audap.org/fileadmin/2-Ressources/mediatheque/etudes/fichiers/la_note_15_bv4.pdf" target="_blank" rel="noopener">AUDAP — note n°15, climat du Sud-Aquitain</a></li>
+    <li><a href="https://pa.chambre-agriculture.fr/fileadmin/user_upload/Nouvelle-Aquitaine/106_Inst-Pyrenees-Atlantiques/Actus-agendas/2023/changement.pdf" target="_blank" rel="noopener">Chambre d’agriculture 64 — changement climatique</a></li></ul>
+    <p class="sub">Les notes ● de 0 à 3 sont <b>mon estimation</b> à partir de ces données (rusticité habituelle, besoin en eau, sensibilité au gel tardif), pas le résultat d’un modèle. Les rusticités (≈ °C) sont des ordres de grandeur ; elles varient selon la variété, le sol et l’abri. Ces chiffres sont ceux de Pau : si ton jardin est ailleurs (coteau, vallée), ajuste.</p></details></div>
+  <h2 style="margin:22px 0 8px">Ton jardin face à 2050</h2>
+  <div class="card">
+   ${frag.length?frag.map(sp=>`<div class="vul"><b>${sp.e} ${esc(sp.n)} <span class="sub" style="font-weight:400">· aujourd’hui ${dots(sp.now)} → 2050 ${dots(sp.fut)}</span></b><span class="sub">${esc(sp.futNote)}</span>${sp.alt?`<div class="chips" style="margin-top:6px"><span class="sub">Alternatives :</span>${altChips(sp)}</div>`:''}</div>`).join(''):'<p class="sub">Aucune espèce fragile identifiée.</p>'}
+   ${watch.map(sp=>`<div class="vul w"><b>${sp.e} ${esc(sp.n)} <span class="sub" style="font-weight:400">· à surveiller (${dots(sp.now)} → ${dots(sp.fut)})</span></b><span class="sub">${esc(sp.futNote)}</span></div>`).join('')}
+   ${solid.length?`<details><summary>Bien armés pour la suite (${solid.length})</summary><p class="sub" style="margin:4px 0 0">${solid.map(sp=>sp.e+' '+esc(sp.n)).join(' · ')}</p></details>`:''}
+  </div>
+  <h2 style="margin:26px 0 8px">Espèces conseillées</h2>
+  <div class="fbar"><button class="chip ${pf.now?'on':''}" data-act="pfnow">🌱 À planter en ${MONTHS[m-1]} (${nowCount})</button>
+   <label class="sub" style="display:flex;gap:8px;align-items:center">Mon sol
+   <select class="in" id="soilSel" style="width:auto;padding:6px 10px">${SOILS.map(([v,l])=>`<option value="${v}" ${(S.soil||'')===v?'selected':''}>${l}</option>`).join('')}</select></label></div>
+  <div class="chips scroll" style="margin:6px 0">${[['all','Tout'],...Object.entries(TYPES)].map(([k,v])=>`<button class="chip ${pf.type===k?'on':''}" data-act="pftype" data-id="${k}">${k==='all'?v:TYPE_EM[k]+' '+v.split(' ')[0]}</button>`).join('')}</div>
+  <div class="chips scroll" style="margin:6px 0 14px">${[['all','Tous les rôles'],...Object.entries(ROLE)].map(([k,v])=>`<button class="chip ${pf.role===k?'on':''}" data-act="pfrole" data-id="${k}">${v}</button>`).join('')}</div>
+  ${!S.soil?'<p class="sub" style="margin:-4px 0 12px">Je ne connais pas la nature de ton sol : indique-la ci-dessus pour écarter les espèces qui ne conviennent pas (une espèce « calcaire » ne vivra pas en sol acide, et inversement).</p>':''}
+  ${list.length?`<div class="rgrid">${list.map(sp=>recCard(sp,own.has(sp.id),m)).join('')}</div>`:'<div class="empty">Aucune espèce ne correspond à ces filtres.</div>'}
+  <p class="sub" style="margin-top:18px">Sélection de ≈ ${REC.length} espèces à partir de listes de plantes résistantes au sec (dont les fiches Promesse de Fleurs sur les arbustes de sol sec et les fruitiers résistants au sec) et de mes propres connaissances : ce n’est ni exhaustif ni un conseil sur mesure pour ta parcelle. Les fiches détaillées pas à pas existent pour les ${CAT.length} espèces déjà plantées.</p>`;
+}
+
+/* ============ Feuilles (fiche, ajout) ============ */
+const sheet=$('#sheet');
+function openSheet(html){sheet.innerHTML='<div class="box">'+html+'</div>';sheet.hidden=false;document.body.style.overflow='hidden'}
+function closeSheet(){sheet.hidden=true;sheet.innerHTML='';document.body.style.overflow=''}
+sheet.addEventListener('click',e=>{if(e.target===sheet)closeSheet()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet()});
+
+function plantSheet(id){
+  const P=S.plants.find(p=>p.id===id);if(!P)return;const sp=getSp(P.sid);const cur=new Date().getMonth()+1;
+  const a=waterAdvice(P),ds=daysSince(P.lastWater);
+  const sec=(t,arr,k)=>arr.length?`<div class="sec2"><h4>${t}</h4>${arr.map(e=>`<p><b style="color:var(--${k})">${e[0].map(m=>MS[m-1]).join(', ')}</b> — ${esc(e[1])}</p>`).join('')}</div>`:'';
+  openSheet(`<div class="hd">${phHtml(sp,P,'hdph')}<div><h2>${esc(sp.n)}</h2><div class="sub"><i>${esc(sp.l)}</i></div></div><button class="x" data-act="close">✕</button></div>
+  <div class="chips" style="margin-bottom:10px">${sp.g?`<button class="btn sm" data-act="guide" data-id="${esc(sp.id)}">📖 Guide pas à pas</button>`:''}<label class="btn sm ghost" style="cursor:pointer">📷 Ma photo<input type="file" accept="image/*" id="photoIn" data-id="${P.id}" hidden></label>${P.photo?`<button class="btn sm warn" data-act="rmphoto" data-id="${P.id}">Retirer ma photo</button>`:''}</div>
+  <div class="chips" style="margin-bottom:10px"><span class="pill">${TYPES[sp.t].split(' ')[0].replace(/s$/,'')}</span>${sp.f?`<span class="pill">${esc(sp.f)}</span>`:''}${sp.s?`<span class="pill">${esc(sp.s)}</span>`:''}<span class="pill">${'💧'.repeat(sp.w+1)} eau</span><span class="pill">rustique ≈ ${sp.h} °C</span></div>
+  ${stripHtml(sp)}
+  ${sp.note?`<p class="sub">${esc(sp.note)}</p>`:''}
+  <div class="sec2"><h4>Arrosage aujourd’hui</h4><p>${a.s==='water'?'💧 <b>À arroser</b> — ':a.s==='wait'?'⏳ ':'✅ '}${esc(a.r)}${a.L?' · ≈ '+a.L+' L':''}</p>
+   <p class="sub">${ds==null?'Jamais marqué comme arrosé.':'Dernier arrosage : il y a '+ds+' jour'+(ds>1?'s':'')+'.'}</p>
+   <button class="btn sm ghost" data-act="watered1" data-id="${P.id}">💧 Arrosé aujourd’hui</button></div>
+  ${sec('Taille',sp.pr,'clay')}${sec('Engrais',sp.fd,'sun')}
+  ${sp.futNote?`<div class="sec2"><h4>Climat de demain</h4><p>Aujourd’hui ${dots(sp.now)} → 2050 ${dots(sp.fut)}</p><p class="sub">${esc(sp.futNote)}</p></div>`:''}
+  ${sp.x.length?`<div class="sec2"><h4>Entretien & surveillance</h4>${sp.x.map(e=>`<p><b>${e[0].map(m=>MS[m-1]).join(', ')}</b> <span class="pill ${e[2]}">${KIND_LABEL[e[2]]}</span> ${esc(e[1])}</p>`).join('')}</div>`:''}
+  <div class="sec2"><h4>Ma plantation</h4>
+   <div class="two"><div class="field"><label>Quantité</label><div class="qty"><button data-act="qty" data-id="${P.id}" data-d="-1">−</button><b>${P.qty}</b><button data-act="qty" data-id="${P.id}" data-d="1">+</button></div></div>
+   <div class="field"><label>Âge de la plantation</label><select class="in" data-change="age" data-id="${P.id}"><option value="young" ${P.age!=='old'?'selected':''}>Moins de 2 ans</option><option value="old" ${P.age==='old'?'selected':''}>2 ans et plus</option></select></div></div>
+   <label style="display:flex;gap:10px;align-items:center;margin:8px 0;cursor:pointer"><input type="checkbox" data-change="pot" data-id="${P.id}" ${P.pot?'checked':''}> Cultivé en pot / bac</label>
+   <div class="field"><label>Notes</label><textarea class="in" rows="2" data-change="note" data-id="${P.id}" placeholder="Variété, emplacement, date de plantation…">${esc(P.note)}</textarea></div></div>
+  ${P.photo?'':creditHtml(sp)}
+  <div style="display:flex;justify-content:space-between;margin-top:16px"><button class="btn warn sm" data-act="del" data-id="${P.id}">Retirer du jardin</button><button class="btn" data-act="close">Fermer</button></div>`);
+}
+function spSheet(sid){
+  const sp=getSp(sid),own=S.plants.some(p=>p.sid===sid);
+  const cur=new Date().getMonth()+1;
+  openSheet(`<div class="hd">${phHtml(sp,null,'hdph')}<div><h2>${esc(sp.n)}</h2><div class="sub"><i>${esc(sp.l)}</i></div></div><button class="x" data-act="close">✕</button></div>
+  <div class="chips" style="margin-bottom:10px"><span class="pill">${TYPES[sp.t].split(' ')[0].replace(/s$/,'')}</span>${sp.f?`<span class="pill">${esc(sp.f)}</span>`:''}${sp.s?`<span class="pill">${esc(sp.s)}</span>`:''}<span class="pill">${'💧'.repeat(sp.w+1)} eau</span><span class="pill">rustique ≈ ${sp.h} °C</span>${sp.hs?`<span class="pill">${esc(sp.hs)}</span>`:''}${sp.so?`<span class="pill">sol : ${soilLabel(sp.so)}</span>`:''}</div>
+  ${stripHtml(sp)}
+  ${sp.now!=null?`<div class="sec2"><h4>Adaptation au climat</h4><p>Aujourd’hui ${dots(sp.now)} · vers 2050 ${dots(sp.fut)}</p><p class="sub">${esc(sp.why||sp.futNote||'')}</p>${sp.tip?`<p><b>Conseil.</b> ${esc(sp.tip)}</p>`:''}</div>`:''}
+  ${sp.note?`<p class="sub">${esc(sp.note)}</p>`:''}
+  ${sp.pr.map(e=>`<p style="font-size:14.5px"><b style="color:var(--clay)">Taille ${e[0].map(m=>MS[m-1]).join(', ')}</b> — ${esc(e[1])}</p>`).join('')}
+  ${creditHtml(sp)}
+  <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px;flex-wrap:wrap">${sp.g?`<button class="btn ghost" data-act="guide" data-id="${esc(sid)}">📖 Guide</button>`:''}${own?'':`<button class="btn ghost" data-act="addSp" data-id="${sid}">＋ Ajouter à mon jardin</button>`}<button class="btn" data-act="close">Fermer</button></div>`);
+  loadImgs([sp]);
+}
+function catList(q){
+  const own=new Set(S.plants.map(p=>p.sid));
+  const items=allSpecies().filter(sp=>!q||(sp.n+' '+sp.l+' '+TYPES[sp.t]).toLowerCase().includes(q.toLowerCase()));
+  return items.map(sp=>`<div class="row">${phHtml(sp,null,'ico')}<div class="tx"><b>${esc(sp.n)}</b><span>${esc(sp.l)} · ${TYPES[sp.t].split(' ')[0]}</span></div><button class="btn sm ${own.has(sp.id)?'ghost':''}" data-act="addSp" data-id="${sp.id}">${own.has(sp.id)?'＋ Une autre':'Ajouter'}</button></div>`).join('')||'<div class="empty">Aucun résultat.</div>';
+}
+function addSheet(){
+  openSheet(`<div class="hd"><h2>Ajouter une espèce</h2><button class="x" data-act="close">✕</button></div>
+  <input class="search" id="cq" placeholder="Rechercher dans le catalogue (${CAT.length} espèces)…" autocomplete="off">
+  <div id="cl" style="margin-top:8px">${catList('')}</div>
+  <div class="sec2"><button class="btn ghost" data-act="customForm">✎ Espèce personnalisée</button></div>`);
+}
+const mpick=(name,sel)=>`<div class="mgrid">${MS.map((l,i)=>`<label><input type="checkbox" name="${name}" value="${i+1}" ${sel&&sel.includes(i+1)?'checked':''}><span>${l}</span></label>`).join('')}</div>`;
+function customForm(){
+  openSheet(`<div class="hd"><h2>Espèce personnalisée</h2><button class="x" data-act="close">✕</button></div>
+  <div class="field"><label>Nom</label><input class="in" id="cf-n" placeholder="Ex. Rosier ‘Gruss an Aachen’"></div>
+  <div class="two"><div class="field"><label>Type</label><select class="in" id="cf-t">${Object.entries(TYPES).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></div>
+  <div class="field"><label>Besoin en eau</label><select class="in" id="cf-w"><option value="0">Faible</option><option value="1" selected>Moyen</option><option value="2">Élevé</option></select></div></div>
+  <div class="field"><label>Mois de taille</label>${mpick('cf-pr')}</div>
+  <div class="field"><label>Précisions sur la taille (facultatif)</label><input class="in" id="cf-prt" placeholder="Ex. rabattre d’un tiers"></div>
+  <div class="field"><label>Mois de plantation</label>${mpick('cf-pl')}</div>
+  <div class="field"><label>Mois d’engrais</label>${mpick('cf-fd')}</div>
+  <div class="field"><label>Notes</label><input class="in" id="cf-no"></div>
+  <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px"><button class="btn ghost" data-act="close">Annuler</button><button class="btn" data-act="saveCustom">Ajouter</button></div>`);
+}
+const picked=n=>[...document.querySelectorAll('input[name="'+n+'"]:checked')].map(x=>+x.value);
+function saveCustom(){
+  const n=$('#cf-n').value.trim();if(!n){toast('Donne un nom à la plante');return}
+  const t=$('#cf-t').value,pr=picked('cf-pr'),fd=picked('cf-fd'),pl=picked('cf-pl');
+  const sp={id:'c'+Date.now(),n,l:'',t,e:TYPE_EM[t],w:+$('#cf-w').value,s:'',f:'',h:-15,
+    pr:pr.length?[[pr,$('#cf-prt').value.trim()||'Période de taille choisie.']]:[],pl,fd:fd.length?[[fd,'Apport d’engrais.']]:[],x:[],note:$('#cf-no').value.trim()};
+  S.custom.push(sp);addPlant(sp.id);
+}
+function addPlant(sid){
+  const P=mkPlant(sid);S.plants.push(P);save();render();plantSheet(P.id);toast('Ajouté au jardin');
+}
+
+/* ============ Événements ============ */
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),2200)}
+const nowIso=()=>new Date().toISOString();
+document.addEventListener('click',async ev=>{
+  const el=ev.target.closest('[data-act]');if(!el)return;
+  const act=el.dataset.act,id=el.dataset.id;
+  switch(act){
+    case 'go':go(id);break;
+    case 'close':closeSheet();break;
+    case 'wx':toast('Actualisation de la météo…');refreshWx(true);break;
+    case 'task':S.done[id]=el.checked||undefined;if(!el.checked)delete S.done[id];save();render();break;
+    case 'watered':{const P=S.plants.find(p=>p.id===id);if(P){P.lastWater=nowIso();save();render()}break}
+    case 'wateredAll':S.plants.forEach(P=>{if(waterAdvice(P).s==='water')P.lastWater=nowIso()});save();render();toast('Arrosage enregistré');break;
+    case 'watered1':{const P=S.plants.find(p=>p.id===id);if(P){P.lastWater=nowIso();save();render();plantSheet(id)}break}
+    case 'filter':gFilter=id;render();break;
+    case 'plant':plantSheet(id);break;
+    case 'spinfo':spSheet(id);break;
+    case 'guide':guideSheet(id);break;
+    case 'pftype':pf.type=id;render();break;
+    case 'pfrole':pf.role=id;render();break;
+    case 'pfnow':pf.now=!pf.now;render();break;
+    case 'rmphoto':{const P=S.plants.find(p=>p.id===id);if(P){delete P.photo;save();render();plantSheet(id)}break}
+    case 'add':addSheet();break;
+    case 'addSp':addPlant(id);break;
+    case 'customForm':customForm();break;
+    case 'saveCustom':saveCustom();break;
+    case 'qty':{const P=S.plants.find(p=>p.id===id);if(P){P.qty=Math.max(1,P.qty+(+el.dataset.d));save();render();plantSheet(id)}break}
+    case 'del':if(confirm('Retirer cette plante de ton jardin ?')){S.plants=S.plants.filter(p=>p.id!==id);save();closeSheet();render()}break;
+    case 'month':calM=+id;render();break;
+    case 'city':cityLookup();break;
+    case 'pickcity':{S.loc={name:el.dataset.name,lat:+el.dataset.lat,lon:+el.dataset.lon};save();wx=null;render();refreshWx(true);toast('Lieu mis à jour');break}
+    case 'geo':geolocate();break;
+    case 'export':exportData();break;
+    case 'linkNew':linkFile(true);break;
+    case 'linkOpen':linkFile(false);break;
+    case 'unlink':fileHandle=null;idbDel('fh');idbHandle=false;render();break;
+    case 'relink':relink();break;
+    case 'reset':if(confirm('Réinitialiser tout le jardin ?')){S=defaults();save();render();toast('Jardin réinitialisé')}break;
+  }
+});
+document.addEventListener('input',ev=>{
+  if(ev.target.id==='gq'){gQuery=ev.target.value;render()}
+  if(ev.target.id==='cq'){$('#cl').innerHTML=catList(ev.target.value)}
+});
+document.addEventListener('change',ev=>{
+  const t=ev.target;
+  if(t.id==='imp'){importFile(t.files[0]);return}
+  if(t.id==='soilSel'){S.soil=t.value;save();render();return}
+  if(t.id==='photoIn'){
+    const P=S.plants.find(p=>p.id===t.dataset.id),f=t.files[0];if(!P||!f)return;
+    readPhoto(f).then(u=>{P.photo=u;save();render();plantSheet(P.id);toast('Photo enregistrée')}).catch(()=>toast('Photo illisible'));return}
+  const k=t.dataset.change;if(!k)return;
+  const P=S.plants.find(p=>p.id===t.dataset.id);if(!P)return;
+  if(k==='age')P.age=t.value;if(k==='pot')P.pot=t.checked;if(k==='note')P.note=t.value;
+  save();render();if(k!=='note')plantSheet(P.id);
+});
+document.addEventListener('keydown',ev=>{if(ev.key==='Enter'&&ev.target.id==='cityq')cityLookup()});
+
+/* ---------- Lieux ---------- */
+async function cityLookup(){
+  const q=$('#cityq').value.trim();if(!q)return;
+  const box=$('#cityres');box.innerHTML='<p class="sub">Recherche…</p>';
+  try{
+    const r=await fetch('https://geocoding-api.open-meteo.com/v1/search?name='+encodeURIComponent(q)+'&count=6&language=fr&format=json');
+    const j=await r.json();
+    box.innerHTML=(j.results||[]).map(c=>`<div class="row"><div class="tx"><b>${esc(c.name)}</b><span>${esc([c.admin2,c.admin1,c.country].filter(Boolean).join(', '))}</span></div><button class="btn sm ghost" data-act="pickcity" data-name="${esc(c.name)}" data-lat="${c.latitude}" data-lon="${c.longitude}">Choisir</button></div>`).join('')||'<p class="sub">Aucun résultat.</p>';
+  }catch(e){box.innerHTML='<p class="sub">Recherche impossible hors-ligne.</p>'}
+}
+function geolocate(){
+  if(!navigator.geolocation){toast('Géolocalisation indisponible');return}
+  navigator.geolocation.getCurrentPosition(p=>{S.loc={name:'Ma position',lat:+p.coords.latitude.toFixed(4),lon:+p.coords.longitude.toFixed(4)};save();wx=null;render();refreshWx(true)},()=>toast('Position refusée'));
+}
+
+/* ---------- Export / import / fichier lié ---------- */
+const payload=()=>JSON.stringify({app:'mon-jardin',...S},null,1);
+async function exportData(){
+  const blob=new Blob([payload()],{type:'application/json'});
+  const file=new File([blob],'jardin-donnees.json',{type:'application/json'});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:'Mon Jardin'});return}catch(e){if(e.name==='AbortError')return}}
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='jardin-donnees.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+}
+function applyData(d){
+  if(!d||!Array.isArray(d.plants))throw new Error('Fichier invalide');
+  S={v:1,loc:d.loc||S.loc,plants:d.plants,custom:d.custom||[],done:d.done||{},soil:d.soil||'',updated:d.updated||Date.now()};
+  try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
+}
+async function importFile(f){
+  if(!f)return;
+  try{applyData(JSON.parse(await f.text()));wx=null;render();refreshWx(true);toast('Données importées')}catch(e){toast('Import impossible : fichier invalide')}
+}
+/* IndexedDB pour mémoriser le fichier lié */
+let idbHandle=false;
+const idb=()=>new Promise((res,rej)=>{const r=indexedDB.open('jardin',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
+async function idbSet(k,v){try{const d=await idb();d.transaction('kv','readwrite').objectStore('kv').put(v,k)}catch(e){}}
+async function idbGet(k){try{const d=await idb();return await new Promise(res=>{const q=d.transaction('kv').objectStore('kv').get(k);q.onsuccess=()=>res(q.result);q.onerror=()=>res(null)})}catch(e){return null}}
+async function idbDel(k){try{const d=await idb();d.transaction('kv','readwrite').objectStore('kv').delete(k)}catch(e){}}
+const FT=[{description:'Données Mon Jardin',accept:{'application/json':['.json']}}];
+async function writeFile(){
+  if(!fileHandle)return;
+  try{const w=await fileHandle.createWritable();await w.write(payload());await w.close();syncMsg='Dernière sauvegarde fichier : '+new Date().toLocaleTimeString('fr-FR')}
+  catch(e){syncMsg='Écriture impossible : reconnecte le fichier.'}
+}
+async function readFileData(){const f=await fileHandle.getFile();return JSON.parse(await f.text())}
+async function linkFile(create){
+  try{
+    if(create){fileHandle=await showSaveFilePicker({suggestedName:'jardin-donnees.json',types:FT});await writeFile()}
+    else{[fileHandle]=await showOpenFilePicker({types:FT});const d=await readFileData();applyData(d);refreshWx(true)}
+    idbHandle=true;await idbSet('fh',fileHandle);render();toast('Fichier lié');
+  }catch(e){if(e.name!=='AbortError')toast('Liaison impossible')}
+}
+async function relink(){
+  try{
+    const h=await idbGet('fh');if(!h)return;
+    if((await h.requestPermission({mode:'readwrite'}))!=='granted')return;
+    fileHandle=h;await syncFromFile();render();
+  }catch(e){toast('Reconnexion impossible')}
+}
+async function syncFromFile(){
+  try{
+    const d=await readFileData();
+    if(d&&d.updated>S.updated){applyData(d);syncMsg='Données mises à jour depuis le fichier.';wx=null;refreshWx(true)}
+    else{await writeFile()}
+  }catch(e){await writeFile()}
+}
+(async()=>{if('showSaveFilePicker' in window){idbHandle=!!(await idbGet('fh'));render()}})();
+
+/* ============ Démarrage ============ */
+if('serviceWorker' in navigator&&location.protocol.startsWith('http')){navigator.serviceWorker.register('sw.js').catch(()=>{})}
+render();
+refreshWx(false);
+setInterval(()=>refreshWx(false),30*60*1000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshWx(false)});
+</script>
+</body>
+</html>
