@@ -1033,13 +1033,7 @@ function viewPlantation(){
   ${!S.soil?'<p class="sub" style="margin:-4px 0 12px">Je ne connais pas la nature de ton sol : indique-la ci-dessus pour écarter les espèces qui ne conviennent pas (une espèce « calcaire » ne vivra pas en sol acide, et inversement).</p>':''}
   ${list.length?`<div class="rgrid">${list.map(sp=>recCard(sp,own.has(sp.id),m)).join('')}</div>`:'<div class="empty">Aucune espèce ne correspond à ces filtres.</div>'}
   <p class="sub" style="margin-top:18px">Sélection de ≈ ${REC.length} espèces à partir de listes de plantes résistantes au sec (dont les fiches Promesse de Fleurs sur les arbustes de sol sec et les fruitiers résistants au sec) et de mes propres connaissances : ce n’est ni exhaustif ni un conseil sur mesure pour ta parcelle. Les fiches détaillées pas à pas existent pour les ${CAT.length} espèces déjà plantées.</p>
-  <h2 style="margin:30px 0 8px">Ton jardin face à 2050</h2>
-  <div class="card">
-   ${frag.length?frag.map(sp=>`<div class="vul"><b>${sp.e} ${esc(sp.n)} <span class="sub" style="font-weight:400">· aujourd’hui ${dots(sp.now)} → 2050 ${dots(sp.fut)}</span></b><span class="sub">${esc(sp.futNote)}</span>${sp.alt?`<div class="chips" style="margin-top:6px"><span class="sub">Alternatives :</span>${altChips(sp)}</div>`:''}</div>`).join(''):'<p class="sub">Aucune espèce fragile identifiée.</p>'}
-   ${watch.map(sp=>`<div class="vul w"><b>${sp.e} ${esc(sp.n)} <span class="sub" style="font-weight:400">· à surveiller (${dots(sp.now)} → ${dots(sp.fut)})</span></b><span class="sub">${esc(sp.futNote)}</span></div>`).join('')}
-   ${solid.length?`<details><summary>Bien armés pour la suite (${solid.length})</summary><p class="sub" style="margin:4px 0 0">${solid.map(sp=>sp.e+' '+esc(sp.n)).join(' · ')}</p></details>`:''}
-  </div>
-  <div class="card" style="margin:26px 0 16px"><h2>Ton climat : ${esc(S.loc.name)} hier, aujourd’hui, demain</h2>
+  <div class="card" style="margin:26px 0 0"><h2>Ton climat : ${esc(S.loc.name)} hier, aujourd’hui, demain</h2>
    <div class="cl2"><div><h4>Aujourd’hui (normales 1991–2020, Pau-Uzein)</h4><ul>
      <li>13,7 °C de moyenne, 1 094 mm de pluie par an</li><li>≈ 29 jours de gel par an, dont ≈ 3 à −5 °C ou moins (record de la fiche : −15 °C en 1956)</li><li>≈ 20 jours à 30 °C ou plus ; pointes à 41 °C en juin 2022 (AUDAP)</li></ul></div>
     <div><h4>Vers 2050 (trajectoire de réchauffement de référence)</h4><ul>
@@ -1050,7 +1044,13 @@ function viewPlantation(){
     <li><a href="https://www.ecologie.gouv.fr/sites/default/files/documents/27012026_DP_TRACC.pdf" target="_blank" rel="noopener">Ministère de la Transition écologique — dossier TRACC (trajectoire de réchauffement)</a></li>
     <li><a href="https://www.audap.org/fileadmin/2-Ressources/mediatheque/etudes/fichiers/la_note_15_bv4.pdf" target="_blank" rel="noopener">AUDAP — note n°15, climat du Sud-Aquitain</a></li>
     <li><a href="https://pa.chambre-agriculture.fr/fileadmin/user_upload/Nouvelle-Aquitaine/106_Inst-Pyrenees-Atlantiques/Actus-agendas/2023/changement.pdf" target="_blank" rel="noopener">Chambre d’agriculture 64 — changement climatique</a></li></ul>
-    <p class="sub">Les notes ● de 0 à 3 sont <b>mon estimation</b> à partir de ces données (rusticité habituelle, besoin en eau, sensibilité au gel tardif), pas le résultat d’un modèle. Les rusticités (≈ °C) sont des ordres de grandeur ; elles varient selon la variété, le sol et l’abri. Ces chiffres sont ceux de Pau : si ton jardin est ailleurs (coteau, vallée), ajuste.</p></details></div>`;
+    <p class="sub">Les notes ● de 0 à 3 sont <b>mon estimation</b> à partir de ces données (rusticité habituelle, besoin en eau, sensibilité au gel tardif), pas le résultat d’un modèle. Les rusticités (≈ °C) sont des ordres de grandeur ; elles varient selon la variété, le sol et l’abri. Ces chiffres sont ceux de Pau : si ton jardin est ailleurs (coteau, vallée), ajuste.</p></details></div>
+  <h2 style="margin:30px 0 8px">Ton jardin face à 2050</h2>
+  <div class="card">
+   ${frag.length?frag.map(sp=>`<div class="vul"><b>${sp.e} ${esc(sp.n)} <span class="sub" style="font-weight:400">· aujourd’hui ${dots(sp.now)} → 2050 ${dots(sp.fut)}</span></b><span class="sub">${esc(sp.futNote)}</span>${sp.alt?`<div class="chips" style="margin-top:6px"><span class="sub">Alternatives :</span>${altChips(sp)}</div>`:''}</div>`).join(''):'<p class="sub">Aucune espèce fragile identifiée.</p>'}
+   ${watch.map(sp=>`<div class="vul w"><b>${sp.e} ${esc(sp.n)} <span class="sub" style="font-weight:400">· à surveiller (${dots(sp.now)} → ${dots(sp.fut)})</span></b><span class="sub">${esc(sp.futNote)}</span></div>`).join('')}
+   ${solid.length?`<details><summary>Bien armés pour la suite (${solid.length})</summary><p class="sub" style="margin:4px 0 0">${solid.map(sp=>sp.e+' '+esc(sp.n)).join(' · ')}</p></details>`:''}
+  </div>`;
 }
 
 /* ============ Feuilles (fiche, ajout) ============ */
