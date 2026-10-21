@@ -31,6 +31,7 @@
 html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.45}
 body{min-height:100vh;background:radial-gradient(1200px 500px at 85% -10%,var(--sage),transparent 60%),var(--bg)}
 button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--green-d)}
 h1,h2,h3{font-family:var(--serif);font-weight:600;letter-spacing:-.01em;margin:0}
 .app{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
 .side{position:sticky;top:0;height:100vh;padding:28px 18px;display:flex;flex-direction:column;gap:6px;border-right:1px solid var(--line);background:color-mix(in srgb,var(--card) 70%,transparent)}
@@ -656,6 +657,7 @@ function save(){
   try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){syncMsg='Stockage du navigateur plein : exporte tes données ou retire des photos.'}
   clearTimeout(saveTimer);
   saveTimer=setTimeout(writeFile,900);
+  schedSync();
 }
 const getSp=sid=>S.custom.find(c=>c.id===sid)||CAT.find(c=>c.id===sid)||REC.find(c=>c.id===sid)||{id:sid,n:'Espèce inconnue',l:'',t:'arbuste',e:'🌱',w:1,s:'',f:'',h:-15,pr:[],pl:[],fd:[],x:[],note:''};
 const allSpecies=()=>[...S.custom,...CAT,...REC];
@@ -885,6 +887,19 @@ function viewSettings(){
      <div id="cityres"></div>
      <button class="btn ghost sm" data-act="geo">📍 Utiliser ma position</button>
      <p class="sub">Plus la commune est précise, plus la météo l’est (relief, vallée). Source : Open-Meteo.</p></div>
+   <div class="card"><h2>Synchronisation (GitHub, gratuit)</h2>
+     ${SY?`<p class="sub" style="margin-top:0">Connecté au dépôt privé <b>${esc(SY.repo)}</b>. Chaque modification est envoyée automatiquement et récupérée à l’ouverture de l’appli.</p>
+       <p>${syncStatus()}</p>
+       <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-act="syncNow">↻ Synchroniser maintenant</button><button class="btn warn sm" data-act="syncOff">Déconnecter cet appareil</button></div>
+       <p class="sub">Si deux appareils modifient le jardin sans réseau, les plantes ajoutées des deux côtés sont fusionnées. Si la même plante est modifiée des deux côtés, la version de l’appareil qui synchronise en dernier l’emporte, et une plante supprimée sur un appareil peut réapparaître.</p>`
+     :`<p class="sub" style="margin-top:0">Retrouve ton jardin sur tous tes appareils. Les données sont enregistrées dans un dépôt GitHub <b>privé</b> à toi.</p>
+       <ol class="steps sub"><li>Crée un dépôt <b>privé</b> (case « Add a README » cochée) : <a href="https://github.com/new" target="_blank" rel="noopener">github.com/new</a>, par exemple « jardin-data ».</li>
+       <li>Crée un jeton : <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com/settings/personal-access-tokens/new</a> → « Only select repositories » → ce dépôt ; Permissions → <i>Contents</i> : Read and write.</li>
+       <li>Colle ci-dessous le nom du dépôt et le jeton. À refaire une fois sur chaque appareil.</li></ol>
+       <div class="field"><label>Dépôt (nom-utilisateur/nom-du-dépôt)</label><input class="in" id="syrepo" placeholder="simonbernard8631-ui/jardin-data" autocomplete="off" autocapitalize="off"></div>
+       <div class="field"><label>Jeton d’accès</label><input class="in" id="sytok" type="password" placeholder="github_pat_…" autocomplete="off"></div>
+       <button class="btn" data-act="syncConnect">Connecter</button>
+       <p class="sub">Le jeton reste uniquement sur cet appareil (il n’est pas dans l’export). Les photos que tu ajoutes sont synchronisées aussi.</p>`}</div>
    <div class="card"><h2>Données & sauvegarde</h2>
      <p class="sub" style="margin-top:0">Tout est stocké localement. Pour retrouver ton jardin sur tous tes appareils, utilise un fichier de sauvegarde placé dans iCloud Drive.</p>
      <div style="display:flex;gap:8px;flex-wrap:wrap">
@@ -1149,6 +1164,9 @@ document.addEventListener('click',async ev=>{
     case 'filter':gFilter=id;render();break;
     case 'plant':plantSheet(id);break;
     case 'spinfo':spSheet(id);break;
+    case 'syncConnect':syncConnect();break;
+    case 'syncNow':syncNow(true);break;
+    case 'syncOff':if(confirm('Déconnecter la synchronisation sur cet appareil ? Tes données locales restent ici.')){SY=null;saveSY();render()}break;
     case 'guide':guideSheet(id);break;
     case 'pftype':pf.type=id;render();break;
     case 'pfrole':pf.role=id;render();break;
@@ -1204,6 +1222,98 @@ function geolocate(){
   if(!navigator.geolocation){toast('Géolocalisation indisponible');return}
   navigator.geolocation.getCurrentPosition(p=>{S.loc={name:'Ma position',lat:+p.coords.latitude.toFixed(4),lon:+p.coords.longitude.toFixed(4)};save();wx=null;render();refreshWx(true)},()=>toast('Position refusée'));
 }
+
+/* ============ Synchronisation via un dépôt GitHub PRIVÉ (gratuit) ============ */
+const SYK='jardin.sync';
+let SY=null;try{SY=JSON.parse(localStorage.getItem(SYK))}catch(e){}
+const saveSY=()=>{try{SY?localStorage.setItem(SYK,JSON.stringify(SY)):localStorage.removeItem(SYK)}catch(e){}};
+let syncBusy=false,syncTimer=null,syncLast=0;
+const b64enc=s=>{const b=new TextEncoder().encode(s);let bin='';for(let i=0;i<b.length;i+=0x8000)bin+=String.fromCharCode.apply(null,b.subarray(i,i+0x8000));return btoa(bin)};
+const b64dec=b=>{const bin=atob(b.replace(/\s/g,'')),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return new TextDecoder().decode(u)};
+const SYF='jardin.json';
+const gh=(path,opt)=>{opt=opt||{};return fetch('https://api.github.com'+path,{...opt,headers:{Authorization:'Bearer '+SY.token,Accept:'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28',...(opt.headers||{})}})};
+class SyErr extends Error{}
+async function checkRepo(){
+  const r=await gh('/repos/'+SY.repo);
+  if(r.status===401)throw new SyErr('Jeton refusé (mal copié ou expiré).');
+  if(r.status===403)throw new SyErr('Accès refusé : vérifie les droits du jeton.');
+  if(r.status===404)throw new SyErr('Dépôt introuvable : vérifie son nom et que le jeton y a accès.');
+  if(!r.ok)throw new SyErr('GitHub a répondu '+r.status+'.');
+  const j=await r.json();
+  if(!j.private)throw new SyErr('Ce dépôt est public : tes données y seraient visibles par tous. Passe-le en privé (Settings → Danger Zone → Change visibility).');
+}
+async function fetchRemote(){
+  const r=await gh('/repos/'+SY.repo+'/contents/'+SYF);
+  if(r.status===404)return null;
+  if(!r.ok)throw new SyErr('Lecture impossible ('+r.status+').');
+  const m=await r.json();let text;
+  if(m.content&&m.encoding==='base64')text=b64dec(m.content);
+  else{const rr=await gh('/repos/'+SY.repo+'/contents/'+SYF,{headers:{Accept:'application/vnd.github.raw+json'}});if(!rr.ok)throw new SyErr('Lecture impossible ('+rr.status+').');text=await rr.text()}
+  return{sha:m.sha,data:JSON.parse(text)};
+}
+async function pushRemote(sha){
+  const body={message:'Synchro '+new Date().toISOString(),content:b64enc(payload())};if(sha)body.sha=sha;
+  const r=await gh('/repos/'+SY.repo+'/contents/'+SYF,{method:'PUT',body:JSON.stringify(body)});
+  if(r.status===409||r.status===422)return 'conflict';
+  if(r.status===401||r.status===403)throw new SyErr('Écriture refusée : le jeton doit avoir « Contents : Read and write » sur ce dépôt.');
+  if(!r.ok)throw new SyErr('Écriture impossible ('+r.status+').');
+  SY.sha=(await r.json()).content.sha;return 'ok';
+}
+function mergeRemote(d){
+  /* conflit : union des plantes (par identifiant) pour ne rien perdre */
+  const ids=new Set(S.plants.map(p=>p.id));
+  (d.plants||[]).forEach(p=>{if(!ids.has(p.id))S.plants.push(p)});
+  const cids=new Set(S.custom.map(c=>c.id));
+  (d.custom||[]).forEach(c=>{if(!cids.has(c.id))S.custom.push(c)});
+  S.done={...(d.done||{}),...S.done};
+  S.updated=Math.max(S.updated,d.updated||0)+1;
+  try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
+}
+async function syncNow(manual){
+  if(!SY||syncBusy)return;syncBusy=true;syncLast=Date.now();
+  try{
+    await checkRepo();
+    let rem=await fetchRemote(),changed=false;
+    const localChanged=S.updated>(SY.lu||0);
+    if(!rem){const x=await pushRemote(null);if(x!=='ok')throw new SyErr('Création du fichier impossible.')}
+    else{
+      const remoteChanged=rem.sha!==SY.sha;
+      if(remoteChanged&&localChanged){
+        mergeRemote(rem.data);changed=true;
+        let x=await pushRemote(rem.sha);
+        if(x==='conflict'){rem=await fetchRemote();mergeRemote(rem.data);x=await pushRemote(rem.sha)}
+        if(x!=='ok')throw new SyErr('Conflit de synchronisation : réessaie.');
+      }else if(remoteChanged){applyData(rem.data);SY.sha=rem.sha;changed=true}
+      else if(localChanged){
+        let x=await pushRemote(rem.sha);
+        if(x==='conflict'){rem=await fetchRemote();mergeRemote(rem.data);changed=true;x=await pushRemote(rem.sha);if(x!=='ok')throw new SyErr('Conflit de synchronisation : réessaie.')}
+      }
+    }
+    SY.lu=S.updated;
+    SY.at=Date.now();SY.err='';
+    if(changed){render();if(manual)toast('Jardin mis à jour depuis GitHub')}
+    else if(manual)toast('Synchronisé ✓');
+  }catch(e){SY.err=e instanceof SyErr?e.message:(navigator.onLine===false?'Hors ligne : sera synchronisé plus tard.':'Synchro impossible pour le moment.');if(manual)toast(SY.err)}
+  syncBusy=false;saveSY();if(tab==='settings')render();
+}
+function schedSync(){if(!SY)return;clearTimeout(syncTimer);syncTimer=setTimeout(()=>syncNow(false),3000)}
+async function syncConnect(){
+  let repo=($('#syrepo').value||'').trim().replace(/^https?:\/\/github\.com\//,'').replace(/\.git$/,'').replace(/\/$/,'');
+  const token=($('#sytok').value||'').trim();
+  if(!/^[\w.-]+\/[\w.-]+$/.test(repo)||!token){toast('Renseigne le dépôt (nom/dépôt) et le jeton');return}
+  const prev=SY;SY={repo,token,sha:null,at:0,err:''};
+  try{
+    await checkRepo();
+    const rem=await fetchRemote();
+    if(!rem){await pushRemote(null);toast('Connecté : ton jardin est enregistré sur GitHub')}
+    else if(confirm('Un jardin est déjà enregistré dans ce dépôt.\n\nOK = le charger sur cet appareil (remplace ce qui est ici).\nAnnuler = autres options.')){applyData(rem.data);SY.sha=rem.sha;toast('Jardin chargé depuis GitHub')}
+    else if(confirm('Écraser le jardin du dépôt avec celui de cet appareil ?')){const x=await pushRemote(rem.sha);if(x!=='ok')throw new SyErr('Écriture impossible, réessaie.');toast('Dépôt mis à jour')}
+    else{SY=prev;saveSY();render();return}
+    SY.lu=S.updated;SY.at=Date.now();saveSY();render();
+  }catch(e){const msg=e instanceof SyErr?e.message:'Connexion impossible (réseau ?).';SY=prev;saveSY();toast(msg);render()}
+}
+const syncStatus=()=>!SY?'':SY.err?`⚠️ ${esc(SY.err)}`:SY.at?`✓ Dernière synchro à ${new Date(SY.at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}`:'Connexion en cours…';
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&SY&&Date.now()-syncLast>60e3)syncNow(false)});
 
 /* ---------- Export / import / fichier lié ---------- */
 const payload=()=>JSON.stringify({app:'mon-jardin',...S},null,1);
@@ -1262,6 +1372,7 @@ async function syncFromFile(){
 if('serviceWorker' in navigator&&location.protocol.startsWith('http')){navigator.serviceWorker.register('sw.js').catch(()=>{})}
 render();
 refreshWx(false);
+syncNow(false);
 setInterval(()=>refreshWx(false),30*60*1000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshWx(false)});
 </script>
