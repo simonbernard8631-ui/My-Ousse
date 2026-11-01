@@ -219,7 +219,8 @@ h3.sec{font-size:14px;text-transform:uppercase;letter-spacing:.08em;color:var(--
 .ech .gl{stroke:var(--line);stroke-width:1}.ech .xh{stroke:var(--muted);stroke-width:1;opacity:0}
 .ech .band{fill:var(--sage)}.ech .reg{stroke:var(--muted);stroke-width:2;fill:none}.ech .chg{stroke:var(--c-sol);stroke-width:2}
 .ech .ln{fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.ech .ln.sol{stroke:var(--c-sol)}.ech .ln.ach{stroke:var(--c-achat)}.ech .wash{fill:var(--c-sol);opacity:.14}
-.ech .b-sol{fill:var(--c-sol)}.ech .b-ach{fill:var(--c-achat)}
+.ech .b-sol{fill:var(--c-sol)}.ech .b-ach{fill:var(--c-achat)}.ech .b-ven{fill:var(--c-vente)}
+.bs{display:flex;gap:2px;height:16px}.bs i{display:block;background:var(--bg2)}.bs i:first-child{border-radius:4px 0 0 4px}.bs i:last-child{border-radius:0 4px 4px 0}.bs-t{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin:4px 0 8px}
 .ech .hot{fill:var(--clay)}.ech .cold{fill:var(--sky)}.ech .okd{fill:var(--green)}.ech circle{stroke:var(--card);stroke-width:2}
 .lk{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:13.5px;color:var(--muted);margin-top:6px}.lk span::before{content:"";display:inline-block;width:14px;height:0;border-top:2px solid var(--c);vertical-align:middle;margin-right:6px}.lk.box span::before{width:10px;height:10px;border:0;border-radius:3px;background:var(--c)}
 #entip{position:fixed;z-index:60;pointer-events:none;background:var(--card);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);padding:8px 10px;font-size:13px;min-width:130px;max-width:240px}
@@ -833,11 +834,12 @@ const NAV=[
  ['settings','Réglages','<path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/>'],
  ['en_bilan','Bilan','<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>'],
  ['en_chauffage','Chauffage','<path d="M12 3a3 3 0 0 0-3 3v8.5a4.5 4.5 0 1 0 6 0V6a3 3 0 0 0-3-3z"/><path d="M12 10v7"/>'],
+ ['en_ballon','Ballon','<path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.500 6-11 6-11z"/>'],
  ['en_pieces','Pièces','<path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>'],
  ['en_reglages','Réglages','<path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/>'],
  ['home','Modules','<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>']
 ];
-const MOD_TABS={jardin:['today','garden','calendar','plantation','settings','home'],energie:['en_bilan','en_chauffage','en_pieces','en_reglages','home']};
+const MOD_TABS={jardin:['today','garden','calendar','plantation','settings','home'],energie:['en_bilan','en_chauffage','en_ballon','en_pieces','en_reglages','home']};
 const ICO_JARDIN='<path d="M5 19c0-8 5-14 15-14 0 10-6 15-14 15"/><path d="M5 19c3-5 6-8 10-10"/>',ICO_ENERGIE='<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>';
 function isEn(t){return t.startsWith('en_')}
 let tab=location.hash.slice(1)||'home';if(tab==='energie')tab='en_bilan';if(!NAV.some(n=>n[0]===tab))tab='home';
@@ -853,7 +855,7 @@ function render(){
   $('#brand').innerHTML=`<i><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${en?ICO_ENERGIE:ICO_JARDIN}</svg></i>${en?'Mon Énergie':'Mon Jardin'}`;
   $('#syncState').hidden=en;
   $('#syncState').textContent=fileHandle?'☁︎ Sauvegarde liée au fichier':'Données stockées sur cet appareil';
-  const v={today:viewToday,garden:viewGarden,calendar:viewCalendar,plantation:viewPlantation,settings:viewSettings,home:viewHome,en_bilan:viewEnBilan,en_chauffage:viewEnChauffage,en_pieces:viewEnPieces,en_reglages:viewEnReglages}[tab]();
+  const v={today:viewToday,garden:viewGarden,calendar:viewCalendar,plantation:viewPlantation,settings:viewSettings,home:viewHome,en_bilan:viewEnBilan,en_chauffage:viewEnChauffage,en_ballon:viewEnBallon,en_pieces:viewEnPieces,en_reglages:viewEnReglages}[tab]();
   const keep=document.activeElement&&document.activeElement.id==='gq';
   $('#main').innerHTML=v;
   if(keep){const el=$('#gq');el.focus();el.setSelectionRange(el.value.length,el.value.length)}
@@ -1566,7 +1568,7 @@ async function enSaveCfg(mut,msg){
 
 /* ---------- graphiques : dessinés à la largeur réelle pour garder un texte lisible ---------- */
 const CH={};let chN=0;
-const SVGI={warn:'<path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4M12 17h.01"/>',pause:'<circle cx="12" cy="12" r="9"/><path d="M10 9v6M14 9v6"/>',temp:'<path d="M12 3a3 3 0 0 0-3 3v8.5a4.5 4.5 0 1 0 6 0V6a3 3 0 0 0-3-3z"/><path d="M12 10v7"/>',sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',plug:'<path d="M9 3v5M15 3v5M7 8h10v3a5 5 0 0 1-10 0V8zM12 16v5"/>',scale:'<path d="M12 4v16M6 20h12M5 8h14M5 8l-3 6h6L5 8zM19 8l-3 6h6l-3-6z"/>',info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>'};
+const SVGI={warn:'<path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4M12 17h.01"/>',pause:'<circle cx="12" cy="12" r="9"/><path d="M10 9v6M14 9v6"/>',temp:'<path d="M12 3a3 3 0 0 0-3 3v8.5a4.5 4.5 0 1 0 6 0V6a3 3 0 0 0-3-3z"/><path d="M12 10v7"/>',sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',plug:'<path d="M9 3v5M15 3v5M7 8h10v3a5 5 0 0 1-10 0V8zM12 16v5"/>',scale:'<path d="M12 4v16M6 20h12M5 8h14M5 8l-3 6h6L5 8zM19 8l-3 6h6l-3-6z"/>',info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',drop:'<path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.500 6-11 6-11z"/>',ok:'<circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/>',wait:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'};
 const ni=k=>`<svg class="ni" viewBox="0 0 24 24" aria-hidden="true">${SVGI[k]||SVGI.info}</svg>`;
 function enW(two){
   const m=$('#main'),s=getComputedStyle(m);let a=Math.min(m.clientWidth-parseFloat(s.paddingLeft)-parseFloat(s.paddingRight),1100);
@@ -1665,6 +1667,29 @@ function svgEff(jours,journal){
   return `<svg viewBox="0 0 ${W} ${H}" class="ech" ${chAttrs(id,'Kilowattheures de chauffage par degré-jour, jour par jour')}>${g}${bars}<text x="${Math.min(W-R,lx+12)}" y="${Math.max(12,Y(last.kwh_dju)-6)}" text-anchor="end" class="st">${nf(last.kwh_dju,2)}</text><text x="${L}" y="${H-5}">${new Date(d[0].date).toLocaleDateString('fr-FR',{day:'numeric',month:'short'})}</text><text x="${W-R}" y="${H-5}" text-anchor="end">${new Date(last.date).toLocaleDateString('fr-FR',{day:'numeric',month:'short'})}</text></svg>
    <p class="sub" style="margin:6px 0 0">kWh de chauffage par degré-jour : plus c’est bas, plus la maison est chauffée efficacement, quel que soit le temps. À lire sur plusieurs semaines, car Daikin arrondit sa mesure au kWh.${ch.size?' Trait doré : changement de loi d’eau.':''}</p>`;
 }
+function svgBallonT(serie,prog){
+  if(!serie||serie.length<2)return '<p class="sub" style="margin:0">La courbe apparaît après quelques relevés (un par heure).</p>';
+  const W=enW(),H=200,L=40,R=8,T=12,B=24,ms=s=>new Date(s[0]).getTime(),a=ms(serie[0]),z=ms(serie[serie.length-1]),X=s=>L+(ms(s)-a)/Math.max(1,z-a)*(W-L-R);
+  const ref=(prog||[]).map(p=>p.temp).filter(v=>v!=null),vals=serie.map(s=>s[1]).concat(ref),lo=Math.floor((Math.min(...vals)-2)/5)*5,hi=Math.ceil((Math.max(...vals)+2)/5)*5,Y=v=>H-B-(v-lo)/Math.max(1,hi-lo)*(H-B-T);
+  let g='';for(let v=lo;v<=hi;v+=hi-lo>30?10:5)g+=`<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" class="gl"/><text x="${L-6}" y="${Y(v)+4}" text-anchor="end">${v}</text>`;
+  const rf=(prog||[]).filter(p=>p.temp!=null).map(p=>`<text x="${W-R}" y="${Y(p.temp)-4}" text-anchor="end">${esc(p.mode)} ${p.temp} °C</text><line x1="${L}" x2="${W-R}" y1="${Y(p.temp)}" y2="${Y(p.temp)}" class="reg" style="stroke-width:1"/>`).join('');
+  const line=serie.map((s,i)=>(i?'L':'M')+X(s).toFixed(1)+','+Y(s[1]).toFixed(1)).join('');
+  let tk='',seen={};serie.forEach(s=>{const d=s[0].slice(0,10);if(!seen[d]&&s[0].slice(11,13)<'06'){seen[d]=1;tk+=`<text x="${X(s)}" y="${H-6}" text-anchor="middle">${new Date(d).toLocaleDateString('fr-FR',{weekday:'short'}).replace('.','')}</text>`}});
+  const l=serie[serie.length-1];
+  const id=chReg(serie.map(s=>({x:X(s),y:Y(s[1]),t:new Date(s[0]).toLocaleString('fr-FR',{weekday:'short',hour:'2-digit',minute:'2-digit'}),r:[['var(--c-achat)','ballon',nf(s[1],0)+' °C']]})),'x');
+  return `<svg viewBox="0 0 ${W} ${H}" class="ech" ${chAttrs(id,'Température du ballon sur 7 jours, relevée chaque heure')}>${g}${rf}<path d="${line}" class="ln ach"/><circle cx="${X(l)}" cy="${Y(l[1])}" r="5" class="b-ach"/>${tk}<line class="xh" y1="${T}" y2="${H-B}"/></svg>`;
+}
+function svgBallonKwh(jours){
+  const d=(jours||[]).filter(j=>!j.partiel);if(d.length<1)return '<p class="sub" style="margin:0">Pas encore de journée complète.</p>';
+  const W=enW(),H=170,L=30,R=4,T=10,B=24,band=(W-L-R)/Math.max(d.length,4),bw=Math.min(24,band-6),tot=j=>(j.matin||0)+(j.solaire||0)+(j.autre||0),top=Math.max(2,Math.ceil(Math.max(...d.map(tot)))),Y=v=>H-B-v/top*(H-B-T);
+  let g='';const st=top>6?2:1;for(let v=0;v<=top;v+=st)g+=`<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" class="gl"/><text x="${L-6}" y="${Y(v)+4}" text-anchor="end">${v}</text>`;
+  const pts=[];const bars=d.map((j,i)=>{const cx=L+band*(i+.5),x=cx-bw/2;let b=0,o='';
+    [['matin','b-ach'],['solaire','b-sol'],['autre','b-ven']].forEach(([k,c])=>{const v=j[k]||0;if(v<=0)return;const y0=Y(b),y1=Y(b+v);o+=`<rect x="${x}" y="${y1}" width="${bw}" height="${Math.max(1,y0-y1-2)}" rx="2" class="${c}"/>`;b+=v});
+    pts.push({x:cx,y:Y(b),t:new Date(j.date).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'}),r:[['var(--c-achat)','4 h-8 h',nf(j.matin)+' kWh'],['var(--c-sol)','12 h-16 h',nf(j.solaire)+' kWh'],['var(--c-vente)','autres heures',nf(j.autre)+' kWh']]});
+    return o+`<text x="${cx}" y="${H-6}" text-anchor="middle">${new Date(j.date).toLocaleDateString('fr-FR',{weekday:'narrow'})}</text>`}).join('');
+  const id=chReg(pts,'b');
+  return `<svg viewBox="0 0 ${W} ${H}" class="ech" ${chAttrs(id,'Consommation du ballon par créneau et par jour')}>${g}${bars}</svg><div class="lk box"><span style="--c:var(--c-achat)">4 h-8 h</span><span style="--c:var(--c-sol)">12 h-16 h</span><span style="--c:var(--c-vente)">Autres heures</span></div>`;
+}
 function partBar(title,total,segs){
   const s=segs.filter(x=>x.v>0.04);if(!(total>0.04)||!s.length)return '';
   return `<div class="pb"><div class="pb-h"><b>${title}</b><span>${nf(total)} kWh</span></div>
@@ -1702,7 +1727,7 @@ function viewEnBilan(){
   const g=enGate('Bilan');if(g)return g;
   const A=ED.app,days=A.jours.filter(j=>!j.partiel&&(j.prod||j.conso)),y=days[days.length-1],t=A.jours.find(j=>j.partiel);
   const src=A.sources||{},stale=[['Enphase',src.enphase,36],['Daikin',src.daikin,6],['Pièces',src.pieces,24*8]].filter(s=>s[1]&&(Date.now()-new Date(s[1]).getTime())/36e5>s[2]);
-  const IC={loi_eau:'temp',ecs:'sun',veille:'plug',equilibrage:'scale',donnees:'warn'};
+  const IC={loi_eau:'temp',ecs:'sun',veille:'plug',equilibrage:'scale',donnees:'warn',ballon:'drop'};
   const actions=(A.actions||[]).map(a=>`<div class="row"><div class="ico">${ni(IC[a.type])}</div><div class="tx"><b>${esc(a.titre)}</b><span>${esc(a.detail)}</span>
     ${a.type==='loi_eau'?`<button class="btn sm" style="margin-top:8px" data-act="enApply" data-id="${esc(a.zone)}">J’ai appliqué ce réglage</button>`:''}</div></div>`).join('');
   const week=days.slice(-7).reverse().map(j=>`<tr><td>${new Date(j.date).toLocaleDateString('fr-FR',{weekday:'short',day:'numeric'})}</td><td>${nf(j.prod)}</td><td>${nf(j.conso)}</td><td>${nf(j.imp)}</td><td>${nf(j.exp)}</td></tr>`).join('');
@@ -1735,6 +1760,29 @@ function viewEnChauffage(){
      ${z.statut==='config'?'<button class="btn ghost sm" data-act="go" data-id="en_reglages">Renseigner les réglages</button>':''}
      ${thermo&&['baisser','monter','collecte'].includes(z.statut)?`<div class="enote">${ni('info')}<div>Un thermostat coupe cette zone à sa consigne, ce qui masque une loi d’eau trop haute. Pour la juger, règle-le 1 à 2 °C au-dessus de la température voulue.</div></div>`:''}</div>`}).join('');
   return enHead('Chauffage',enWhen(A))+`<div class="grid">${pac}<div class="grid g2">${zones}</div><div class="card"><h2>Efficacité du chauffage</h2>${svgEff(A.jours,C.journal)}</div></div>`;
+}
+function viewEnBallon(){
+  const g=enGate('Ballon');if(g)return g;
+  const A=ED.app,B=A.ballon;
+  if(!B)return enHead('Ballon',enWhen(A))+'<div class="card"><p class="sub" style="margin:0">La surveillance apparaîtra après la prochaine analyse.</p></div>';
+  const N=B.actuel,mn=s=>{const[h,m]=s.split(':').map(Number);return h*60+m};
+  const prog=(B.programme||[]).slice().sort((a,b)=>mn(a.de)-mn(b.de));let seg=[],cur=0;
+  prog.forEach(p=>{if(mn(p.de)>cur)seg.push({l:mn(p.de)-cur,c:''});seg.push({l:mn(p.a)-mn(p.de),c:p.mode==='Confort'?'--c-sol':'--c-achat'});cur=mn(p.a)});if(cur<1440)seg.push({l:1440-cur,c:''});
+  const fh=s=>s.replace(':00',' h').replace(':',' h ').replace(/^0/,'');
+  const strip=prog.length?`<div class="bs" aria-hidden="true">${seg.map(s=>`<i style="flex:${s.l} 1 0;${s.c?`background:var(${s.c})`:''}"></i>`).join('')}</div><div class="bs-t" aria-hidden="true"><span>0 h</span><span>6 h</span><span>12 h</span><span>18 h</span><span>24 h</span></div>
+    <div class="lk box">${prog.map(p=>`<span style="--c:var(${p.mode==='Confort'?'--c-sol':'--c-achat'})">${fh(p.de)} à ${fh(p.a)} : ${esc(p.mode)} ${p.temp} °C</span>`).join('')}<span style="--c:var(--bg2)">Le reste du temps : éteint</span></div>`:'<p class="sub" style="margin:0">Aucun programme enregistré.</p>';
+  const test=B.depuis?(B.jours_essai<7?`Test en cours : ${B.jours_essai} jour${B.jours_essai>1?'s':''} sur 7, depuis le ${new Date(B.depuis).toLocaleDateString('fr-FR',{day:'numeric',month:'long'})}.`:`Programme suivi depuis le ${new Date(B.depuis).toLocaleDateString('fr-FR',{day:'numeric',month:'long'})}.`):'';
+  const LB={ok:'OK',attention:'À vérifier',attente:'En attente'},IK={ok:'ok',attention:'warn',attente:'wait'};
+  const ver=(B.verifs||[]).map(v=>`<div class="row"><div class="ico">${ni(IK[v.etat])}</div><div class="tx"><b>${esc(v.titre)} <span class="pill ${v.etat==='ok'?'st-ok':v.etat==='attention'?'st-hot':'st-wait'}">${LB[v.etat]}</span></b><span>${esc(v.detail)}</span></div></div>`).join('');
+  const rows=(B.jours||[]).filter(j=>!j.partiel).slice(-7).reverse().map(j=>`<tr><td>${new Date(j.date).toLocaleDateString('fr-FR',{weekday:'short',day:'numeric'})}</td><td>${nf(j.matin)}</td><td>${nf(j.solaire)}</td><td>${nf(j.autre)}</td><td>${j.t7h==null?'–':nf(j.t7h,0)+' °'}</td><td>${j.tmax==null?'–':nf(j.tmax,0)+' °'}</td></tr>`).join('');
+  return enHead('Ballon',enWhen(A))+`<div class="grid">
+    <div class="card"><h2>Maintenant</h2>${N?`<div class="enhero"><b>${nf(N.t,0)}<small>°C</small></b><span>dans le ballon, relevé ${ago(N.ts)}${N.consigne!=null?`. Consigne actuelle ${nf(N.consigne,0)} °C`:''}</span></div>`:'<p class="sub" style="margin:0">Pas encore de relevé.</p>'}</div>
+    <div class="card"><h2>Programme</h2>${test?`<p class="sub" style="margin:0 0 12px">${test}</p>`:''}${strip}</div>
+    <div class="card"><h2>Surveillance automatique</h2>${ver}<p class="sub">Contrôlé à chaque collecte. Les points à vérifier remontent aussi dans le Bilan.</p></div>
+    <div class="card"><h2>Température sur 7 jours</h2>${svgBallonT(B.serie,prog)}</div>
+    <div class="card"><h2>Consommation par créneau</h2>${svgBallonKwh(B.jours)}<p class="sub" style="margin:6px 0 0">En kWh. Daikin arrondit sa mesure au kWh : à lire sur plusieurs jours.</p>
+     ${rows?`<details class="endet" style="margin-top:6px"><summary>Voir le tableau</summary><div class="et-wrap"><table class="et"><tr><th>Jour</th><th>4-8 h</th><th>12-16 h</th><th>Autres</th><th>À 7 h</th><th>Max</th></tr>${rows}</table></div></details>`:''}</div>
+   </div>`;
 }
 function viewEnPieces(){
   const g=enGate('Pièces');if(g)return g;
