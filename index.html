@@ -198,21 +198,49 @@ h3.sec{font-size:14px;text-transform:uppercase;letter-spacing:.08em;color:var(--
 @media (max-width:860px){.cl2{grid-template-columns:1fr}.tabbar{grid-template-columns:repeat(var(--nc,6),1fr)!important}}
 
 /* ---------- Énergie ---------- */
-.kps{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin:12px 0}
+:root{--c-sol:#b97d10;--c-achat:#2b7bba;--c-vente:#2f9a6a;--clay-d:#9c452c;--sky-d:#2a6480;--sun-d:#7d5a10}
+@media (prefers-color-scheme:dark){:root{--c-sol:#b88c14;--c-achat:#4794d8;--c-vente:#36a070;--clay-d:#f0a88f;--sky-d:#a3d0e3;--sun-d:#ecc671}}
+:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+.alert.frost{color:var(--sky-d)}.alert.heat{color:var(--clay-d)}
+.alert>svg,.ni{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.mod-en .btn.sm{min-height:44px}.mod-en .row .ico{color:var(--green-d)}
+.mod-en .card h2{justify-content:flex-start;flex-wrap:wrap;gap:8px 10px}
+.enhero{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin:0 0 16px}
+.enhero b{font-family:var(--serif);font-size:56px;line-height:1;font-weight:500}.enhero b small{font-size:26px;margin-left:2px}
+.enhero span{flex:1 1 170px;color:var(--muted);font-size:15px;line-height:1.35}
+.pb{margin:12px 0 0}.pb-h{display:flex;justify-content:space-between;gap:10px;font-size:14px;margin-bottom:6px}.pb-h b{font-weight:600}
+.pb-s{display:flex;gap:2px;height:14px}.pb-s i{display:block;min-width:3px;background:var(--c)}.pb-s i:first-child{border-radius:4px 0 0 4px}.pb-s i:last-child{border-radius:0 4px 4px 0}.pb-s i:only-child{border-radius:4px}
+.pb-l{display:flex;flex-wrap:wrap;gap:4px 16px;margin-top:7px;font-size:13.5px;color:var(--muted)}.pb-l span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;background:var(--c)}.pb-l b{color:var(--ink);font-weight:600}
+.kps{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin:16px 0 0}
 .kp{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:10px 12px}
-.kp span{display:block;font-size:12.5px;color:var(--muted)}.kp b{font-size:20px}.kp small{font-size:12px;color:var(--muted);font-weight:500}
-.kp.sun b{color:var(--sun)}.kp.clay b{color:var(--clay)}
-.ech{width:100%;max-width:780px;height:auto;display:block;margin-top:8px}
-.ech .ax{font-size:17px;fill:var(--muted)}.ech .gl{stroke:var(--line);stroke-width:1}
-.ech .prod{fill:var(--sun);opacity:.45}.ech .cons{fill:none;stroke:var(--clay);stroke-width:1.8}
-.ech .band{fill:var(--sage)}.ech .reg{stroke:var(--muted);stroke-width:1.5;stroke-dasharray:5 4}
-.ech .hot{fill:var(--clay)}.ech .cold{fill:var(--sky)}.ech .okd{fill:var(--green)}
-.ech .bar{fill:var(--sky);opacity:.8}.ech .chg{stroke:var(--sun);stroke-width:2}
-.lg-prod::before{background:var(--sun)!important}.lg-cons::before{background:var(--clay)!important}
-.pill.st-ok{background:var(--sage);color:var(--green-d)}.pill.st-hot{background:var(--clay-s);color:var(--clay)}
-.pill.st-cold{background:var(--sky-s);color:var(--sky)}.pill.st-wait{background:var(--bg2);color:var(--muted)}
-.et{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}.et th{text-align:left;color:var(--muted);font-weight:600;font-size:12.5px}
-.et th,.et td{padding:7px 6px;border-bottom:1px solid var(--line)}.et td.hot{color:var(--clay);font-weight:600}.et td.cold{color:var(--sky);font-weight:600}
+.kp span{display:block;font-size:13px;color:var(--muted)}.kp b{font-size:20px}.kp small{font-size:13px;color:var(--muted);font-weight:500}
+.ech{width:100%;height:auto;display:block;margin-top:10px;touch-action:pan-y;overflow:visible}
+.ech text{font-size:12px;fill:var(--muted);font-family:inherit}.ech text.st{fill:var(--ink);font-weight:600}
+.ech .gl{stroke:var(--line);stroke-width:1}.ech .xh{stroke:var(--muted);stroke-width:1;opacity:0}
+.ech .band{fill:var(--sage)}.ech .reg{stroke:var(--muted);stroke-width:2;fill:none}.ech .chg{stroke:var(--c-sol);stroke-width:2}
+.ech .ln{fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.ech .ln.sol{stroke:var(--c-sol)}.ech .ln.ach{stroke:var(--c-achat)}.ech .wash{fill:var(--c-sol);opacity:.14}
+.ech .b-sol{fill:var(--c-sol)}.ech .b-ach{fill:var(--c-achat)}
+.ech .hot{fill:var(--clay)}.ech .cold{fill:var(--sky)}.ech .okd{fill:var(--green)}.ech circle{stroke:var(--card);stroke-width:2}
+.lk{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:13.5px;color:var(--muted);margin-top:6px}.lk span::before{content:"";display:inline-block;width:14px;height:0;border-top:2px solid var(--c);vertical-align:middle;margin-right:6px}.lk.box span::before{width:10px;height:10px;border:0;border-radius:3px;background:var(--c)}
+#entip{position:fixed;z-index:60;pointer-events:none;background:var(--card);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);padding:8px 10px;font-size:13px;min-width:130px;max-width:240px}
+#entip div{display:flex;align-items:center;gap:6px;margin-top:3px;color:var(--muted)}#entip div:first-child{margin:0 0 2px;font-size:12.5px}
+#entip b{color:var(--ink);font-weight:600;margin-right:auto;font-size:14px}#entip i{width:12px;height:0;border-top:2px solid var(--c);flex:none;order:-1}
+.pill.st-ok{background:var(--sage);color:var(--green-d)}.pill.st-hot{background:var(--clay-s);color:var(--clay-d)}
+.pill.st-cold{background:var(--sky-s);color:var(--sky-d)}.pill.st-wait{background:var(--bg2);color:var(--muted)}
+.et{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}.et th{text-align:right;color:var(--muted);font-weight:600;font-size:12.5px}.et th:first-child,.et td:first-child{text-align:left;white-space:nowrap}
+.et th,.et td{padding:8px 4px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums}
+details.endet>summary{cursor:pointer;font-weight:600;padding:12px 0;min-height:24px}details.endet[open]>summary{margin-bottom:6px}
+.enote{display:flex;gap:10px;background:var(--sun-s);color:var(--sun-d);border-radius:12px;padding:10px 12px;font-size:14px;margin-top:12px}
+.pz h3{font-size:16px;margin:18px 0 2px}.pz:first-child h3{margin-top:0}
+.pr{padding:12px 0;border-bottom:1px solid var(--line)}.pz:last-child .pr:last-child{border-bottom:0}
+.pr-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px}.pr-h>b{font-weight:600}
+.pr-n{font-family:var(--serif);font-size:26px;white-space:nowrap}.pr-n small{font-family:var(--sans,inherit);font-size:13px;color:var(--muted);margin-left:4px}
+.pr-b{position:relative;height:6px;border-radius:3px;background:var(--bg2);margin:8px 0}.pr-b i{position:absolute;top:0;bottom:0;border-radius:3px;background:color-mix(in srgb,var(--sky) 45%,var(--bg2))}.pr-b u{position:absolute;top:-3px;width:12px;height:12px;margin-left:-6px;border-radius:50%;background:var(--ink);border:2px solid var(--card);box-sizing:border-box}
+.pr-f{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:13.5px;color:var(--muted)}.pr-f b{color:var(--ink);font-weight:600}
+.en-name{flex:1 1 200px;min-width:0}
+.lo{display:grid;grid-template-columns:1fr 84px 84px;gap:8px;align-items:center;margin-top:10px}.lo small{font-size:12.5px;color:var(--muted)}.lo .in{width:100%!important;box-sizing:border-box}
+.ps{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}.ps .en-name,.ps select{grid-column:1/-1;width:100%;box-sizing:border-box}.ps-c{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){.modc{transition:none}.modc:hover,.modc:focus-visible{transform:none}}
 code{font-size:12.5px;word-break:break-all}
 /* ---------- Accueil : choix du module ---------- */
 .mod-en .top p{text-transform:none}.mod-en .grid>*{min-width:0}.et-wrap{overflow-x:auto}
@@ -228,7 +256,7 @@ code{font-size:12.5px;word-break:break-all}
 .modc.en i,.mod-en .brand i{background:var(--clay)}.modc.en:hover,.modc.en:focus-visible{border-color:var(--clay)}
 .modc svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .modc b{font-family:var(--serif);font-size:26px;font-weight:600}.modc span{color:var(--muted)}.modc em{font-style:normal;font-size:14px;font-weight:600;color:var(--green-d);margin-top:8px}
-.modc.en em{color:var(--clay)}
+.modc.en em{color:var(--clay-d)}
 </style>
 </head>
 <body>
@@ -819,7 +847,7 @@ function navHtml(){return MOD_TABS[isEn(tab)?'energie':'jardin'].map(id=>NAV.fin
 
 function render(){
   $('#navSide').innerHTML=navHtml();$('#navBar').innerHTML=navHtml();
-  const home=tab==='home',en=isEn(tab);
+  const home=tab==='home',en=isEn(tab);chHide();chN=0;Object.keys(CH).forEach(k=>delete CH[k]);
   document.body.classList.toggle('is-home',home);document.body.classList.toggle('mod-en',en);
   $('#navBar').style.setProperty('--nc',MOD_TABS[en?'energie':'jardin'].length);
   $('#brand').innerHTML=`<i><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${en?ICO_ENERGIE:ICO_JARDIN}</svg></i>${en?'Mon Énergie':'Mon Jardin'}`;
@@ -1536,40 +1564,112 @@ async function enSaveCfg(mut,msg){
   throw new SyErr('Conflit d’écriture : réessaie.');
 }
 
-/* ---------- petits graphiques SVG ---------- */
+/* ---------- graphiques : dessinés à la largeur réelle pour garder un texte lisible ---------- */
+const CH={};let chN=0;
+const SVGI={warn:'<path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4M12 17h.01"/>',pause:'<circle cx="12" cy="12" r="9"/><path d="M10 9v6M14 9v6"/>',temp:'<path d="M12 3a3 3 0 0 0-3 3v8.5a4.5 4.5 0 1 0 6 0V6a3 3 0 0 0-3-3z"/><path d="M12 10v7"/>',sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',plug:'<path d="M9 3v5M15 3v5M7 8h10v3a5 5 0 0 1-10 0V8zM12 16v5"/>',scale:'<path d="M12 4v16M6 20h12M5 8h14M5 8l-3 6h6L5 8zM19 8l-3 6h6l-3-6z"/>',info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>'};
+const ni=k=>`<svg class="ni" viewBox="0 0 24 24" aria-hidden="true">${SVGI[k]||SVGI.info}</svg>`;
+function enW(two){
+  const m=$('#main'),s=getComputedStyle(m);let a=Math.min(m.clientWidth-parseFloat(s.paddingLeft)-parseFloat(s.paddingRight),1100);
+  if(two){const c=Math.max(1,Math.floor((a+16)/336));a=(a-16*(c-1))/c}
+  return Math.max(260,Math.round(a-42));
+}
+function chReg(pts,mode){const id='c'+(++chN);CH[id]={pts,mode,i:-1};return id}
+const chAttrs=(id,label)=>`data-ch="${id}" tabindex="0" role="img" aria-label="${esc(label)}"`;
+const niceStep=(mx,n)=>{const r=mx/n,p=Math.pow(10,Math.floor(Math.log10(r))),q=r/p;return (q<=1?1:q<=2?2:q<=5?5:10)*p};
+function tipEl(){let e=$('#entip');if(!e){e=document.createElement('div');e.id='entip';e.hidden=true;document.body.appendChild(e)}return e}
+function chHide(){const e=$('#entip');if(e)e.hidden=true;document.querySelectorAll('.ech .xh').forEach(x=>x.style.opacity=0)}
+function chShow(svg,i,cx,cy){
+  const c=CH[svg.dataset.ch],p=c&&c.pts[i];if(!p)return;c.i=i;
+  const e=tipEl();e.textContent='';
+  const h=document.createElement('div');h.textContent=p.t;e.appendChild(h);
+  p.r.forEach(([col,l,v])=>{const d=document.createElement('div'),k=document.createElement('i'),b=document.createElement('b'),s=document.createElement('span');k.style.setProperty('--c',col);b.textContent=v;s.textContent=l;d.append(k,b,s);e.appendChild(d)});
+  e.hidden=false;
+  const R=svg.getBoundingClientRect(),vb=svg.viewBox.baseVal,sc=R.width/vb.width;
+  const x=cx==null?R.left+p.x*sc:cx,y=cy==null?R.top+(p.y==null?vb.height/3:p.y)*sc:cy;
+  const w=e.offsetWidth,hh=e.offsetHeight;
+  e.style.left=Math.max(8,Math.min(innerWidth-w-8,x-w/2))+'px';
+  e.style.top=(y-hh-14<8?y+18:y-hh-14)+'px';
+  const xh=svg.querySelector('.xh');if(xh&&c.mode==='x'){xh.setAttribute('x1',p.x);xh.setAttribute('x2',p.x);xh.style.opacity=.6}
+}
+function chPointer(ev){
+  const svg=ev.target.closest&&ev.target.closest('svg[data-ch]');if(!svg)return;
+  const c=CH[svg.dataset.ch];if(!c||!c.pts.length)return;
+  const R=svg.getBoundingClientRect(),vb=svg.viewBox.baseVal,sc=vb.width/R.width,x=(ev.clientX-R.left)*sc,y=(ev.clientY-R.top)*sc;
+  let b=0,bd=1/0;c.pts.forEach((p,i)=>{const d=c.mode==='xy'?(p.x-x)**2+(p.y-y)**2:Math.abs(p.x-x);if(d<bd){bd=d;b=i}});
+  chShow(svg,b,ev.clientX,ev.clientY);
+}
+document.addEventListener('pointermove',chPointer);
+document.addEventListener('pointerdown',ev=>{if(ev.target.closest&&ev.target.closest('svg[data-ch]'))chPointer(ev);else chHide()});
+document.addEventListener('pointerout',ev=>{if(ev.pointerType==='mouse'&&ev.target.closest&&ev.target.closest('svg[data-ch]')&&!(ev.relatedTarget&&ev.relatedTarget.closest&&ev.relatedTarget.closest('svg[data-ch]')))chHide()});
+document.addEventListener('focusin',ev=>{const s=ev.target.closest&&ev.target.closest('svg[data-ch]');if(s)chShow(s,Math.max(0,CH[s.dataset.ch]?CH[s.dataset.ch].i:0))});
+document.addEventListener('focusout',ev=>{if(ev.target.closest&&ev.target.closest('svg[data-ch]'))chHide()});
+document.addEventListener('keydown',ev=>{const s=ev.target.closest&&ev.target.closest('svg[data-ch]');if(!s||(ev.key!=='ArrowLeft'&&ev.key!=='ArrowRight'))return;ev.preventDefault();const c=CH[s.dataset.ch];chShow(s,Math.max(0,Math.min(c.pts.length-1,c.i+(ev.key==='ArrowLeft'?-1:1))))});
+window.addEventListener('scroll',chHide,{passive:true});
+let enRW=innerWidth;window.addEventListener('resize',()=>{if(innerWidth!==enRW&&isEn(tab)&&tab!=='en_reglages'){enRW=innerWidth;render()}});
+
 const kw=wh=>wh==null?null:wh*4/1000;
 function svgDay(rows){
   if(!rows||rows.length<4)return '<p class="sub">Pas encore de mesures au quart d’heure.</p>';
-  const W=640,H=190,P=34,n=rows.length,X=i=>P+i*(W-P-6)/(n-1);
-  const mx=Math.max(1,...rows.map(r=>Math.max(kw(r[1])||0,kw(r[2])||0)));const Y=v=>H-18-(v/mx)*(H-30);
-  const area='M'+X(0)+','+Y(0)+rows.map((r,i)=>'L'+X(i)+','+Y(kw(r[1])||0)).join('')+'L'+X(n-1)+','+Y(0)+'Z';
-  const line=rows.map((r,i)=>(i?'L':'M')+X(i)+','+Y(kw(r[2])||0)).join('');
-  const mid=rows.findIndex(r=>r[0].slice(11)==='00:15'&&r!==rows[0]);
-  const ticks=[];for(let v=0;v<=mx;v+=mx>4?2:1)ticks.push(`<text x="2" y="${Y(v)+4}" class="ax">${v}</text><line x1="${P}" x2="${W}" y1="${Y(v)}" y2="${Y(v)}" class="gl"/>`);
-  return `<svg viewBox="0 0 ${W} ${H}" class="ech">${ticks.join('')}<path d="${area}" class="prod"/><path d="${line}" class="cons"/>
-   ${mid>0?`<line x1="${X(mid)}" x2="${X(mid)}" y1="8" y2="${H-18}" class="gl" stroke-dasharray="3 3"/><text x="${X(mid)+4}" y="${H-4}" class="ax">aujourd’hui</text>`:''}<text x="${P}" y="${H-4}" class="ax">hier</text><text x="${W-4}" y="12" class="ax" text-anchor="end">kW</text></svg>
-   <div class="legend"><span class="lg-prod">Production</span><span class="lg-cons">Consommation</span></div>`;
+  const W=enW(),H=210,L=38,R=8,T=20,B=24,ms=r=>new Date(r[0]).getTime(),a=ms(rows[0]),z=ms(rows[rows.length-1]);
+  const X=r=>L+(ms(r)-a)/Math.max(1,z-a)*(W-L-R);
+  const mx=Math.max(1,...rows.map(r=>Math.max(kw(r[1])||0,kw(r[2])||0))),st=niceStep(mx,3),top=Math.ceil(mx/st)*st,Y=v=>H-B-(v/top)*(H-B-T);
+  const prodL=rows.map((r,i)=>(i?'L':'M')+X(r).toFixed(1)+','+Y(kw(r[1])||0).toFixed(1)).join('');
+  const area=prodL+'L'+X(rows[rows.length-1]).toFixed(1)+','+Y(0)+'L'+X(rows[0]).toFixed(1)+','+Y(0)+'Z';
+  const cons=rows.map((r,i)=>(i?'L':'M')+X(r).toFixed(1)+','+Y(kw(r[2])||0).toFixed(1)).join('');
+  let g='';for(let v=0;v<=top+1e-9;v+=st)g+=`<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" class="gl"/><text x="${L-6}" y="${Y(v)+4}" text-anchor="end">${nf(v,st<1?1:0)}</text>`;
+  const every=W<480?12:6;let tk='';rows.forEach(r=>{const hh=+r[0].slice(11,13),mm=r[0].slice(14,16);if(mm==='00'&&hh%every===0)tk+=`<text x="${X(r)}" y="${H-6}" text-anchor="middle">${hh} h</text>`});
+  const mid=rows.find((r,i)=>i>0&&r[0].slice(11)==='00:15');
+  const sep=mid?`<line x1="${X(mid)}" x2="${X(mid)}" y1="${T-16}" y2="${H-B}" class="gl"/><text x="${X(mid)+6}" y="12" class="st">Aujourd’hui</text>`:'';
+  const pts=rows.map(r=>({x:X(r),y:Y(Math.max(kw(r[1])||0,kw(r[2])||0)),t:new Date(r[0]).toLocaleString('fr-FR',{weekday:'short',hour:'2-digit',minute:'2-digit'}),r:[['var(--c-sol)','Production',nf(kw(r[1]),1)+' kW'],['var(--c-achat)','Consommation',nf(kw(r[2]),1)+' kW']]}));
+  const id=chReg(pts,'x');
+  return `<svg viewBox="0 0 ${W} ${H}" class="ech" ${chAttrs(id,'Production et consommation par quart d’heure, hier et aujourd’hui')}>${g}<text x="${L}" y="12" class="st">${mid?'Hier':''}</text>${sep}<path d="${area}" class="wash"/><path d="${prodL}" class="ln sol"/><path d="${cons}" class="ln ach"/>${tk}<line class="xh" y1="${T}" y2="${H-B}"/></svg>
+   <div class="lk"><span style="--c:var(--c-sol)">Production (kW)</span><span style="--c:var(--c-achat)">Consommation (kW)</span></div>`;
+}
+function svgWeek(days){
+  const d=days.slice(-7);if(d.length<2)return '';
+  const W=enW(),H=180,L=34,R=4,T=10,B=24,bandW=(W-L-R)/d.length,bw=Math.min(24,(bandW-10)/2);
+  const mx=Math.max(1,...d.map(j=>Math.max(j.prod||0,j.conso||0))),st=niceStep(mx,3),top=Math.ceil(mx/st)*st,Y=v=>H-B-(v/top)*(H-B-T);
+  const col=(x,v,c)=>{const h=Math.max(0,Y(0)-Y(v||0));if(h<1)return '';const r=Math.min(4,h);return `<path class="${c}" d="M${x},${Y(0)}v${-(h-r)}q0,${-r} ${r},${-r}h${bw-2*r}q${r},0 ${r},${r}v${h-r}z"/>`};
+  let g='';for(let v=0;v<=top+1e-9;v+=st)g+=`<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" class="gl"/><text x="${L-6}" y="${Y(v)+4}" text-anchor="end">${nf(v,0)}</text>`;
+  const pts=[];const bars=d.map((j,i)=>{const cx=L+bandW*(i+.5),dt=new Date(j.date);pts.push({x:cx,y:Y(Math.max(j.prod||0,j.conso||0)),t:dt.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'}),r:[['var(--c-sol)','Production',nf(j.prod)+' kWh'],['var(--c-achat)','Consommation',nf(j.conso)+' kWh']]});
+    return col(cx-bw-1,j.prod,'b-sol')+col(cx+1,j.conso,'b-ach')+`<text x="${cx}" y="${H-6}" text-anchor="middle">${dt.toLocaleDateString('fr-FR',{weekday:'short'}).replace('.','')}</text>`}).join('');
+  const id=chReg(pts,'b');
+  return `<svg viewBox="0 0 ${W} ${H}" class="ech" ${chAttrs(id,'Production et consommation des 7 derniers jours')}>${g}${bars}</svg><div class="lk box"><span style="--c:var(--c-sol)">Production (kWh)</span><span style="--c:var(--c-achat)">Consommation (kWh)</span></div>`;
 }
 function svgScatter(z){
   const pts=z.points||[];if(!pts.length)return '';
-  const W=640,H=220,P=40;const xs=pts.map(p=>p[1]);let x0=Math.floor(Math.min(...xs))-1,x1=Math.ceil(Math.max(...xs))+1;
-  const ys=pts.map(p=>p[2]);const yl=Math.max(1.5,Math.ceil(Math.max(...ys.map(Math.abs))*2)/2);
-  const X=v=>P+(v-x0)/(x1-x0)*(W-P-8),Y=v=>H/2-v/yl*(H/2-16);
-  let reg='';if(z.pente!=null){const mx=xs.reduce((a,b)=>a+b,0)/xs.length,my=ys.reduce((a,b)=>a+b,0)/ys.length;reg=`<line x1="${X(x0)}" x2="${X(x1)}" y1="${Y(my+z.pente*(x0-mx))}" y2="${Y(my+z.pente*(x1-mx))}" class="reg"/>`}
-  const xt=[];for(let v=x0;v<=x1;v+=Math.max(1,Math.round((x1-x0)/6)))xt.push(`<text x="${X(v)}" y="${H-2}" class="ax" text-anchor="middle">${v}°</text>`);
-  return `<svg viewBox="0 0 ${W} ${H}" class="ech"><rect x="${P}" y="${Y(.3)}" width="${W-P-8}" height="${Y(-.3)-Y(.3)}" class="band"/>
-   <line x1="${P}" x2="${W-8}" y1="${Y(0)}" y2="${Y(0)}" class="gl"/>
-   <text x="2" y="${Y(yl)+10}" class="ax">+${yl}</text><text x="2" y="${Y(0)+4}" class="ax">0</text><text x="2" y="${Y(-yl)}" class="ax">−${yl}</text>
-   ${reg}${pts.map(p=>`<circle cx="${X(p[1])}" cy="${Y(p[2])}" r="4" class="${p[2]>.3?'hot':p[2]<-.3?'cold':'okd'}"><title>${p[0]} : ${p[1]} °C dehors, écart ${p[2]>0?'+':''}${p[2]} °C</title></circle>`).join('')}${xt.join('')}</svg>
-   <p class="sub" style="margin:4px 0 0">Chaque point = une nuit. Horizontal : température extérieure. Vertical : écart des pièces à leur consigne. Bande verte = ±0,3 °C.</p>`;
+  const W=enW(true),H=230,L=52,R=8,T=10,B=38,xs=pts.map(p=>p[1]),ys=pts.map(p=>p[2]);
+  let x0=Math.floor(Math.min(...xs))-1,x1=Math.ceil(Math.max(...xs))+1;const yl=Math.max(1.5,Math.ceil(Math.max(...ys.map(Math.abs))*2)/2);
+  const X=v=>L+(v-x0)/(x1-x0)*(W-L-R),Y=v=>T+(yl-v)/(2*yl)*(H-T-B);
+  let reg='';if(z.pente!=null){const mx=xs.reduce((a,b)=>a+b,0)/xs.length,my=ys.reduce((a,b)=>a+b,0)/ys.length,cl=v=>Math.max(-yl,Math.min(yl,v));reg=`<line x1="${X(x0)}" x2="${X(x1)}" y1="${Y(cl(my+z.pente*(x0-mx)))}" y2="${Y(cl(my+z.pente*(x1-mx)))}" class="reg"/>`}
+  const step=Math.max(1,niceStep(x1-x0,W<420?4:6));let xt='';for(let v=Math.ceil(x0/step)*step;v<=x1;v+=step)xt+=`<text x="${X(v)}" y="${H-22}" text-anchor="middle">${v}</text>`;
+  const sg=v=>(v>0?'+':v<0?'−':'')+nf(Math.abs(v),1);
+  const hit=pts.map(p=>({x:X(p[1]),y:Y(p[2]),t:new Date(p[0]).toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'long'}),r:[['var(--muted)','dehors',nf(p[1])+' °C'],[p[2]>.3?'var(--clay)':p[2]<-.3?'var(--sky)':'var(--green)','écart à la consigne',sg(p[2])+' °C']]}));
+  const id=chReg(hit,'xy');
+  return `<svg viewBox="0 0 ${W} ${H}" class="ech" ${chAttrs(id,'Écart des pièces à leur consigne selon la température extérieure, une valeur par nuit')}>
+   <rect x="${L}" y="${Y(.3)}" width="${W-L-R}" height="${Y(-.3)-Y(.3)}" class="band"/><line x1="${L}" x2="${W-R}" y1="${Y(0)}" y2="${Y(0)}" class="gl"/>
+   <text x="${L-6}" y="${Y(yl)+10}" text-anchor="end">${sg(yl)} °C</text><text x="${L-6}" y="${Y(0)+4}" text-anchor="end">0</text><text x="${L-6}" y="${Y(-yl)}" text-anchor="end">${sg(-yl)} °C</text>
+   <text x="${W-R}" y="${Y(yl)+10}" text-anchor="end">Trop chaud</text><text x="${W-R}" y="${Y(-yl)-2}" text-anchor="end">Trop froid</text>
+   ${reg}${pts.map(p=>`<circle cx="${X(p[1])}" cy="${Y(p[2])}" r="5" class="${p[2]>.3?'hot':p[2]<-.3?'cold':'okd'}"/>`).join('')}${xt}<text x="${L+(W-L-R)/2}" y="${H-4}" text-anchor="middle">Température extérieure (°C)</text></svg>
+   <p class="sub" style="margin:6px 0 0">Chaque point est une nuit. Bande verte : à ±0,3 °C de la consigne.</p>`;
 }
 function svgEff(jours,journal){
   const d=jours.filter(j=>j.kwh_dju!=null).slice(-30);if(d.length<3)return '<p class="sub">Il faut quelques jours de chauffage avec la conso Daikin pour suivre l’efficacité.</p>';
-  const W=640,H=170,P=40,bw=(W-P-6)/d.length,mx=Math.max(...d.map(j=>j.kwh_dju))*1.15,Y=v=>H-18-v/mx*(H-30);
+  const W=enW(),H=170,L=34,R=4,T=20,B=22,band=(W-L-R)/d.length,bw=Math.min(24,Math.max(2,band-2)),mx=Math.max(...d.map(j=>j.kwh_dju)),st=niceStep(mx,3),top=Math.ceil(mx/st)*st,Y=v=>H-B-v/top*(H-B-T);
   const ch=new Set((journal||[]).filter(x=>x.type==='loi_eau').map(x=>x.date));
-  return `<svg viewBox="0 0 ${W} ${H}" class="ech">${d.map((j,i)=>`<rect x="${P+i*bw+1}" y="${Y(j.kwh_dju)}" width="${bw-2}" height="${H-18-Y(j.kwh_dju)}" class="bar"><title>${j.date} : ${j.kwh_dju} kWh/DJU (${j.pac_chauff} kWh, ${j.text} °C)</title></rect>${ch.has(j.date)?`<line x1="${P+i*bw}" x2="${P+i*bw}" y1="6" y2="${H-18}" class="chg"/>`:''}`).join('')}
-   <text x="2" y="${Y(mx/1.15)+4}" class="ax">${(mx/1.15).toFixed(1)}</text><text x="${P}" y="${H-4}" class="ax">${d[0].date.slice(5)}</text><text x="${W-4}" y="${H-4}" class="ax" text-anchor="end">${d[d.length-1].date.slice(5)}</text></svg>
-   <p class="sub" style="margin:4px 0 0">kWh de chauffage par degré-jour : plus c’est bas, plus la maison est chauffée efficacement, quel que soit le temps. Traits orange = changement de loi d’eau.</p>`;
+  let g='';for(let v=0;v<=top+1e-9;v+=st)g+=`<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" class="gl"/><text x="${L-6}" y="${Y(v)+4}" text-anchor="end">${nf(v,st<1?1:0)}</text>`;
+  const pts=[];const bars=d.map((j,i)=>{const cx=L+band*(i+.5),x=cx-bw/2,h=Math.max(1,Y(0)-Y(j.kwh_dju)),r=Math.min(4,h,bw/2);pts.push({x:cx,y:Y(j.kwh_dju),t:new Date(j.date).toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'long'}),r:[['var(--c-achat)','par degré-jour',nf(j.kwh_dju,2)+' kWh'],['var(--muted)','chauffage',nf(j.pac_chauff)+' kWh'],['var(--muted)','dehors',nf(j.text)+' °C']]});
+    return `<path class="b-ach" d="M${x},${Y(0)}v${-(h-r)}q0,${-r} ${r},${-r}h${bw-2*r}q${r},0 ${r},${r}v${h-r}z"/>${ch.has(j.date)?`<line x1="${cx}" x2="${cx}" y1="4" y2="${Y(0)}" class="chg"/>`:''}`}).join('');
+  const last=d[d.length-1],lx=L+band*(d.length-.5);
+  const id=chReg(pts,'b');
+  return `<svg viewBox="0 0 ${W} ${H}" class="ech" ${chAttrs(id,'Kilowattheures de chauffage par degré-jour, jour par jour')}>${g}${bars}<text x="${Math.min(W-R,lx+12)}" y="${Math.max(12,Y(last.kwh_dju)-6)}" text-anchor="end" class="st">${nf(last.kwh_dju,2)}</text><text x="${L}" y="${H-5}">${new Date(d[0].date).toLocaleDateString('fr-FR',{day:'numeric',month:'short'})}</text><text x="${W-R}" y="${H-5}" text-anchor="end">${new Date(last.date).toLocaleDateString('fr-FR',{day:'numeric',month:'short'})}</text></svg>
+   <p class="sub" style="margin:6px 0 0">kWh de chauffage par degré-jour : plus c’est bas, plus la maison est chauffée efficacement, quel que soit le temps. À lire sur plusieurs semaines, car Daikin arrondit sa mesure au kWh.${ch.size?' Trait doré : changement de loi d’eau.':''}</p>`;
+}
+function partBar(title,total,segs){
+  const s=segs.filter(x=>x.v>0.04);if(!(total>0.04)||!s.length)return '';
+  return `<div class="pb"><div class="pb-h"><b>${title}</b><span>${nf(total)} kWh</span></div>
+   <div class="pb-s" aria-hidden="true">${s.map(x=>`<i style="--c:var(${x.c});flex:${x.v.toFixed(2)} 1 0"></i>`).join('')}</div>
+   <div class="pb-l">${s.map(x=>`<span style="--c:var(${x.c})">${x.l} <b>${nf(x.v)}</b></span>`).join('')}</div></div>`;
 }
 
 /* ---------- vue ---------- */
@@ -1587,7 +1687,7 @@ function viewHome(){
 }
 function enHead(h,p){
   return `<div class="top"><div><h1>${h}</h1><p>${p||''}</p></div><button class="btn ghost sm" data-act="enRefresh">↻ Actualiser</button></div>
-   ${enErr?`<div class="alert heat"><b>⚠️</b> ${esc(enErr)}</div>`:''}`;
+   ${enErr?`<div class="alert heat">${ni('warn')}<div>${esc(enErr)}</div></div>`:''}`;
 }
 /* Sans dépôt connecté, ou sans analyse encore disponible, chaque page affiche ce qui manque au lieu d'une page vide. */
 function enGate(h){
@@ -1600,24 +1700,31 @@ const enWhen=A=>'Analyse du '+new Date(A.genere).toLocaleString('fr-FR',{day:'nu
 const enKpi=(l,v,u,c)=>`<div class="kp ${c||''}"><span>${l}</span><b>${v}<small> ${u}</small></b></div>`;
 function viewEnBilan(){
   const g=enGate('Bilan');if(g)return g;
-  const A=ED.app,days=A.jours.filter(j=>!j.partiel),y=days[days.length-1],t=A.jours.find(j=>j.partiel);
+  const A=ED.app,days=A.jours.filter(j=>!j.partiel&&(j.prod||j.conso)),y=days[days.length-1],t=A.jours.find(j=>j.partiel);
   const src=A.sources||{},stale=[['Enphase',src.enphase,36],['Daikin',src.daikin,6],['Pièces',src.pieces,24*8]].filter(s=>s[1]&&(Date.now()-new Date(s[1]).getTime())/36e5>s[2]);
-  const actions=(A.actions||[]).map(a=>`<div class="row"><div class="ico">${{loi_eau:'🌡️',ecs:'☀️',veille:'🔌',equilibrage:'⚖️',donnees:'⚠️'}[a.type]||'•'}</div><div class="tx"><b>${esc(a.titre)}</b><span>${esc(a.detail)}</span>
+  const IC={loi_eau:'temp',ecs:'sun',veille:'plug',equilibrage:'scale',donnees:'warn'};
+  const actions=(A.actions||[]).map(a=>`<div class="row"><div class="ico">${ni(IC[a.type])}</div><div class="tx"><b>${esc(a.titre)}</b><span>${esc(a.detail)}</span>
     ${a.type==='loi_eau'?`<button class="btn sm" style="margin-top:8px" data-act="enApply" data-id="${esc(a.zone)}">J’ai appliqué ce réglage</button>`:''}</div></div>`).join('');
-  const week=days.slice(-7).reverse().map(j=>`<tr><td>${new Date(j.date).toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'})}</td><td>${nf(j.prod)}</td><td>${nf(j.conso)}</td><td>${nf(j.imp)}</td><td>${nf(j.exp)}</td><td>${j.autonomie==null?'–':nf(j.autonomie,0)+' %'}</td></tr>`).join('');
-  return enHead('Bilan',enWhen(A))+(stale.length?`<div class="alert frost"><b>⏸</b> Données anciennes : ${stale.map(s=>s[0]+' '+ago(s[1])).join(', ')}.</div>`:'')+
-   `<div class="grid">
-    <div class="card"><h2>À faire</h2>${actions||'<p class="sub">Rien à corriger pour l’instant. L’appli propose un réglage dès que les mesures le justifient.</p>'}</div>
-    ${y?`<div class="card"><h2>Hier</h2><div class="kps">${enKpi('Production',nf(y.prod),'kWh','sun')}${enKpi('Consommation',nf(y.conso),'kWh','clay')}${enKpi('Autoconsommation',nf(y.autoconso,0),'%')}${enKpi('Autonomie',nf(y.autonomie,0),'%')}
-      ${enKpi('Acheté',nf(y.imp),'kWh')}${enKpi('Revendu',nf(y.exp),'kWh')}${y.pac_chauff!=null?enKpi('PAC chauffage',nf(y.pac_chauff),'kWh'):''}${y.pac_ecs!=null?enKpi('PAC eau chaude',nf(y.pac_ecs),'kWh'):''}${y.text!=null?enKpi('Extérieur',nf(y.text),'°C'):''}${y.veille_w!=null?enKpi('Conso de fond',nf(y.veille_w,0),'W'):''}</div>
-      ${t&&t.prod!=null?`<p class="sub">Aujourd’hui à ${new Date(A.genere).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})} : ${nf(t.prod)} kWh produits, ${nf(t.conso)} kWh consommés.</p>`:''}${svgDay(A.courbe)}</div>`:''}
-    ${week?`<div class="card"><h2>7 derniers jours</h2><div class="et-wrap"><table class="et"><tr><th>Jour</th><th>Produit</th><th>Consommé</th><th>Acheté</th><th>Revendu</th><th>Autonomie</th></tr>${week}</table></div><p class="sub">Valeurs en kWh.</p></div>`:''}
+  const week=days.slice(-7).reverse().map(j=>`<tr><td>${new Date(j.date).toLocaleDateString('fr-FR',{weekday:'short',day:'numeric'})}</td><td>${nf(j.prod)}</td><td>${nf(j.conso)}</td><td>${nf(j.imp)}</td><td>${nf(j.exp)}</td></tr>`).join('');
+  let hier='';
+  if(y){const garde=Math.max(0,(y.prod||0)-(y.exp||0));
+    hier=`<div class="card"><h2>Hier</h2>
+     ${y.autonomie!=null?`<div class="enhero"><b>${nf(y.autonomie,0)}<small>%</small></b><span>de ta consommation couverte par le solaire</span></div>`:''}
+     ${partBar('Consommé',y.conso||0,[{c:'--c-sol',l:'Solaire',v:garde},{c:'--c-achat',l:'Acheté',v:y.imp||0}])}
+     ${partBar('Produit',y.prod||0,[{c:'--c-sol',l:'Gardé',v:garde},{c:'--c-vente',l:'Revendu',v:y.exp||0}])}
+     <div class="kps">${y.pac_chauff!=null?enKpi('PAC chauffage',nf(y.pac_chauff),'kWh'):''}${y.pac_ecs!=null?enKpi('PAC eau chaude',nf(y.pac_ecs),'kWh'):''}${y.text!=null?enKpi('Extérieur',nf(y.text),'°C'):''}${y.veille_w!=null?enKpi('Conso de fond',nf(y.veille_w,0),'W'):''}</div></div>`}
+  return enHead('Bilan',enWhen(A))+(stale.length?`<div class="alert frost">${ni('pause')}<div>Données anciennes : ${stale.map(s=>s[0]+' '+ago(s[1])).join(', ')}.</div></div>`:'')+
+   `<div class="grid">${hier}
+    ${actions?`<div class="card"><h2>À faire</h2>${actions}</div>`:''}
+    <div class="card"><h2>Hier et aujourd’hui</h2>${t&&t.prod!=null?`<p class="sub" style="margin:0">Aujourd’hui à ${new Date(A.genere).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})} : ${nf(t.prod)} kWh produits, ${nf(t.conso)} kWh consommés.</p>`:''}${svgDay(A.courbe)}</div>
+    ${week?`<div class="card"><h2>7 derniers jours</h2>${svgWeek(days)}<details class="endet" style="margin-top:6px"><summary>Voir le tableau</summary><table class="et"><tr><th>Jour</th><th>Produit</th><th>Consommé</th><th>Acheté</th><th>Revendu</th></tr>${week}</table><p class="sub">Valeurs en kWh.</p></details></div>`:''}
+    ${actions?'':'<p class="sub" style="margin:0">Rien à corriger pour l’instant : l’appli propose un réglage dès que les mesures le justifient.</p>'}
    </div>`;
 }
 function viewEnChauffage(){
   const g=enGate('Chauffage');if(g)return g;
   const A=ED.app,C=ED.cfg,P=A.pac;
-  const pac=P?`<div class="card"><h2>La PAC maintenant</h2><div class="kps">${P.ext!=null?enKpi('Extérieur',nf(P.ext),'°C'):''}${P.ballon!=null?enKpi('Ballon d’eau chaude',nf(P.ballon),'°C'):''}${enKpi('État',P.marche==='on'?'En marche':'Arrêtée','')}${enKpi('Erreur',P.erreur?'Oui':'Aucune','',P.erreur?'clay':'')}</div><p class="sub">Relevé ${ago(P.ts)}.</p></div>`:'<div class="card"><h2>La PAC maintenant</h2><p class="sub">Pas encore de relevé Daikin.</p></div>';
+  const pac=P?`<div class="card"><h2>La PAC maintenant</h2><p class="sub" style="margin:0">Relevé ${ago(P.ts)}.</p><div class="kps">${P.ext!=null?enKpi('Extérieur',nf(P.ext),'°C'):''}${P.ballon!=null?enKpi('Ballon d’eau chaude',nf(P.ballon),'°C'):''}${enKpi('État',P.marche==='on'?'En marche':'Arrêtée','')}${enKpi('Erreur',P.erreur?'Oui':'Aucune','')}</div></div>`:'<div class="card"><h2>La PAC maintenant</h2><p class="sub" style="margin:0">Pas encore de relevé Daikin.</p></div>';
   const zones=A.zones.map(z=>{const s=STAT[z.statut]||STAT.config,L=z.loi_eau,pz=P&&P.zones.find(p=>p.id===z.id),cz=(C.zones||[]).find(x=>x.id===z.id)||{};
     const thermo=cz.thermostat||(pz&&['roomTemperature','externalRoomTemperature'].includes(pz.mode));
     return `<div class="card"><h2>${esc(z.nom)} <span class="pill st-${s[0]}">${s[1]}</span></h2>
@@ -1625,29 +1732,37 @@ function viewEnChauffage(){
      <span>Émetteurs</span><b>${esc(z.emetteurs||'')}</b>${pz&&pz.depart!=null?`<span>Départ d’eau PAC</span><b>${nf(pz.depart)} °C${pz.decalage?` (décalage ${pz.decalage>0?'+':''}${pz.decalage})`:''}</b>`:''}
      ${z.depuis?`<span>Dernier réglage</span><b>${new Date(z.depuis).toLocaleDateString('fr-FR')}</b>`:''}</div>
      <p class="sub">${esc(z.message)}${z.proposition?` → <b>${esc(z.proposition.texte)}</b>`:''}</p>${svgScatter(z)}
-     ${thermo&&z.statut!=='ok'?'<p class="sub">⚠️ Un thermostat coupe cette zone à sa consigne, ce qui masque une loi d’eau trop haute. Pour la juger, règle-le 1 à 2 °C au-dessus de la température voulue.</p>':''}</div>`}).join('');
-  return enHead('Chauffage',enWhen(A))+`<div class="grid">${pac}<div class="grid g2">${zones}</div><div class="card"><h2>Efficacité du chauffage (30 jours)</h2>${svgEff(A.jours,C.journal)}</div></div>`;
+     ${z.statut==='config'?'<button class="btn ghost sm" data-act="go" data-id="en_reglages">Renseigner les réglages</button>':''}
+     ${thermo&&['baisser','monter','collecte'].includes(z.statut)?`<div class="enote">${ni('info')}<div>Un thermostat coupe cette zone à sa consigne, ce qui masque une loi d’eau trop haute. Pour la juger, règle-le 1 à 2 °C au-dessus de la température voulue.</div></div>`:''}</div>`}).join('');
+  return enHead('Chauffage',enWhen(A))+`<div class="grid">${pac}<div class="grid g2">${zones}</div><div class="card"><h2>Efficacité du chauffage</h2>${svgEff(A.jours,C.journal)}</div></div>`;
 }
 function viewEnPieces(){
   const g=enGate('Pièces');if(g)return g;
-  const A=ED.app,C=ED.cfg;
-  const conf=A.confort.length?`<table class="et"><tr><th>Pièce</th><th>Nuit</th><th>Consigne</th><th>Écart</th><th>Min / max 7 j</th><th>Hum.</th></tr>${A.confort.map(c=>{const e=c.nuit!=null&&c.consigne!=null?c.nuit-c.consigne:null;
-    return `<tr><td>${esc(c.nom)}</td><td>${nf(c.nuit)} °</td><td>${c.consigne!=null?nf(c.consigne)+' °':'–'}</td><td class="${e>.3?'hot':e<-.3?'cold':''}">${e==null?'–':(e>0?'+':'')+nf(e)}</td><td>${nf(c.min)} / ${nf(c.max)}</td><td>${c.hum!=null?nf(c.hum,0)+' %':'–'}</td></tr>`}).join('')}</table>
-    <p class="sub">« Nuit » = moyenne sur la fenêtre d’analyse (${C.fenetre_analyse.debut} h–${C.fenetre_analyse.fin} h), sans soleil ni cuisine. Humidité idéale : 40–60 %.</p>`:'<p class="sub">Aucune mesure de pièce : importe un export X-Sense ci-dessous.</p>';
-  return enHead('Pièces',enWhen(A))+`<div class="grid"><div class="card"><h2>Confort des pièces</h2>${conf}</div>${enImportCard(C,A)}</div>`;
+  const A=ED.app,C=ED.cfg,R=A.confort||[];
+  let conf='<p class="sub" style="margin:0">Aucune mesure de pièce : importe un export X-Sense ci-dessous.</p>';
+  if(R.length){
+    const vals=R.flatMap(c=>[c.min,c.max]).filter(v=>v!=null),lo=Math.floor(Math.min(...vals)),hi=Math.ceil(Math.max(...vals)),pc=v=>(v-lo)/Math.max(1,hi-lo)*100;
+    const row=c=>{const e=c.nuit!=null&&c.consigne!=null?c.nuit-c.consigne:null,pl=e==null?'':`<span class="pill ${e>.3?'st-hot':e<-.3?'st-cold':'st-ok'}">${e>0?'+':e<0?'−':''}${nf(Math.abs(e))} °C</span>`,hum=c.hum==null?'':c.hum>60?`Humidité <b>${nf(c.hum,0)} %</b> (élevée)`:c.hum<40?`Humidité <b>${nf(c.hum,0)} %</b> (basse)`:`Humidité ${nf(c.hum,0)} %`;
+      return `<div class="pr"><div class="pr-h"><b>${esc(c.nom)}</b><span class="pr-n">${nf(c.nuit)} °<small>la nuit</small></span></div>
+       ${c.min!=null&&c.max!=null?`<div class="pr-b" aria-hidden="true"><i style="left:${pc(c.min)}%;width:${pc(c.max)-pc(c.min)}%"></i>${c.nuit!=null?`<u style="left:${pc(c.nuit)}%"></u>`:''}</div>`:''}
+       <div class="pr-f"><span>7 jours : ${nf(c.min)} à ${nf(c.max)} °C</span><span>${hum}</span>${c.consigne!=null?`<span>Consigne ${nf(c.consigne)} ° ${pl}</span>`:'<span>Sans consigne</span>'}</div></div>`};
+    const grp=(C.zones||[]).map(z=>({n:z.nom,r:R.filter(c=>c.zone===z.id)})).concat([{n:'Autres pièces',r:R.filter(c=>!(C.zones||[]).some(z=>z.id===c.zone))}]).filter(x=>x.r.length);
+    conf=grp.map(x=>`<div class="pz"><h3>${esc(x.n)}</h3>${x.r.map(row).join('')}</div>`).join('')+`<p class="sub">Nuit : moyenne de ${C.fenetre_analyse.debut} h à ${C.fenetre_analyse.fin} h, sans soleil ni cuisine. Humidité conseillée : 40 à 60 %.</p>`;
+  }
+  return enHead('Pièces',enWhen(A))+`<div class="grid"><div class="card"><h2>Confort des 7 derniers jours</h2>${conf}</div>${enImportCard(C,A)}</div>`;
 }
 function viewEnReglages(){
   const C=ED&&ED.cfg;
-  return enHead('Réglages','Loi d’eau, pièces et connexion')+`<div class="grid">${C?enSettingsCard(C):''}${enSetupCard()}</div>`;
+  return enHead('Réglages','Loi d’eau, pièces et connexion')+`<div class="grid">${C?enSettingsCard(C):''}${C?`<details class="endet"><summary>Connexion au dépôt</summary>${enSetupCard()}</details>`:enSetupCard()}</div>`;
 }
 function enImportCard(C,A){
   const P=C.pieces||[];
   return `<div class="card"><h2>Importer les températures X-Sense</h2>
-   ${P.length?`<p class="sub" style="margin-top:0">Dans l’appli X-Sense : capteur → historique → exporter en CSV (une semaine ou un mois). Puis choisis la pièce et le fichier.</p>
+   ${P.length?`<p class="sub" style="margin-top:0">Dans l’appli X-Sense : capteur → historique → exporter en CSV (une semaine). Puis choisis la pièce et le fichier.</p>
    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><select class="in" id="enPiece" style="width:auto">${P.map(p=>`<option value="${esc(p.id)}">${esc(p.nom)}</option>`).join('')}</select>
    <label class="btn" style="cursor:pointer">⬆︎ Choisir le CSV<input type="file" id="enCsv" accept=".csv,text/csv,text/plain" hidden></label></div>
    ${A&&A.sources&&A.sources.pieces?`<p class="sub">Dernière mesure importée : ${new Date(A.sources.pieces).toLocaleString('fr-FR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}. Importe chaque semaine pour que la loi d’eau reste suivie.</p>`:''}
-   ${A&&A.erreur_import?`<div class="alert heat"><b>⚠️</b> Dernier import illisible : ${esc(A.erreur_import)}</div>`:''}`
+   ${A&&A.erreur_import?`<div class="alert heat">${ni('warn')}<div>Dernier import illisible : ${esc(A.erreur_import)}</div></div>`:''}`
    :'<p class="sub" style="margin-top:0">Déclare d’abord tes pièces dans l’onglet Réglages.</p>'}</div>`;
 }
 function enSetupCard(){
@@ -1661,17 +1776,18 @@ function enSetupCard(){
 }
 function enSettingsCard(C){
   const zs=C.zones||[],P=C.pieces||[],num=(id,v,st)=>`<input class="in" type="number" step="${st||1}" data-en="${id}" value="${v==null?'':v}" style="width:84px">`;
-  return `<div class="card"><h2>Réglages énergie</h2>
-   <h3 style="margin:14px 0 4px">Loi d’eau actuelle (relève-la sur la PAC)</h3>
-   ${zs.map((z,i)=>`<div class="sec2"><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><input class="in" data-en="z${i}.nom" value="${esc(z.nom)}" style="width:150px">
+  return `<div class="card">
+   <h3 style="margin:0 0 4px">Loi d’eau actuelle (relève-la sur la PAC)</h3>
+   ${zs.map((z,i)=>`<div class="sec2"><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><input data-en="z${i}.nom" aria-label="Nom de la zone" value="${esc(z.nom)}" class="in en-name">
      <select class="in" data-en="z${i}.emetteurs" style="width:auto">${['plancher','radiateurs','ventilo-convecteurs'].map(o=>`<option ${z.emetteurs===o?'selected':''}>${o}</option>`).join('')}</select></div>
-     <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:8px">Par ${num(`z${i}.ext_froid`,z.loi_eau.ext_froid)} °C dehors → eau ${num(`z${i}.eau_froid`,z.loi_eau.eau_froid)} °C</div>
-     <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:6px">Par ${num(`z${i}.ext_doux`,z.loi_eau.ext_doux)} °C dehors → eau ${num(`z${i}.eau_doux`,z.loi_eau.eau_doux)} °C</div></div>`).join('')}
+     <div class="lo"><span></span><small>Dehors (°C)</small><small>Eau (°C)</small>
+      <span>Point froid</span>${num(`z${i}.ext_froid`,z.loi_eau.ext_froid)}${num(`z${i}.eau_froid`,z.loi_eau.eau_froid)}
+      <span>Point doux</span>${num(`z${i}.ext_doux`,z.loi_eau.ext_doux)}${num(`z${i}.eau_doux`,z.loi_eau.eau_doux)}</div></div>`).join('')}
    <h3 style="margin:18px 0 4px">Pièces suivies</h3>
    <p class="sub" style="margin-top:0">Laisse la consigne vide pour suivre une pièce sans la compter dans la loi d’eau.</p>
-   ${P.map((p,i)=>`<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:6px 0"><input class="in" data-en="p${i}.nom" value="${esc(p.nom)}" style="width:150px">
-     <select class="in" data-en="p${i}.zone" style="width:auto">${zs.map(z=>`<option value="${esc(z.id)}" ${p.zone===z.id?'selected':''}>${esc(z.nom)}</option>`).join('')}</select>
-     consigne ${num(`p${i}.consigne`,p.consigne,.5)} °C <button class="btn warn sm" data-act="enDelP" data-id="${i}">✕</button></div>`).join('')}
+   ${P.map((p,i)=>`<div class="ps"><input data-en="p${i}.nom" aria-label="Nom de la pièce" value="${esc(p.nom)}" class="in en-name">
+     <select class="in" data-en="p${i}.zone" aria-label="Zone">${zs.map(z=>`<option value="${esc(z.id)}" ${p.zone===z.id?'selected':''}>${esc(z.nom)}</option>`).join('')}</select>
+     <label class="ps-c">Consigne (°C) ${num(`p${i}.consigne`,p.consigne,.5)}</label><button class="btn warn sm" data-act="enDelP" data-id="${i}" aria-label="Retirer ${esc(p.nom)}">Retirer</button></div>`).join('')}
    <button class="btn ghost sm" data-act="enAddP">+ Ajouter une pièce</button>
    <h3 style="margin:18px 0 4px">Fenêtre d’analyse de la loi d’eau</h3>
    <div style="display:flex;gap:6px;align-items:center">de ${num('w.debut',C.fenetre_analyse.debut)} h à ${num('w.fin',C.fenetre_analyse.fin)} h</div>
@@ -1713,7 +1829,7 @@ async function enAction(act,id){
 }
 async function enUpload(file){
   if(!file)return;const pid=$('#enPiece').value;
-  if(file.size>900e3){toast('Fichier trop gros : exporte une période plus courte (un mois maximum)');return}
+  if(file.size>900e3){toast('Fichier trop gros : exporte une période plus courte (une semaine)');return}
   try{const text=await file.text();const stamp=new Date().toISOString().replace(/[-:]/g,'').slice(0,13);
     toast('Envoi…');await enPut(`data/inbox/xsense/${pid}__${stamp}.csv`,text,null,'Import X-Sense '+pid);
     toast('Import envoyé : analyse d’ici 1 à 2 min');setTimeout(()=>enRefresh(false),120e3)}
