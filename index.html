@@ -219,6 +219,8 @@ h3.sec{font-size:14px;text-transform:uppercase;letter-spacing:.08em;color:var(--
 .ech .gl{stroke:var(--line);stroke-width:1}.ech .xh{stroke:var(--muted);stroke-width:1;opacity:0}
 .ech .band{fill:var(--sage)}.ech .reg{stroke:var(--muted);stroke-width:2;fill:none}.ech .chg{stroke:var(--c-sol);stroke-width:2}
 .ech .ln{fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.ech .ln.sol{stroke:var(--c-sol)}.ech .ln.ach{stroke:var(--c-achat)}.ech .wash{fill:var(--c-sol);opacity:.14}
+.enchips{display:flex;gap:8px;flex-wrap:wrap;margin:2px 0 4px}.mod-en .chip{min-height:44px;padding:0 14px;font:inherit;font-size:14px}
+.lk .lks::before{width:10px;height:10px;border:0;border-radius:3px;background:var(--c)}.lk .lku::before{display:none}.lk .lku{margin-left:auto}
 .ech .b-sol{fill:var(--c-sol)}.ech .b-ach{fill:var(--c-achat)}.ech .b-ven{fill:var(--c-vente)}
 .bs{display:flex;gap:2px;height:16px}.bs i{display:block;background:var(--bg2)}.bs i:first-child{border-radius:4px 0 0 4px}.bs i:last-child{border-radius:0 4px 4px 0}.bs-t{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin:4px 0 8px}
 .ech .hot{fill:var(--clay)}.ech .cold{fill:var(--sky)}.ech .okd{fill:var(--green)}.ech circle{stroke:var(--card);stroke-width:2}
@@ -1521,7 +1523,7 @@ async function syncFromFile(){
 const ENK='ousse.energie',ENDK='ousse.energie.data';
 let EN=(()=>{try{return JSON.parse(localStorage.getItem(ENK))||{}}catch(e){return{}}})();
 let ED=(()=>{try{return JSON.parse(localStorage.getItem(ENDK))}catch(e){return null}})();
-let enBusy=false,enErr='',enAt=0;
+let enBusy=false,enErr='',enAt=0,enPer=7,enDay='';
 const saveEN=()=>{try{localStorage.setItem(ENK,JSON.stringify(EN))}catch(e){}};
 const saveED=()=>{try{localStorage.setItem(ENDK,JSON.stringify(ED))}catch(e){}};
 const enTok=()=>EN.token||(SY&&SY.token)||'';
@@ -1610,33 +1612,46 @@ window.addEventListener('scroll',chHide,{passive:true});
 let enRW=innerWidth;window.addEventListener('resize',()=>{if(innerWidth!==enRW&&isEn(tab)&&tab!=='en_reglages'){enRW=innerWidth;render()}});
 
 const kw=wh=>wh==null?null:wh*4/1000;
-function svgDay(rows){
-  if(!rows||rows.length<4)return '<p class="sub">Pas encore de mesures au quart d’heure.</p>';
-  const W=enW(),H=210,L=38,R=8,T=20,B=24,ms=r=>new Date(r[0]).getTime(),a=ms(rows[0]),z=ms(rows[rows.length-1]);
-  const X=r=>L+(ms(r)-a)/Math.max(1,z-a)*(W-L-R);
-  const mx=Math.max(1,...rows.map(r=>Math.max(kw(r[1])||0,kw(r[2])||0))),st=niceStep(mx,3),top=Math.ceil(mx/st)*st,Y=v=>H-B-(v/top)*(H-B-T);
-  const prodL=rows.map((r,i)=>(i?'L':'M')+X(r).toFixed(1)+','+Y(kw(r[1])||0).toFixed(1)).join('');
-  const area=prodL+'L'+X(rows[rows.length-1]).toFixed(1)+','+Y(0)+'L'+X(rows[0]).toFixed(1)+','+Y(0)+'Z';
-  const cons=rows.map((r,i)=>(i?'L':'M')+X(r).toFixed(1)+','+Y(kw(r[2])||0).toFixed(1)).join('');
+function svgHours(pts,label,unit){
+  if(!pts||!pts.length)return '<p class="sub" style="margin:0">Pas encore de mesures pour cette période.</p>';
+  const W=enW(),H=210,L=38,R=6,T=10,B=24,band=(W-L-R)/24,bw=Math.max(2,Math.min(24,band-2));
+  const mx=Math.max(.5,...pts.map(p=>Math.max(p.prod||0,p.conso||0))),st=niceStep(mx,3),top=Math.ceil(mx/st)*st,Y=v=>H-B-v/top*(H-B-T),CX=h=>L+band*(h+.5);
   let g='';for(let v=0;v<=top+1e-9;v+=st)g+=`<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" class="gl"/><text x="${L-6}" y="${Y(v)+4}" text-anchor="end">${nf(v,st<1?1:0)}</text>`;
-  const every=W<480?12:6;let tk='';rows.forEach(r=>{const hh=+r[0].slice(11,13),mm=r[0].slice(14,16);if(mm==='00'&&hh%every===0)tk+=`<text x="${X(r)}" y="${H-6}" text-anchor="middle">${hh} h</text>`});
-  const mid=rows.find((r,i)=>i>0&&r[0].slice(11)==='00:15');
-  const sep=mid?`<line x1="${X(mid)}" x2="${X(mid)}" y1="${T-16}" y2="${H-B}" class="gl"/><text x="${X(mid)+6}" y="12" class="st">Aujourd’hui</text>`:'';
-  const pts=rows.map(r=>({x:X(r),y:Y(Math.max(kw(r[1])||0,kw(r[2])||0)),t:new Date(r[0]).toLocaleString('fr-FR',{weekday:'short',hour:'2-digit',minute:'2-digit'}),r:[['var(--c-sol)','Production',nf(kw(r[1]),1)+' kW'],['var(--c-achat)','Consommation',nf(kw(r[2]),1)+' kW']]}));
-  const id=chReg(pts,'x');
-  return `<svg viewBox="0 0 ${W} ${H}" class="ech" ${chAttrs(id,'Production et consommation par quart d’heure, hier et aujourd’hui')}>${g}<text x="${L}" y="12" class="st">${mid?'Hier':''}</text>${sep}<path d="${area}" class="wash"/><path d="${prodL}" class="ln sol"/><path d="${cons}" class="ln ach"/>${tk}<line class="xh" y1="${T}" y2="${H-B}"/></svg>
-   <div class="lk"><span style="--c:var(--c-sol)">Production (kW)</span><span style="--c:var(--c-achat)">Consommation (kW)</span></div>`;
+  const bars=pts.filter(p=>(p.prod||0)>.005).map(p=>{const h=Math.max(1,Y(0)-Y(p.prod)),r=Math.min(3,h,bw/2),x=CX(p.h)-bw/2;return `<path class="b-sol" d="M${x},${Y(0)}v${-(h-r)}q0,${-r} ${r},${-r}h${bw-2*r}q${r},0 ${r},${r}v${h-r}z"/>`}).join('');
+  const line=pts.map((p,i)=>(i?'L':'M')+CX(p.h).toFixed(1)+','+Y(p.conso||0).toFixed(1)).join('');
+  let tk='';for(let h=0;h<=24;h+=W<480?6:3)tk+=`<text x="${L+band*h}" y="${H-6}" text-anchor="${h===0?'start':h===24?'end':'middle'}">${h} h</text>`;
+  const id=chReg(pts.map(p=>({x:CX(p.h),y:Y(Math.max(p.prod||0,p.conso||0)),t:`${p.h} h à ${p.h+1} h`,r:[['var(--c-sol)','Production',nf(p.prod,2)+' kWh'],['var(--c-achat)','Consommation',nf(p.conso,2)+' kWh']].concat(p.exp!=null?[['var(--c-vente)','Revendu',nf(p.exp,2)+' kWh']]:[])})),'x');
+  return `<svg viewBox="0 0 ${W} ${H}" class="ech" ${chAttrs(id,label)}>${g}${bars}<path d="${line}" class="ln ach"/>${tk}<line class="xh" y1="${T}" y2="${H-B}"/></svg>
+   <div class="lk"><span class="lks" style="--c:var(--c-sol)">Production</span><span style="--c:var(--c-achat)">Consommation</span><span class="lku">${unit}</span></div>`;
+}
+function hoursOf(rows,day){
+  const H={};(rows||[]).forEach(r=>{const d=new Date(new Date(r[0]).getTime()-9e5);const k=d.toLocaleDateString('sv');if(k!==day)return;const h=d.getHours();H[h]=H[h]||{h,prod:0,conso:0,exp:0};H[h].prod+=(r[1]||0)/1000;H[h].conso+=(r[2]||0)/1000;H[h].exp+=(r[4]||0)/1000});
+  return Object.values(H).sort((a,b)=>a.h-b.h);
+}
+function chips(act,cur,opts){return `<div class="enchips" role="group">${opts.map(([v,l])=>`<button class="chip ${String(v)===String(cur)?'on':''}" aria-pressed="${String(v)===String(cur)}" data-act="${act}" data-id="${v}">${l}</button>`).join('')}</div>`}
+const eur=(v,d=2)=>v==null?'–':nf(v,d)+' €';
+function svgEur(days,achat,revente){
+  const d=days.filter(j=>j.conso>.2);if(d.length<2||!achat)return '';
+  const W=enW(),H=190,L=38,R=4,T=10,B=24,band=(W-L-R)/d.length,bw=Math.max(3,Math.min(24,band-4));
+  const up=j=>(j.imp||0)*achat,dn=j=>(j.exp||0)*(revente||0),mu=Math.max(.5,...d.map(up)),md=Math.max(0,...d.map(dn)),st=niceStep(mu+md,4),tp=Math.ceil(mu/st)*st,bt=Math.ceil(md/st)*st,Y=v=>T+(tp-v)/Math.max(.01,tp+bt)*(H-T-B);
+  let g='';for(let v=-bt;v<=tp+1e-9;v+=st)g+=`<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" class="gl"/><text x="${L-6}" y="${Y(v)+4}" text-anchor="end">${nf(Math.abs(v),st<1?1:0)}</text>`;
+  const pts=[];const bars=d.map((j,i)=>{const cx=L+band*(i+.5),x=cx-bw/2,h1=Y(0)-Y(up(j)),h2=Y(-dn(j))-Y(0);pts.push({x:cx,y:Y(up(j)),t:new Date(j.date).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'}),r:[['var(--c-achat)','acheté',eur(up(j))],['var(--c-vente)','revendu',eur(dn(j))]]});
+    return (h1>.5?`<rect x="${x}" y="${Y(up(j))}" width="${bw}" height="${Math.max(1,h1-1)}" rx="2" class="b-ach"/>`:'')+(h2>.5?`<rect x="${x}" y="${Y(0)+1}" width="${bw}" height="${Math.max(1,h2-1)}" rx="2" class="b-ven"/>`:'')}).join('');
+  const lb=(j,a)=>`<text x="${a==='end'?W-R:L}" y="${H-6}" text-anchor="${a}">${new Date(j.date).toLocaleDateString('fr-FR',{day:'numeric',month:'short'})}</text>`;
+  const id=chReg(pts,'b');
+  return `<svg viewBox="0 0 ${W} ${H}" class="ech" ${chAttrs(id,'Montants achetés et revendus, jour par jour')}>${g}${bars}<line x1="${L}" x2="${W-R}" y1="${Y(0)}" y2="${Y(0)}" style="stroke:var(--muted);stroke-width:1"/>${lb(d[0],'start')}${lb(d[d.length-1],'end')}</svg>
+   <div class="lk box"><span style="--c:var(--c-achat)">Acheté (€, vers le haut)</span><span style="--c:var(--c-vente)">Revendu (€, vers le bas)</span></div>`;
 }
 function svgWeek(days){
-  const d=days.slice(-7);if(d.length<2)return '';
-  const W=enW(),H=180,L=34,R=4,T=10,B=24,bandW=(W-L-R)/d.length,bw=Math.min(24,(bandW-10)/2);
+  const d=days;if(d.length<2)return '';
+  const W=enW(),H=180,L=34,R=4,T=10,B=24,bandW=(W-L-R)/d.length,bw=Math.max(2,Math.min(24,(bandW-4)/2));
   const mx=Math.max(1,...d.map(j=>Math.max(j.prod||0,j.conso||0))),st=niceStep(mx,3),top=Math.ceil(mx/st)*st,Y=v=>H-B-(v/top)*(H-B-T);
   const col=(x,v,c)=>{const h=Math.max(0,Y(0)-Y(v||0));if(h<1)return '';const r=Math.min(4,h);return `<path class="${c}" d="M${x},${Y(0)}v${-(h-r)}q0,${-r} ${r},${-r}h${bw-2*r}q${r},0 ${r},${r}v${h-r}z"/>`};
   let g='';for(let v=0;v<=top+1e-9;v+=st)g+=`<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" class="gl"/><text x="${L-6}" y="${Y(v)+4}" text-anchor="end">${nf(v,0)}</text>`;
   const pts=[];const bars=d.map((j,i)=>{const cx=L+bandW*(i+.5),dt=new Date(j.date);pts.push({x:cx,y:Y(Math.max(j.prod||0,j.conso||0)),t:dt.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'}),r:[['var(--c-sol)','Production',nf(j.prod)+' kWh'],['var(--c-achat)','Consommation',nf(j.conso)+' kWh']]});
-    return col(cx-bw-1,j.prod,'b-sol')+col(cx+1,j.conso,'b-ach')+`<text x="${cx}" y="${H-6}" text-anchor="middle">${dt.toLocaleDateString('fr-FR',{weekday:'short'}).replace('.','')}</text>`}).join('');
+    return col(cx-bw-1,j.prod,'b-sol')+col(cx+1,j.conso,'b-ach')+(d.length<=10||i%5===0?`<text x="${cx}" y="${H-6}" text-anchor="middle">${d.length<=10?dt.toLocaleDateString('fr-FR',{weekday:'short'}).replace('.',''):dt.getDate()}</text>`:'')}).join('');
   const id=chReg(pts,'b');
-  return `<svg viewBox="0 0 ${W} ${H}" class="ech" ${chAttrs(id,'Production et consommation des 7 derniers jours')}>${g}${bars}</svg><div class="lk box"><span style="--c:var(--c-sol)">Production (kWh)</span><span style="--c:var(--c-achat)">Consommation (kWh)</span></div>`;
+  return `<svg viewBox="0 0 ${W} ${H}" class="ech" ${chAttrs(id,'Production et consommation par jour')}>${g}${bars}</svg><div class="lk box"><span style="--c:var(--c-sol)">Production (kWh)</span><span style="--c:var(--c-achat)">Consommation (kWh)</span></div>`;
 }
 function svgScatter(z){
   const pts=z.points||[];if(!pts.length)return '';
@@ -1727,10 +1742,23 @@ function viewEnBilan(){
   const g=enGate('Bilan');if(g)return g;
   const A=ED.app,days=A.jours.filter(j=>!j.partiel&&(j.prod||j.conso)),y=days[days.length-1],t=A.jours.find(j=>j.partiel);
   const src=A.sources||{},stale=[['Enphase',src.enphase,36],['Daikin',src.daikin,6],['Pièces',src.pieces,24*8]].filter(s=>s[1]&&(Date.now()-new Date(s[1]).getTime())/36e5>s[2]);
-  const IC={loi_eau:'temp',ecs:'sun',veille:'plug',equilibrage:'scale',donnees:'warn',ballon:'drop'};
+  const IC={loi_eau:'temp',ecs:'sun',veille:'plug',equilibrage:'scale',donnees:'warn',ballon:'drop',surplus:'sun',pointe:'plug',fond:'plug',chauffage:'temp',tarif:'info',humidite:'drop'};
   const actions=(A.actions||[]).map(a=>`<div class="row"><div class="ico">${ni(IC[a.type])}</div><div class="tx"><b>${esc(a.titre)}</b><span>${esc(a.detail)}</span>
     ${a.type==='loi_eau'?`<button class="btn sm" style="margin-top:8px" data-act="enApply" data-id="${esc(a.zone)}">J’ai appliqué ce réglage</button>`:''}</div></div>`).join('');
-  const week=days.slice(-7).reverse().map(j=>`<tr><td>${new Date(j.date).toLocaleDateString('fr-FR',{weekday:'short',day:'numeric'})}</td><td>${nf(j.prod)}</td><td>${nf(j.conso)}</td><td>${nf(j.imp)}</td><td>${nf(j.exp)}</td></tr>`).join('');
+  const C=ED.cfg||{},Tr=C.tarifs||{},achat=Tr.achat_kwh,revente=Tr.revente_kwh,abo=(C.fournisseur_elec||{}).abonnement_mois_ttc;
+  const now=new Date(A.genere),moisK=now.toLocaleDateString('sv').slice(0,7);
+  const per=enPer==='mois'?days.filter(j=>j.date.startsWith(moisK)):days.slice(-enPer);
+  const week=per.slice().reverse().map(j=>`<tr><td>${new Date(j.date).toLocaleDateString('fr-FR',{weekday:'short',day:'numeric'})}</td><td>${nf(j.prod)}</td><td>${nf(j.conso)}</td><td>${nf(j.imp)}</td><td>${nf(j.exp)}</td></tr>`).join('');
+  const sum=k=>per.reduce((a,j)=>a+(j[k]||0),0);
+  const pAch=achat?sum('imp')*achat:null,pVen=revente!=null?sum('exp')*revente:null,pEvi=achat?Math.max(0,sum('prod')-sum('exp'))*achat:null,pAbo=abo?abo*12/365*per.length:null;
+  const net=pAch!=null?pAch+(pAbo||0)-(pVen||0):null;
+  const perCh=days.length>7?chips('enPer',enPer,[[7,'7 jours'],[30,'30 jours'],['mois','Ce mois-ci']]):'';
+  const prix=achat?`<div class="card"><h2>Ce que ça coûte</h2>${perCh}
+    ${per.length?`<div class="enhero" style="margin-top:12px"><b>${nf(net,2)}<small>€</small></b><span>reste à payer sur ${per.length} jour${per.length>1?'s':''} mesuré${per.length>1?'s':''}, abonnement compris, revente déduite</span></div>
+    <div class="kps">${enKpi('Électricité achetée',eur(pAch),'')}${enKpi('Revente',eur(pVen),'')}${enKpi('Évité grâce au solaire',eur(pEvi),'')}${pAbo!=null?enKpi('Part d’abonnement',eur(pAbo),''):''}</div>${svgEur(per,achat,revente)}`:'<p class="sub" style="margin:0">Pas encore de journée complète ce mois-ci.</p>'}
+    <p class="sub" style="margin:10px 0 0">Tes tarifs : achat ${nf(achat*100,2)} c€/kWh · revente ${revente!=null?nf(revente*100,2)+' c€/kWh':'non renseignée'}${abo?` · abonnement ${nf(abo,2)} €/mois`:''}. Estimation à partir des mesures : ta facture fait foi.</p></div>`:'<div class="card"><h2>Ce que ça coûte</h2><p class="sub" style="margin:0">Renseigne ton prix d’achat pour voir les montants.</p><button class="btn ghost sm" style="margin-top:10px" data-act="go" data-id="en_reglages">Renseigner les tarifs</button></div>';
+  const cons=(A.conseils||[]).map(a=>`<div class="row"><div class="ico">${ni(IC[a.type])}</div><div class="tx"><b>${esc(a.titre)}</b><span>${esc(a.detail)}</span></div></div>`).join('');
+  const auj=now.toLocaleDateString('sv'),yd=new Date(now.getTime()-864e5).toLocaleDateString('sv'),hA=hoursOf(A.courbe,auj),hY=hoursOf(A.courbe,yd),view=enDay||(hA.length>=6?'auj':'hier'),hSel=view==='auj'?hA:hY;
   let hier='';
   if(y){const garde=Math.max(0,(y.prod||0)-(y.exp||0));
     hier=`<div class="card"><h2>Hier</h2>
@@ -1741,8 +1769,11 @@ function viewEnBilan(){
   return enHead('Bilan',enWhen(A))+(stale.length?`<div class="alert frost">${ni('pause')}<div>Données anciennes : ${stale.map(s=>s[0]+' '+ago(s[1])).join(', ')}.</div></div>`:'')+
    `<div class="grid">${hier}
     ${actions?`<div class="card"><h2>À faire</h2>${actions}</div>`:''}
-    <div class="card"><h2>Hier et aujourd’hui</h2>${t&&t.prod!=null?`<p class="sub" style="margin:0">Aujourd’hui à ${new Date(A.genere).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})} : ${nf(t.prod)} kWh produits, ${nf(t.conso)} kWh consommés.</p>`:''}${svgDay(A.courbe)}</div>
-    ${week?`<div class="card"><h2>7 derniers jours</h2>${svgWeek(days)}<details class="endet" style="margin-top:6px"><summary>Voir le tableau</summary><table class="et"><tr><th>Jour</th><th>Produit</th><th>Consommé</th><th>Acheté</th><th>Revendu</th></tr>${week}</table><p class="sub">Valeurs en kWh.</p></details></div>`:''}
+    ${prix}
+    ${cons?`<div class="card"><h2>Conseils</h2><p class="sub" style="margin:0">Calculés sur tes ${A.profil_jours} derniers jours mesurés : à relire quand il y aura plus de données.</p>${cons}</div>`:''}
+    <div class="card"><h2>Heure par heure</h2>${chips('enDay',view,[['hier','Hier'],['auj','Aujourd’hui']])}${view==='auj'&&t&&t.prod!=null?`<p class="sub" style="margin:10px 0 0">À ${now.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})} : ${nf(t.prod)} kWh produits, ${nf(t.conso)} kWh consommés.</p>`:''}${svgHours(hSel,'Production et consommation heure par heure','kWh par heure')}</div>
+    ${(A.profil||[]).length?`<div class="card"><h2>Ta journée type</h2><p class="sub" style="margin:0">Moyenne sur ${A.profil_jours} jours. L’écart entre les colonnes et la ligne montre quand tu revends et quand tu achètes.</p>${svgHours(A.profil,'Journée type : production et consommation moyennes par heure','kWh par heure')}</div>`:''}
+    ${per.length>1?`<div class="card"><h2>Production et consommation</h2>${perCh}${svgWeek(per)}<details class="endet" style="margin-top:6px"><summary>Voir le tableau</summary><table class="et"><tr><th>Jour</th><th>Produit</th><th>Consommé</th><th>Acheté</th><th>Revendu</th></tr>${week}</table><p class="sub">Valeurs en kWh.</p></details></div>`:''}
     ${actions?'':'<p class="sub" style="margin:0">Rien à corriger pour l’instant : l’appli propose un réglage dès que les mesures le justifient.</p>'}
    </div>`;
 }
@@ -1840,9 +1871,10 @@ function enSettingsCard(C){
    <h3 style="margin:18px 0 4px">Fenêtre d’analyse de la loi d’eau</h3>
    <div style="display:flex;gap:6px;align-items:center">de ${num('w.debut',C.fenetre_analyse.debut)} h à ${num('w.fin',C.fenetre_analyse.fin)} h</div>
    <p class="sub">La nuit par défaut : ni soleil ni cuisine qui faussent la mesure. Si tu baisses la consigne la nuit, choisis plutôt une plage de jour sans soleil direct, ou réduis la baisse à 1 °C maximum.</p>
-   <h3 style="margin:18px 0 4px">Prix de l’électricité (facultatif)</h3>
+   <h3 style="margin:18px 0 4px">Prix de l’électricité</h3>
    <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">achat ${num('t.achat',C.tarifs.achat_kwh,.0001)} €/kWh · revente ${num('t.revente',C.tarifs.revente_kwh,.0001)} €/kWh</div>
-   <p class="sub">Sert seulement à chiffrer les gains en euros.</p>
+   <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:8px">abonnement ${num('t.abo',(C.fournisseur_elec||{}).abonnement_mois_ttc,.01)} €/mois TTC</div>
+   <p class="sub">Sert seulement à chiffrer les montants en euros.</p>
    <button class="btn" data-act="enSaveSet" style="margin-top:14px">Enregistrer</button></div>`;
 }
 function enReadForm(c){
@@ -1850,7 +1882,7 @@ function enReadForm(c){
   (c.zones||[]).forEach((z,i)=>{z.nom=v(`z${i}.nom`)||z.nom;z.emetteurs=v(`z${i}.emetteurs`);['ext_froid','eau_froid','ext_doux','eau_doux'].forEach(k=>{const x=n(`z${i}.${k}`);if(x!=null)z.loi_eau[k]=x})});
   (c.pieces||[]).forEach((p,i)=>{p.nom=v(`p${i}.nom`)||p.nom;p.zone=v(`p${i}.zone`);p.consigne=n(`p${i}.consigne`)});
   if(n('w.debut')!=null)c.fenetre_analyse={debut:n('w.debut'),fin:n('w.fin')};
-  c.tarifs={achat_kwh:n('t.achat'),revente_kwh:n('t.revente')};
+  c.tarifs={achat_kwh:n('t.achat'),revente_kwh:n('t.revente')};c.fournisseur_elec={...(c.fournisseur_elec||{}),abonnement_mois_ttc:n('t.abo')};
   return c;
 }
 async function enAction(act,id){
@@ -1861,11 +1893,13 @@ async function enAction(act,id){
       EN={repo,token:($('#enTok').value||'').trim()||undefined};if(!enTok()){toast('Colle un jeton d’accès');return}
       saveEN();ED=null;saveED();go('en_bilan');await enRefresh(true);break}
     case 'enOff':if(confirm('Déconnecter l’onglet Énergie sur cet appareil ?')){EN={};ED=null;saveEN();saveED();render()}break;
+    case 'enPer':enPer=id==='mois'?'mois':+id;render();break;
+    case 'enDay':enDay=id;render();break;
     case 'enRefresh':toast('Lecture des données…');await enRefresh(true);break;
     case 'enAddP':enReadForm(ED.cfg);ED.cfg.pieces.push({id:'p'+Date.now().toString(36),nom:'Chambre',zone:(ED.cfg.zones[0]||{}).id,consigne:19});render();break;
     case 'enDelP':enReadForm(ED.cfg);ED.cfg.pieces.splice(+id,1);render();break;
     case 'enSaveSet':{const local=enReadForm(ED.cfg);
-      await enSaveCfg(c=>{c.zones=local.zones;c.pieces=local.pieces;c.fenetre_analyse=local.fenetre_analyse;c.tarifs=local.tarifs},'Réglages depuis l’appli');
+      await enSaveCfg(c=>{c.zones=local.zones;c.pieces=local.pieces;c.fenetre_analyse=local.fenetre_analyse;c.tarifs=local.tarifs;c.fournisseur_elec=local.fournisseur_elec},'Réglages depuis l’appli');
       render();toast('Réglages enregistrés : analyse recalculée d’ici 1 à 2 min');setTimeout(()=>enRefresh(false),120e3);break}
     case 'enApply':{
       const z=ED.app.zones.find(x=>x.id===id);if(!z||!z.proposition)return;
