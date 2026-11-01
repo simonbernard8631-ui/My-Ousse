@@ -1,7 +1,7 @@
 {
-  "name": "Mon Jardin",
-  "short_name": "Mon Jardin",
-  "description": "Entretien et planning du jardin, météo locale, guides de taille.",
+  "name": "My Ousse",
+  "short_name": "My Ousse",
+  "description": "Jardin et énergie de la maison.",
   "lang": "fr",
   "start_url": "./",
   "scope": "./",
