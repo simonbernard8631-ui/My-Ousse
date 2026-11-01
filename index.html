@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#4f7a4a">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Mon Jardin">
+<meta name="apple-mobile-web-app-title" content="My Ousse">
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" href="icon-192.png">
-<title>Mon Jardin</title>
+<title>My Ousse</title>
 <style>
 :root{
   --bg:#f3f0e6;--bg2:#eae6d6;--card:#fbf9f3;--ink:#22301f;--muted:#6a7665;--line:#e2ddcb;
@@ -160,7 +160,7 @@ h3.sec{font-size:14px;text-transform:uppercase;letter-spacing:.08em;color:var(--
   main{min-width:0}
   .side{display:none}
   main{padding:20px 16px 110px}
-  .tabbar{display:grid;grid-template-columns:repeat(6,1fr);position:fixed;bottom:0;left:0;right:0;z-index:30;background:color-mix(in srgb,var(--card) 92%,transparent);backdrop-filter:blur(14px);border-top:1px solid var(--line);padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
+  .tabbar{display:grid;grid-template-columns:repeat(var(--nc,6),1fr);position:fixed;bottom:0;left:0;right:0;z-index:30;background:color-mix(in srgb,var(--card) 92%,transparent);backdrop-filter:blur(14px);border-top:1px solid var(--line);padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
   .tabbar .nav{flex-direction:column;gap:2px;padding:6px 0;font-size:11.5px;text-align:center;border-radius:12px}
   .fab{bottom:calc(84px + env(safe-area-inset-bottom));right:16px}
   .sheet{align-items:flex-end}
@@ -195,7 +195,7 @@ h3.sec{font-size:14px;text-transform:uppercase;letter-spacing:.08em;color:var(--
 .vul.w{border-color:var(--sun)}
 .vul b{display:block}
 .fbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:14px 0 6px}
-@media (max-width:860px){.cl2{grid-template-columns:1fr}.tabbar{grid-template-columns:repeat(6,1fr)!important}}
+@media (max-width:860px){.cl2{grid-template-columns:1fr}.tabbar{grid-template-columns:repeat(var(--nc,6),1fr)!important}}
 
 /* ---------- Énergie ---------- */
 .kps{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin:12px 0}
@@ -214,12 +214,27 @@ h3.sec{font-size:14px;text-transform:uppercase;letter-spacing:.08em;color:var(--
 .et{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}.et th{text-align:left;color:var(--muted);font-weight:600;font-size:12.5px}
 .et th,.et td{padding:7px 6px;border-bottom:1px solid var(--line)}.et td.hot{color:var(--clay);font-weight:600}.et td.cold{color:var(--sky);font-weight:600}
 code{font-size:12.5px;word-break:break-all}
+/* ---------- Accueil : choix du module ---------- */
+.mod-en .top p{text-transform:none}.mod-en .grid>*{min-width:0}.et-wrap{overflow-x:auto}
+.is-home .side,.is-home .tabbar{display:none!important}
+.is-home .app{grid-template-columns:1fr}
+.is-home main{padding:0!important;max-width:none}
+.home{min-height:100vh;display:flex;flex-direction:column;justify-content:center;gap:24px;width:min(760px,100%);margin:0 auto;padding:32px 20px calc(32px + env(safe-area-inset-bottom));box-sizing:border-box}
+.home h1{font-size:clamp(32px,6vw,44px);margin:0}.home>div>p{margin:6px 0 0;color:var(--muted)}
+.mods{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.modc{display:flex;flex-direction:column;gap:6px;text-align:left;font:inherit;color:var(--ink);cursor:pointer;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:24px;box-shadow:var(--shadow);transition:transform .12s,border-color .12s}
+.modc:hover,.modc:focus-visible{transform:translateY(-2px);border-color:var(--green)}
+.modc i{display:grid;place-items:center;width:52px;height:52px;border-radius:16px;background:var(--green);color:#fff;margin-bottom:10px}
+.modc.en i,.mod-en .brand i{background:var(--clay)}.modc.en:hover,.modc.en:focus-visible{border-color:var(--clay)}
+.modc svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.modc b{font-family:var(--serif);font-size:26px;font-weight:600}.modc span{color:var(--muted)}.modc em{font-style:normal;font-size:14px;font-weight:600;color:var(--green-d);margin-top:8px}
+.modc.en em{color:var(--clay)}
 </style>
 </head>
 <body>
 <div class="app">
   <aside class="side">
-    <div class="brand"><i><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19c0-8 5-14 15-14 0 10-6 15-14 15"/><path d="M5 19c3-5 6-8 10-10"/></svg></i>Mon Jardin</div>
+    <div class="brand" id="brand"></div>
     <div id="navSide"></div>
     <small id="syncState"></small>
   </aside>
@@ -787,22 +802,34 @@ const NAV=[
  ['garden','Jardin','<path d="M5 19c0-8 5-14 15-14 0 10-6 15-14 15"/><path d="M5 19c3-5 6-8 10-10"/>'],
  ['calendar','Calendrier','<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/>'],
  ['plantation','Plantation','<path d="M12 21v-9"/><path d="M12 13c0-4-3-6-7-6 0 4 3 6 7 6z"/><path d="M12 15c0-3 2.5-5 6-5 0 3-2.5 5-6 5z"/>'],
- ['energie','Énergie','<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>'],
- ['settings','Réglages','<path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/>']
+ ['settings','Réglages','<path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/>'],
+ ['en_bilan','Bilan','<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>'],
+ ['en_chauffage','Chauffage','<path d="M12 3a3 3 0 0 0-3 3v8.5a4.5 4.5 0 1 0 6 0V6a3 3 0 0 0-3-3z"/><path d="M12 10v7"/>'],
+ ['en_pieces','Pièces','<path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>'],
+ ['en_reglages','Réglages','<path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/>'],
+ ['home','Modules','<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>']
 ];
-let tab=(location.hash||'#today').slice(1);if(!NAV.some(n=>n[0]===tab))tab='today';
+const MOD_TABS={jardin:['today','garden','calendar','plantation','settings','home'],energie:['en_bilan','en_chauffage','en_pieces','en_reglages','home']};
+const ICO_JARDIN='<path d="M5 19c0-8 5-14 15-14 0 10-6 15-14 15"/><path d="M5 19c3-5 6-8 10-10"/>',ICO_ENERGIE='<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>';
+function isEn(t){return t.startsWith('en_')}
+let tab=location.hash.slice(1)||'home';if(tab==='energie')tab='en_bilan';if(!NAV.some(n=>n[0]===tab))tab='home';
 let calM=new Date().getMonth()+1,gFilter='all',gQuery='';
 function go(t){tab=t;history.replaceState(null,'','#'+t);window.scrollTo(0,0);render()}
-function navHtml(){return NAV.map(n=>`<button class="nav ${n[0]===tab?'on':''}" data-act="go" data-id="${n[0]}"><svg viewBox="0 0 24 24">${n[2]}</svg>${n[1]}</button>`).join('')}
+function navHtml(){return MOD_TABS[isEn(tab)?'energie':'jardin'].map(id=>NAV.find(n=>n[0]===id)).map(n=>`<button class="nav ${n[0]===tab?'on':''}" data-act="go" data-id="${n[0]}"><svg viewBox="0 0 24 24">${n[2]}</svg>${n[1]}</button>`).join('')}
 
 function render(){
   $('#navSide').innerHTML=navHtml();$('#navBar').innerHTML=navHtml();
+  const home=tab==='home',en=isEn(tab);
+  document.body.classList.toggle('is-home',home);document.body.classList.toggle('mod-en',en);
+  $('#navBar').style.setProperty('--nc',MOD_TABS[en?'energie':'jardin'].length);
+  $('#brand').innerHTML=`<i><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${en?ICO_ENERGIE:ICO_JARDIN}</svg></i>${en?'Mon Énergie':'Mon Jardin'}`;
+  $('#syncState').hidden=en;
   $('#syncState').textContent=fileHandle?'☁︎ Sauvegarde liée au fichier':'Données stockées sur cet appareil';
-  const v={today:viewToday,garden:viewGarden,calendar:viewCalendar,plantation:viewPlantation,energie:viewEnergie,settings:viewSettings}[tab]();
+  const v={today:viewToday,garden:viewGarden,calendar:viewCalendar,plantation:viewPlantation,settings:viewSettings,home:viewHome,en_bilan:viewEnBilan,en_chauffage:viewEnChauffage,en_pieces:viewEnPieces,en_reglages:viewEnReglages}[tab]();
   const keep=document.activeElement&&document.activeElement.id==='gq';
   $('#main').innerHTML=v;
   if(keep){const el=$('#gq');el.focus();el.setSelectionRange(el.value.length,el.value.length)}
-  loadImgs(tab==='plantation'?[...S.custom,...CAT,...REC]:[...S.custom,...CAT]);
+  if(!en&&!home)loadImgs(tab==='plantation'?[...S.custom,...CAT,...REC]:[...S.custom,...CAT]);
 }
 
 /* ---------- Aujourd’hui ---------- */
@@ -1464,7 +1491,7 @@ async function syncFromFile(){
 const ENK='ousse.energie',ENDK='ousse.energie.data';
 let EN=(()=>{try{return JSON.parse(localStorage.getItem(ENK))||{}}catch(e){return{}}})();
 let ED=(()=>{try{return JSON.parse(localStorage.getItem(ENDK))}catch(e){return null}})();
-let enBusy=false,enErr='',enSet=false,enAt=0;
+let enBusy=false,enErr='',enAt=0;
 const saveEN=()=>{try{localStorage.setItem(ENK,JSON.stringify(EN))}catch(e){}};
 const saveED=()=>{try{localStorage.setItem(ENDK,JSON.stringify(ED))}catch(e){}};
 const enTok=()=>EN.token||(SY&&SY.token)||'';
@@ -1498,7 +1525,7 @@ async function enRefresh(manual){
     ED={app:app&&app.data,cfg:cfg.data,cfgSha:cfg.sha,at:Date.now()};saveED();enErr='';
     if(manual)toast(app?'Données énergie à jour':'Dépôt connecté : en attente de la première collecte');
   }catch(e){enErr=e instanceof SyErr?e.message:(navigator.onLine===false?'Hors ligne : dernières données affichées.':'Lecture impossible pour le moment.');if(manual)toast(enErr)}
-  enBusy=false;if(tab==='energie')render();
+  enBusy=false;if(tab==='home'||(isEn(tab)&&(tab!=='en_reglages'||manual)))render();
 }
 async function enSaveCfg(mut,msg){
   for(let i=0;i<2;i++){
@@ -1549,40 +1576,69 @@ function svgEff(jours,journal){
 const nf=(v,d=1)=>v==null?'–':(+v).toLocaleString('fr-FR',{maximumFractionDigits:d,minimumFractionDigits:d});
 const ago=ts=>{if(!ts)return 'jamais';const h=(Date.now()-new Date(ts).getTime())/36e5;return h<1?'il y a moins d’1 h':h<48?'il y a '+Math.round(h)+' h':'il y a '+Math.round(h/24)+' j'};
 const STAT={ok:['ok','Réglage juste'],baisser:['hot','À baisser'],monter:['cold','À monter'],collecte:['wait','Collecte en cours'],config:['wait','À configurer']};
-function viewEnergie(){
-  if(!EN.repo)return `<div class="top"><div><h1>Énergie</h1><p>Solaire, pompe à chaleur et confort</p></div></div>${enSetupCard()}`;
-  const A=ED&&ED.app,C=ED&&ED.cfg;
-  const head=`<div class="top"><div><h1>Énergie</h1><p>${A?'Analyse du '+new Date(A.genere).toLocaleString('fr-FR',{day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'}):'En attente de données'}</p></div>
-   <div style="display:flex;gap:8px"><button class="btn ghost sm" data-act="enRefresh">↻</button><button class="btn ghost sm" data-act="enSet">${enSet?'Fermer les réglages':'Réglages'}</button></div></div>
+function viewHome(){
+  const A=ED&&ED.app,days=A&&A.jours?A.jours.filter(j=>!j.partiel):[],y=days[days.length-1];
+  const etat=!EN.repo?'Connexion à faire : ouvre le module':y?`Hier : ${nf(y.prod)} kWh produits, ${nf(y.conso)} kWh consommés`:'En attente de données';
+  return `<div class="home"><div><h1>My Ousse</h1><p>Que veux-tu ouvrir ?</p></div>
+   <div class="mods">
+    <button class="modc" data-act="go" data-id="today"><i><svg viewBox="0 0 24 24">${ICO_JARDIN}</svg></i><b>Jardin</b><span>Entretien, calendrier et plantations</span><em>Ouvrir le jardin →</em></button>
+    <button class="modc en" data-act="go" data-id="en_bilan"><i><svg viewBox="0 0 24 24">${ICO_ENERGIE}</svg></i><b>Énergie</b><span>Solaire, pompe à chaleur et confort des pièces</span><em>${esc(etat)}</em></button>
+   </div></div>`;
+}
+function enHead(h,p){
+  return `<div class="top"><div><h1>${h}</h1><p>${p||''}</p></div><button class="btn ghost sm" data-act="enRefresh">↻ Actualiser</button></div>
    ${enErr?`<div class="alert heat"><b>⚠️</b> ${esc(enErr)}</div>`:''}`;
-  if(enSet||!C)return head+(C?enSettingsCard(C):'')+enSetupCard();
-  if(!A)return head+`<div class="card"><h2>Première collecte en attente</h2><p class="sub">Le dépôt est connecté. Les données arrivent après la première exécution de la collecte (toutes les heures) ou de l’autorisation d’un service.</p></div>`+enImportCard(C);
-  const days=A.jours.filter(j=>!j.partiel),y=days[days.length-1],t=A.jours.find(j=>j.partiel);
+}
+/* Sans dépôt connecté, ou sans analyse encore disponible, chaque page affiche ce qui manque au lieu d'une page vide. */
+function enGate(h){
+  if(!EN.repo)return `<div class="top"><div><h1>${h}</h1><p>Module à connecter</p></div></div>${enSetupCard()}`;
+  if(!ED||!ED.cfg)return enHead(h,'Connexion en cours')+enSetupCard();
+  if(!ED.app)return enHead(h,'En attente de données')+`<div class="card"><h2>Première collecte en attente</h2><p class="sub">Le dépôt est connecté. Les données arrivent après la première collecte (toutes les heures).</p></div>`;
+  return '';
+}
+const enWhen=A=>'Analyse du '+new Date(A.genere).toLocaleString('fr-FR',{day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'});
+const enKpi=(l,v,u,c)=>`<div class="kp ${c||''}"><span>${l}</span><b>${v}<small> ${u}</small></b></div>`;
+function viewEnBilan(){
+  const g=enGate('Bilan');if(g)return g;
+  const A=ED.app,days=A.jours.filter(j=>!j.partiel),y=days[days.length-1],t=A.jours.find(j=>j.partiel);
   const src=A.sources||{},stale=[['Enphase',src.enphase,36],['Daikin',src.daikin,6],['Pièces',src.pieces,24*8]].filter(s=>s[1]&&(Date.now()-new Date(s[1]).getTime())/36e5>s[2]);
   const actions=(A.actions||[]).map(a=>`<div class="row"><div class="ico">${{loi_eau:'🌡️',ecs:'☀️',veille:'🔌',equilibrage:'⚖️',donnees:'⚠️'}[a.type]||'•'}</div><div class="tx"><b>${esc(a.titre)}</b><span>${esc(a.detail)}</span>
     ${a.type==='loi_eau'?`<button class="btn sm" style="margin-top:8px" data-act="enApply" data-id="${esc(a.zone)}">J’ai appliqué ce réglage</button>`:''}</div></div>`).join('');
-  const kpi=(l,v,u,c)=>`<div class="kp ${c||''}"><span>${l}</span><b>${v}<small> ${u}</small></b></div>`;
-  const zones=A.zones.map(z=>{const s=STAT[z.statut]||STAT.config;const L=z.loi_eau;const pz=A.pac&&A.pac.zones.find(p=>p.id===z.id);
-    return `<div class="card"><h2>${esc(z.nom)} <span class="pill st-${s[0]}">${s[1]}</span></h2>
-     <div class="kv" style="margin:10px 0"><span>Loi d’eau</span><b>${L.ext_froid} °C → ${L.eau_froid} °C · ${L.ext_doux} °C → ${L.eau_doux} °C</b>
-     <span>Émetteurs</span><b>${esc(z.emetteurs||'')}</b>${pz&&pz.depart!=null?`<span>Départ d’eau</span><b>${nf(pz.depart)} °C${pz.decalage?` (décalage ${pz.decalage>0?'+':''}${pz.decalage})`:''}</b>`:''}
-     ${z.depuis?`<span>Dernier réglage</span><b>${new Date(z.depuis).toLocaleDateString('fr-FR')}</b>`:''}</div>
-     <p class="sub">${esc(z.message)}${z.proposition?` → <b>${esc(z.proposition.texte)}</b>`:''}</p>${svgScatter(z)}
-     ${pz&&pz.mode==='roomTemperature'?'<p class="sub">⚠️ Cette zone est pilotée par le thermostat d’ambiance : il coupe la PAC à la consigne, ce qui masque une loi d’eau trop haute. Pour régler la loi d’eau, passe en régulation sur départ d’eau (ou thermostat en simple limiteur).</p>':''}</div>`}).join('');
-  const conf=A.confort.length?`<table class="et"><tr><th>Pièce</th><th>Nuit</th><th>Consigne</th><th>Écart</th><th>Min / max 7 j</th><th>Hum.</th></tr>${A.confort.map(c=>{const e=c.nuit!=null&&c.consigne!=null?c.nuit-c.consigne:null;
-    return `<tr><td>${esc(c.nom)}</td><td>${nf(c.nuit)} °</td><td>${c.consigne!=null?nf(c.consigne):'–'} °</td><td class="${e>.3?'hot':e<-.3?'cold':''}">${e==null?'–':(e>0?'+':'')+nf(e)}</td><td>${nf(c.min)} / ${nf(c.max)}</td><td>${c.hum!=null?nf(c.hum,0)+' %':'–'}</td></tr>`}).join('')}</table>
-    <p class="sub">« Nuit » = moyenne sur la fenêtre d’analyse (${C.fenetre_analyse.debut} h–${C.fenetre_analyse.fin} h), sans soleil ni cuisine. Humidité idéale : 40–60 %.</p>`:'<p class="sub">Aucune mesure de pièce : importe un export X-Sense ci-dessous.</p>';
-  return head+(stale.length?`<div class="alert frost"><b>⏸</b> Données anciennes : ${stale.map(s=>s[0]+' '+ago(s[1])).join(', ')}.</div>`:'')+
+  const week=days.slice(-7).reverse().map(j=>`<tr><td>${new Date(j.date).toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'})}</td><td>${nf(j.prod)}</td><td>${nf(j.conso)}</td><td>${nf(j.imp)}</td><td>${nf(j.exp)}</td><td>${j.autonomie==null?'–':nf(j.autonomie,0)+' %'}</td></tr>`).join('');
+  return enHead('Bilan',enWhen(A))+(stale.length?`<div class="alert frost"><b>⏸</b> Données anciennes : ${stale.map(s=>s[0]+' '+ago(s[1])).join(', ')}.</div>`:'')+
    `<div class="grid">
     <div class="card"><h2>À faire</h2>${actions||'<p class="sub">Rien à corriger pour l’instant. L’appli propose un réglage dès que les mesures le justifient.</p>'}</div>
-    ${y?`<div class="card"><h2>Hier</h2><div class="kps">${kpi('Production',nf(y.prod),'kWh','sun')}${kpi('Consommation',nf(y.conso),'kWh','clay')}${kpi('Autoconsommation',nf(y.autoconso,0),'%')}${kpi('Autonomie',nf(y.autonomie,0),'%')}
-      ${kpi('Acheté',nf(y.imp),'kWh')}${kpi('Revendu',nf(y.exp),'kWh')}${y.pac_chauff!=null?kpi('PAC chauffage',nf(y.pac_chauff),'kWh'):''}${y.pac_ecs!=null?kpi('PAC eau chaude',nf(y.pac_ecs),'kWh'):''}${y.text!=null?kpi('Extérieur',nf(y.text),'°C'):''}${y.veille_w!=null?kpi('Conso de fond',nf(y.veille_w,0),'W'):''}</div>
+    ${y?`<div class="card"><h2>Hier</h2><div class="kps">${enKpi('Production',nf(y.prod),'kWh','sun')}${enKpi('Consommation',nf(y.conso),'kWh','clay')}${enKpi('Autoconsommation',nf(y.autoconso,0),'%')}${enKpi('Autonomie',nf(y.autonomie,0),'%')}
+      ${enKpi('Acheté',nf(y.imp),'kWh')}${enKpi('Revendu',nf(y.exp),'kWh')}${y.pac_chauff!=null?enKpi('PAC chauffage',nf(y.pac_chauff),'kWh'):''}${y.pac_ecs!=null?enKpi('PAC eau chaude',nf(y.pac_ecs),'kWh'):''}${y.text!=null?enKpi('Extérieur',nf(y.text),'°C'):''}${y.veille_w!=null?enKpi('Conso de fond',nf(y.veille_w,0),'W'):''}</div>
       ${t&&t.prod!=null?`<p class="sub">Aujourd’hui à ${new Date(A.genere).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})} : ${nf(t.prod)} kWh produits, ${nf(t.conso)} kWh consommés.</p>`:''}${svgDay(A.courbe)}</div>`:''}
-    <div class="grid g2">${zones}</div>
-    <div class="card"><h2>Confort des pièces</h2>${conf}</div>
-    <div class="card"><h2>Efficacité du chauffage (30 jours)</h2>${svgEff(A.jours,C.journal)}</div>
-    ${enImportCard(C,A)}
+    ${week?`<div class="card"><h2>7 derniers jours</h2><div class="et-wrap"><table class="et"><tr><th>Jour</th><th>Produit</th><th>Consommé</th><th>Acheté</th><th>Revendu</th><th>Autonomie</th></tr>${week}</table></div><p class="sub">Valeurs en kWh.</p></div>`:''}
    </div>`;
+}
+function viewEnChauffage(){
+  const g=enGate('Chauffage');if(g)return g;
+  const A=ED.app,C=ED.cfg,P=A.pac;
+  const pac=P?`<div class="card"><h2>La PAC maintenant</h2><div class="kps">${P.ext!=null?enKpi('Extérieur',nf(P.ext),'°C'):''}${P.ballon!=null?enKpi('Ballon d’eau chaude',nf(P.ballon),'°C'):''}${enKpi('État',P.marche==='on'?'En marche':'Arrêtée','')}${enKpi('Erreur',P.erreur?'Oui':'Aucune','',P.erreur?'clay':'')}</div><p class="sub">Relevé ${ago(P.ts)}.</p></div>`:'<div class="card"><h2>La PAC maintenant</h2><p class="sub">Pas encore de relevé Daikin.</p></div>';
+  const zones=A.zones.map(z=>{const s=STAT[z.statut]||STAT.config,L=z.loi_eau,pz=P&&P.zones.find(p=>p.id===z.id),cz=(C.zones||[]).find(x=>x.id===z.id)||{};
+    const thermo=cz.thermostat||(pz&&['roomTemperature','externalRoomTemperature'].includes(pz.mode));
+    return `<div class="card"><h2>${esc(z.nom)} <span class="pill st-${s[0]}">${s[1]}</span></h2>
+     <div class="kv" style="margin:10px 0"><span>Loi d’eau</span><b>${L.ext_froid} °C → ${L.eau_froid} °C · ${L.ext_doux} °C → ${L.eau_doux} °C</b>
+     <span>Émetteurs</span><b>${esc(z.emetteurs||'')}</b>${pz&&pz.depart!=null?`<span>Départ d’eau PAC</span><b>${nf(pz.depart)} °C${pz.decalage?` (décalage ${pz.decalage>0?'+':''}${pz.decalage})`:''}</b>`:''}
+     ${z.depuis?`<span>Dernier réglage</span><b>${new Date(z.depuis).toLocaleDateString('fr-FR')}</b>`:''}</div>
+     <p class="sub">${esc(z.message)}${z.proposition?` → <b>${esc(z.proposition.texte)}</b>`:''}</p>${svgScatter(z)}
+     ${thermo&&z.statut!=='ok'?'<p class="sub">⚠️ Un thermostat coupe cette zone à sa consigne, ce qui masque une loi d’eau trop haute. Pour la juger, règle-le 1 à 2 °C au-dessus de la température voulue.</p>':''}</div>`}).join('');
+  return enHead('Chauffage',enWhen(A))+`<div class="grid">${pac}<div class="grid g2">${zones}</div><div class="card"><h2>Efficacité du chauffage (30 jours)</h2>${svgEff(A.jours,C.journal)}</div></div>`;
+}
+function viewEnPieces(){
+  const g=enGate('Pièces');if(g)return g;
+  const A=ED.app,C=ED.cfg;
+  const conf=A.confort.length?`<table class="et"><tr><th>Pièce</th><th>Nuit</th><th>Consigne</th><th>Écart</th><th>Min / max 7 j</th><th>Hum.</th></tr>${A.confort.map(c=>{const e=c.nuit!=null&&c.consigne!=null?c.nuit-c.consigne:null;
+    return `<tr><td>${esc(c.nom)}</td><td>${nf(c.nuit)} °</td><td>${c.consigne!=null?nf(c.consigne)+' °':'–'}</td><td class="${e>.3?'hot':e<-.3?'cold':''}">${e==null?'–':(e>0?'+':'')+nf(e)}</td><td>${nf(c.min)} / ${nf(c.max)}</td><td>${c.hum!=null?nf(c.hum,0)+' %':'–'}</td></tr>`}).join('')}</table>
+    <p class="sub">« Nuit » = moyenne sur la fenêtre d’analyse (${C.fenetre_analyse.debut} h–${C.fenetre_analyse.fin} h), sans soleil ni cuisine. Humidité idéale : 40–60 %.</p>`:'<p class="sub">Aucune mesure de pièce : importe un export X-Sense ci-dessous.</p>';
+  return enHead('Pièces',enWhen(A))+`<div class="grid"><div class="card"><h2>Confort des pièces</h2>${conf}</div>${enImportCard(C,A)}</div>`;
+}
+function viewEnReglages(){
+  const C=ED&&ED.cfg;
+  return enHead('Réglages','Loi d’eau, pièces et connexion')+`<div class="grid">${C?enSettingsCard(C):''}${enSetupCard()}</div>`;
 }
 function enImportCard(C,A){
   const P=C.pieces||[];
@@ -1592,12 +1648,12 @@ function enImportCard(C,A){
    <label class="btn" style="cursor:pointer">⬆︎ Choisir le CSV<input type="file" id="enCsv" accept=".csv,text/csv,text/plain" hidden></label></div>
    ${A&&A.sources&&A.sources.pieces?`<p class="sub">Dernière mesure importée : ${new Date(A.sources.pieces).toLocaleString('fr-FR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}. Importe chaque semaine pour que la loi d’eau reste suivie.</p>`:''}
    ${A&&A.erreur_import?`<div class="alert heat"><b>⚠️</b> Dernier import illisible : ${esc(A.erreur_import)}</div>`:''}`
-   :'<p class="sub" style="margin-top:0">Déclare d’abord tes pièces dans les réglages (bouton « Réglages » en haut).</p>'}</div>`;
+   :'<p class="sub" style="margin-top:0">Déclare d’abord tes pièces dans l’onglet Réglages.</p>'}</div>`;
 }
 function enSetupCard(){
   const url=location.origin+location.pathname;
   return `<div class="card"><h2>Connexion au dépôt de collecte</h2>
-   <p class="sub" style="margin-top:0">Les mesures sont collectées par GitHub dans un dépôt <b>privé</b>. Le jeton peut être celui de la synchro du jardin si tu lui as donné accès à ce dépôt.</p>
+   <p class="sub" style="margin-top:0">Tes mesures sont dans un dépôt GitHub <b>privé</b> : ce site public ne peut les afficher qu’avec un jeton d’accès, gardé sur cet appareil. ${EN.repo?'':'<a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">Créer le jeton</a> : « Only select repositories » → ousse-energie, puis « Contents : Read and write ».'} Le jeton peut être celui de la synchro du jardin s’il a accès à ce dépôt.</p>
    <div class="field"><label>Dépôt (nom-utilisateur/nom-du-dépôt)</label><input class="in" id="enRepo" value="${esc(EN.repo||'simonbernard8631-ui/ousse-energie')}" autocomplete="off" autocapitalize="off"></div>
    <div class="field"><label>Jeton d’accès ${SY&&SY.token?'(vide = celui du jardin)':''}</label><input class="in" id="enTok" type="password" placeholder="github_pat_…" autocomplete="off"></div>
    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-act="enConnect">Connecter</button>${EN.repo?'<button class="btn warn sm" data-act="enOff">Déconnecter</button>':''}</div>
@@ -1612,6 +1668,7 @@ function enSettingsCard(C){
      <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:8px">Par ${num(`z${i}.ext_froid`,z.loi_eau.ext_froid)} °C dehors → eau ${num(`z${i}.eau_froid`,z.loi_eau.eau_froid)} °C</div>
      <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:6px">Par ${num(`z${i}.ext_doux`,z.loi_eau.ext_doux)} °C dehors → eau ${num(`z${i}.eau_doux`,z.loi_eau.eau_doux)} °C</div></div>`).join('')}
    <h3 style="margin:18px 0 4px">Pièces suivies</h3>
+   <p class="sub" style="margin-top:0">Laisse la consigne vide pour suivre une pièce sans la compter dans la loi d’eau.</p>
    ${P.map((p,i)=>`<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:6px 0"><input class="in" data-en="p${i}.nom" value="${esc(p.nom)}" style="width:150px">
      <select class="in" data-en="p${i}.zone" style="width:auto">${zs.map(z=>`<option value="${esc(z.id)}" ${p.zone===z.id?'selected':''}>${esc(z.nom)}</option>`).join('')}</select>
      consigne ${num(`p${i}.consigne`,p.consigne,.5)} °C <button class="btn warn sm" data-act="enDelP" data-id="${i}">✕</button></div>`).join('')}
@@ -1638,15 +1695,14 @@ async function enAction(act,id){
       const repo=($('#enRepo').value||'').trim().replace(/^https?:\/\/github\.com\//,'').replace(/\.git$/,'').replace(/\/$/,'');
       if(!/^[\w.-]+\/[\w.-]+$/.test(repo)){toast('Nom de dépôt invalide');return}
       EN={repo,token:($('#enTok').value||'').trim()||undefined};if(!enTok()){toast('Colle un jeton d’accès');return}
-      saveEN();ED=null;saveED();enSet=false;render();await enRefresh(true);break}
+      saveEN();ED=null;saveED();go('en_bilan');await enRefresh(true);break}
     case 'enOff':if(confirm('Déconnecter l’onglet Énergie sur cet appareil ?')){EN={};ED=null;saveEN();saveED();render()}break;
     case 'enRefresh':toast('Lecture des données…');await enRefresh(true);break;
-    case 'enSet':enSet=!enSet;render();break;
     case 'enAddP':enReadForm(ED.cfg);ED.cfg.pieces.push({id:'p'+Date.now().toString(36),nom:'Chambre',zone:(ED.cfg.zones[0]||{}).id,consigne:19});render();break;
     case 'enDelP':enReadForm(ED.cfg);ED.cfg.pieces.splice(+id,1);render();break;
     case 'enSaveSet':{const local=enReadForm(ED.cfg);
       await enSaveCfg(c=>{c.zones=local.zones;c.pieces=local.pieces;c.fenetre_analyse=local.fenetre_analyse;c.tarifs=local.tarifs},'Réglages depuis l’appli');
-      enSet=false;render();toast('Réglages enregistrés : analyse recalculée d’ici 1 à 2 min');setTimeout(()=>enRefresh(false),120e3);break}
+      render();toast('Réglages enregistrés : analyse recalculée d’ici 1 à 2 min');setTimeout(()=>enRefresh(false),120e3);break}
     case 'enApply':{
       const z=ED.app.zones.find(x=>x.id===id);if(!z||!z.proposition)return;
       if(!confirm(`As-tu réglé la PAC ainsi ?\n\n${z.nom} : ${z.proposition.texte}\n\nL’appli repart de zéro pour cette zone et jugera l’effet après 2 nuits de stabilisation.`))return;
@@ -1665,7 +1721,7 @@ async function enUpload(file){
 }
 /* retour d'autorisation Daikin : afficher le code à recopier dans GitHub */
 (()=>{const q=new URLSearchParams(location.search),code=q.get('code');if(!code)return;
-  history.replaceState(null,'',location.pathname+'#energie');
+  tab='en_reglages';history.replaceState(null,'',location.pathname+'#en_reglages');
   setTimeout(()=>openSheet(`<div class="hd"><h2>Code d’autorisation Daikin</h2><button class="x" data-act="close">✕</button></div>
    <p class="sub">Copie ce code puis colle-le tout de suite (il expire en quelques minutes) dans GitHub → dépôt ${esc(EN.repo||'ousse-energie')} → Actions → « Autoriser un service » → Run workflow → service : daikin.</p>
    <input class="in" readonly value="${esc(code)}" onclick="this.select()"><button class="btn" style="margin-top:10px" onclick="navigator.clipboard&&navigator.clipboard.writeText(${esc(JSON.stringify(code))}).then(()=>toast('Code copié'))">Copier</button>`),300)})();
