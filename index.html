@@ -160,7 +160,7 @@ h3.sec{font-size:14px;text-transform:uppercase;letter-spacing:.08em;color:var(--
   main{min-width:0}
   .side{display:none}
   main{padding:20px 16px 110px}
-  .tabbar{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;bottom:0;left:0;right:0;z-index:30;background:color-mix(in srgb,var(--card) 92%,transparent);backdrop-filter:blur(14px);border-top:1px solid var(--line);padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
+  .tabbar{display:grid;grid-template-columns:repeat(6,1fr);position:fixed;bottom:0;left:0;right:0;z-index:30;background:color-mix(in srgb,var(--card) 92%,transparent);backdrop-filter:blur(14px);border-top:1px solid var(--line);padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
   .tabbar .nav{flex-direction:column;gap:2px;padding:6px 0;font-size:11.5px;text-align:center;border-radius:12px}
   .fab{bottom:calc(84px + env(safe-area-inset-bottom));right:16px}
   .sheet{align-items:flex-end}
@@ -195,7 +195,25 @@ h3.sec{font-size:14px;text-transform:uppercase;letter-spacing:.08em;color:var(--
 .vul.w{border-color:var(--sun)}
 .vul b{display:block}
 .fbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:14px 0 6px}
-@media (max-width:860px){.cl2{grid-template-columns:1fr}.tabbar{grid-template-columns:repeat(5,1fr)!important}}
+@media (max-width:860px){.cl2{grid-template-columns:1fr}.tabbar{grid-template-columns:repeat(6,1fr)!important}}
+
+/* ---------- Énergie ---------- */
+.kps{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin:12px 0}
+.kp{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:10px 12px}
+.kp span{display:block;font-size:12.5px;color:var(--muted)}.kp b{font-size:20px}.kp small{font-size:12px;color:var(--muted);font-weight:500}
+.kp.sun b{color:var(--sun)}.kp.clay b{color:var(--clay)}
+.ech{width:100%;max-width:780px;height:auto;display:block;margin-top:8px}
+.ech .ax{font-size:17px;fill:var(--muted)}.ech .gl{stroke:var(--line);stroke-width:1}
+.ech .prod{fill:var(--sun);opacity:.45}.ech .cons{fill:none;stroke:var(--clay);stroke-width:1.8}
+.ech .band{fill:var(--sage)}.ech .reg{stroke:var(--muted);stroke-width:1.5;stroke-dasharray:5 4}
+.ech .hot{fill:var(--clay)}.ech .cold{fill:var(--sky)}.ech .okd{fill:var(--green)}
+.ech .bar{fill:var(--sky);opacity:.8}.ech .chg{stroke:var(--sun);stroke-width:2}
+.lg-prod::before{background:var(--sun)!important}.lg-cons::before{background:var(--clay)!important}
+.pill.st-ok{background:var(--sage);color:var(--green-d)}.pill.st-hot{background:var(--clay-s);color:var(--clay)}
+.pill.st-cold{background:var(--sky-s);color:var(--sky)}.pill.st-wait{background:var(--bg2);color:var(--muted)}
+.et{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}.et th{text-align:left;color:var(--muted);font-weight:600;font-size:12.5px}
+.et th,.et td{padding:7px 6px;border-bottom:1px solid var(--line)}.et td.hot{color:var(--clay);font-weight:600}.et td.cold{color:var(--sky);font-weight:600}
+code{font-size:12.5px;word-break:break-all}
 </style>
 </head>
 <body>
@@ -769,6 +787,7 @@ const NAV=[
  ['garden','Jardin','<path d="M5 19c0-8 5-14 15-14 0 10-6 15-14 15"/><path d="M5 19c3-5 6-8 10-10"/>'],
  ['calendar','Calendrier','<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/>'],
  ['plantation','Plantation','<path d="M12 21v-9"/><path d="M12 13c0-4-3-6-7-6 0 4 3 6 7 6z"/><path d="M12 15c0-3 2.5-5 6-5 0 3-2.5 5-6 5z"/>'],
+ ['energie','Énergie','<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>'],
  ['settings','Réglages','<path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/>']
 ];
 let tab=(location.hash||'#today').slice(1);if(!NAV.some(n=>n[0]===tab))tab='today';
@@ -779,7 +798,7 @@ function navHtml(){return NAV.map(n=>`<button class="nav ${n[0]===tab?'on':''}" 
 function render(){
   $('#navSide').innerHTML=navHtml();$('#navBar').innerHTML=navHtml();
   $('#syncState').textContent=fileHandle?'☁︎ Sauvegarde liée au fichier':'Données stockées sur cet appareil';
-  const v={today:viewToday,garden:viewGarden,calendar:viewCalendar,plantation:viewPlantation,settings:viewSettings}[tab]();
+  const v={today:viewToday,garden:viewGarden,calendar:viewCalendar,plantation:viewPlantation,energie:viewEnergie,settings:viewSettings}[tab]();
   const keep=document.activeElement&&document.activeElement.id==='gq';
   $('#main').innerHTML=v;
   if(keep){const el=$('#gq');el.focus();el.setSelectionRange(el.value.length,el.value.length)}
@@ -1257,6 +1276,7 @@ document.addEventListener('click',async ev=>{
     case 'unlink':fileHandle=null;idbDel('fh');idbHandle=false;render();break;
     case 'relink':relink();break;
     case 'reset':if(confirm('Réinitialiser tout le jardin ?')){S=defaults();save();render();toast('Jardin réinitialisé')}break;
+    default:if(act.startsWith('en'))enAction(act,id);
   }
 });
 document.addEventListener('input',ev=>{
@@ -1266,6 +1286,7 @@ document.addEventListener('input',ev=>{
 document.addEventListener('change',ev=>{
   const t=ev.target;
   if(t.id==='imp'){importFile(t.files[0]);return}
+  if(t.id==='enCsv'){enUpload(t.files[0]);t.value='';return}
   if(t.id==='soilSel'){S.soil=t.value;save();render();return}
   if(t.id==='photoIn'){
     const P=S.plants.find(p=>p.id===t.dataset.id),f=t.files[0];if(!P||!f)return;
@@ -1437,11 +1458,225 @@ async function syncFromFile(){
 }
 (async()=>{if('showSaveFilePicker' in window){idbHandle=!!(await idbGet('fh'));render()}})();
 
+/* ============ Énergie : solaire Enphase, PAC Daikin, pièces X-Sense ============
+   Les données sont collectées par GitHub Actions dans un dépôt PRIVÉ (ex. ousse-energie) :
+   l'appli lit data/app.json (calculé là-bas) et écrit config.json (réglages) et les imports X-Sense. */
+const ENK='ousse.energie',ENDK='ousse.energie.data';
+let EN=(()=>{try{return JSON.parse(localStorage.getItem(ENK))||{}}catch(e){return{}}})();
+let ED=(()=>{try{return JSON.parse(localStorage.getItem(ENDK))}catch(e){return null}})();
+let enBusy=false,enErr='',enSet=false,enAt=0;
+const saveEN=()=>{try{localStorage.setItem(ENK,JSON.stringify(EN))}catch(e){}};
+const saveED=()=>{try{localStorage.setItem(ENDK,JSON.stringify(ED))}catch(e){}};
+const enTok=()=>EN.token||(SY&&SY.token)||'';
+const egh=(path,opt)=>{opt=opt||{};return fetch('https://api.github.com/repos/'+EN.repo+path,{...opt,cache:'no-store',headers:{Authorization:'Bearer '+enTok(),Accept:'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28',...(opt.headers||{})}})};
+async function enGet(file){
+  const r=await egh('/contents/'+file);
+  if(r.status===404)return null;
+  if(r.status===401)throw new SyErr('Jeton refusé (mal copié ou expiré).');
+  if(r.status===403)throw new SyErr('Accès refusé : le jeton doit avoir accès à ce dépôt.');
+  if(!r.ok)throw new SyErr('GitHub a répondu '+r.status+'.');
+  const m=await r.json();
+  const text=m.content&&m.encoding==='base64'?b64dec(m.content):await (await egh('/contents/'+file,{headers:{Accept:'application/vnd.github.raw+json'}})).text();
+  return{sha:m.sha,data:JSON.parse(text)};
+}
+async function enPut(file,text,sha,msg){
+  const body={message:msg,content:b64enc(text)};if(sha)body.sha=sha;
+  const r=await egh('/contents/'+file,{method:'PUT',body:JSON.stringify(body)});
+  if(r.status===409||r.status===422)return null;
+  if(r.status===401||r.status===403)throw new SyErr('Écriture refusée : le jeton doit avoir « Contents : Read and write » sur '+EN.repo+'.');
+  if(!r.ok)throw new SyErr('Écriture impossible ('+r.status+').');
+  return (await r.json()).content.sha;
+}
+async function enRefresh(manual){
+  if(!EN.repo||!enTok()||enBusy)return;enBusy=true;enAt=Date.now();
+  try{
+    const rr=await egh('');
+    if(rr.status===404)throw new SyErr('Dépôt '+EN.repo+' introuvable, ou le jeton n’y a pas accès.');
+    if(rr.ok&&!(await rr.json()).private)throw new SyErr('Le dépôt '+EN.repo+' est public : passe-le en privé, ta consommation révèle quand la maison est vide.');
+    const [app,cfg]=await Promise.all([enGet('data/app.json'),enGet('config.json')]);
+    if(!cfg)throw new SyErr('config.json absent : ce n’est pas le dépôt de collecte énergie.');
+    ED={app:app&&app.data,cfg:cfg.data,cfgSha:cfg.sha,at:Date.now()};saveED();enErr='';
+    if(manual)toast(app?'Données énergie à jour':'Dépôt connecté : en attente de la première collecte');
+  }catch(e){enErr=e instanceof SyErr?e.message:(navigator.onLine===false?'Hors ligne : dernières données affichées.':'Lecture impossible pour le moment.');if(manual)toast(enErr)}
+  enBusy=false;if(tab==='energie')render();
+}
+async function enSaveCfg(mut,msg){
+  for(let i=0;i<2;i++){
+    const cur=await enGet('config.json');const c=cur.data;mut(c);
+    const sha=await enPut('config.json',JSON.stringify(c,null,1)+'\n',cur.sha,msg);
+    if(sha){ED.cfg=c;ED.cfgSha=sha;saveED();return true}
+  }
+  throw new SyErr('Conflit d’écriture : réessaie.');
+}
+
+/* ---------- petits graphiques SVG ---------- */
+const kw=wh=>wh==null?null:wh*4/1000;
+function svgDay(rows){
+  if(!rows||rows.length<4)return '<p class="sub">Pas encore de mesures au quart d’heure.</p>';
+  const W=640,H=190,P=34,n=rows.length,X=i=>P+i*(W-P-6)/(n-1);
+  const mx=Math.max(1,...rows.map(r=>Math.max(kw(r[1])||0,kw(r[2])||0)));const Y=v=>H-18-(v/mx)*(H-30);
+  const area='M'+X(0)+','+Y(0)+rows.map((r,i)=>'L'+X(i)+','+Y(kw(r[1])||0)).join('')+'L'+X(n-1)+','+Y(0)+'Z';
+  const line=rows.map((r,i)=>(i?'L':'M')+X(i)+','+Y(kw(r[2])||0)).join('');
+  const mid=rows.findIndex(r=>r[0].slice(11)==='00:15'&&r!==rows[0]);
+  const ticks=[];for(let v=0;v<=mx;v+=mx>4?2:1)ticks.push(`<text x="2" y="${Y(v)+4}" class="ax">${v}</text><line x1="${P}" x2="${W}" y1="${Y(v)}" y2="${Y(v)}" class="gl"/>`);
+  return `<svg viewBox="0 0 ${W} ${H}" class="ech">${ticks.join('')}<path d="${area}" class="prod"/><path d="${line}" class="cons"/>
+   ${mid>0?`<line x1="${X(mid)}" x2="${X(mid)}" y1="8" y2="${H-18}" class="gl" stroke-dasharray="3 3"/><text x="${X(mid)+4}" y="${H-4}" class="ax">aujourd’hui</text>`:''}<text x="${P}" y="${H-4}" class="ax">hier</text><text x="${W-4}" y="12" class="ax" text-anchor="end">kW</text></svg>
+   <div class="legend"><span class="lg-prod">Production</span><span class="lg-cons">Consommation</span></div>`;
+}
+function svgScatter(z){
+  const pts=z.points||[];if(!pts.length)return '';
+  const W=640,H=220,P=40;const xs=pts.map(p=>p[1]);let x0=Math.floor(Math.min(...xs))-1,x1=Math.ceil(Math.max(...xs))+1;
+  const ys=pts.map(p=>p[2]);const yl=Math.max(1.5,Math.ceil(Math.max(...ys.map(Math.abs))*2)/2);
+  const X=v=>P+(v-x0)/(x1-x0)*(W-P-8),Y=v=>H/2-v/yl*(H/2-16);
+  let reg='';if(z.pente!=null){const mx=xs.reduce((a,b)=>a+b,0)/xs.length,my=ys.reduce((a,b)=>a+b,0)/ys.length;reg=`<line x1="${X(x0)}" x2="${X(x1)}" y1="${Y(my+z.pente*(x0-mx))}" y2="${Y(my+z.pente*(x1-mx))}" class="reg"/>`}
+  const xt=[];for(let v=x0;v<=x1;v+=Math.max(1,Math.round((x1-x0)/6)))xt.push(`<text x="${X(v)}" y="${H-2}" class="ax" text-anchor="middle">${v}°</text>`);
+  return `<svg viewBox="0 0 ${W} ${H}" class="ech"><rect x="${P}" y="${Y(.3)}" width="${W-P-8}" height="${Y(-.3)-Y(.3)}" class="band"/>
+   <line x1="${P}" x2="${W-8}" y1="${Y(0)}" y2="${Y(0)}" class="gl"/>
+   <text x="2" y="${Y(yl)+10}" class="ax">+${yl}</text><text x="2" y="${Y(0)+4}" class="ax">0</text><text x="2" y="${Y(-yl)}" class="ax">−${yl}</text>
+   ${reg}${pts.map(p=>`<circle cx="${X(p[1])}" cy="${Y(p[2])}" r="4" class="${p[2]>.3?'hot':p[2]<-.3?'cold':'okd'}"><title>${p[0]} : ${p[1]} °C dehors, écart ${p[2]>0?'+':''}${p[2]} °C</title></circle>`).join('')}${xt.join('')}</svg>
+   <p class="sub" style="margin:4px 0 0">Chaque point = une nuit. Horizontal : température extérieure. Vertical : écart des pièces à leur consigne. Bande verte = ±0,3 °C.</p>`;
+}
+function svgEff(jours,journal){
+  const d=jours.filter(j=>j.kwh_dju!=null).slice(-30);if(d.length<3)return '<p class="sub">Il faut quelques jours de chauffage avec la conso Daikin pour suivre l’efficacité.</p>';
+  const W=640,H=170,P=40,bw=(W-P-6)/d.length,mx=Math.max(...d.map(j=>j.kwh_dju))*1.15,Y=v=>H-18-v/mx*(H-30);
+  const ch=new Set((journal||[]).filter(x=>x.type==='loi_eau').map(x=>x.date));
+  return `<svg viewBox="0 0 ${W} ${H}" class="ech">${d.map((j,i)=>`<rect x="${P+i*bw+1}" y="${Y(j.kwh_dju)}" width="${bw-2}" height="${H-18-Y(j.kwh_dju)}" class="bar"><title>${j.date} : ${j.kwh_dju} kWh/DJU (${j.pac_chauff} kWh, ${j.text} °C)</title></rect>${ch.has(j.date)?`<line x1="${P+i*bw}" x2="${P+i*bw}" y1="6" y2="${H-18}" class="chg"/>`:''}`).join('')}
+   <text x="2" y="${Y(mx/1.15)+4}" class="ax">${(mx/1.15).toFixed(1)}</text><text x="${P}" y="${H-4}" class="ax">${d[0].date.slice(5)}</text><text x="${W-4}" y="${H-4}" class="ax" text-anchor="end">${d[d.length-1].date.slice(5)}</text></svg>
+   <p class="sub" style="margin:4px 0 0">kWh de chauffage par degré-jour : plus c’est bas, plus la maison est chauffée efficacement, quel que soit le temps. Traits orange = changement de loi d’eau.</p>`;
+}
+
+/* ---------- vue ---------- */
+const nf=(v,d=1)=>v==null?'–':(+v).toLocaleString('fr-FR',{maximumFractionDigits:d,minimumFractionDigits:d});
+const ago=ts=>{if(!ts)return 'jamais';const h=(Date.now()-new Date(ts).getTime())/36e5;return h<1?'il y a moins d’1 h':h<48?'il y a '+Math.round(h)+' h':'il y a '+Math.round(h/24)+' j'};
+const STAT={ok:['ok','Réglage juste'],baisser:['hot','À baisser'],monter:['cold','À monter'],collecte:['wait','Collecte en cours'],config:['wait','À configurer']};
+function viewEnergie(){
+  if(!EN.repo)return `<div class="top"><div><h1>Énergie</h1><p>Solaire, pompe à chaleur et confort</p></div></div>${enSetupCard()}`;
+  const A=ED&&ED.app,C=ED&&ED.cfg;
+  const head=`<div class="top"><div><h1>Énergie</h1><p>${A?'Analyse du '+new Date(A.genere).toLocaleString('fr-FR',{day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'}):'En attente de données'}</p></div>
+   <div style="display:flex;gap:8px"><button class="btn ghost sm" data-act="enRefresh">↻</button><button class="btn ghost sm" data-act="enSet">${enSet?'Fermer les réglages':'Réglages'}</button></div></div>
+   ${enErr?`<div class="alert heat"><b>⚠️</b> ${esc(enErr)}</div>`:''}`;
+  if(enSet||!C)return head+(C?enSettingsCard(C):'')+enSetupCard();
+  if(!A)return head+`<div class="card"><h2>Première collecte en attente</h2><p class="sub">Le dépôt est connecté. Les données arrivent après la première exécution de la collecte (toutes les heures) ou de l’autorisation d’un service.</p></div>`+enImportCard(C);
+  const days=A.jours.filter(j=>!j.partiel),y=days[days.length-1],t=A.jours.find(j=>j.partiel);
+  const src=A.sources||{},stale=[['Enphase',src.enphase,36],['Daikin',src.daikin,6],['Pièces',src.pieces,24*8]].filter(s=>s[1]&&(Date.now()-new Date(s[1]).getTime())/36e5>s[2]);
+  const actions=(A.actions||[]).map(a=>`<div class="row"><div class="ico">${{loi_eau:'🌡️',ecs:'☀️',veille:'🔌',equilibrage:'⚖️',donnees:'⚠️'}[a.type]||'•'}</div><div class="tx"><b>${esc(a.titre)}</b><span>${esc(a.detail)}</span>
+    ${a.type==='loi_eau'?`<button class="btn sm" style="margin-top:8px" data-act="enApply" data-id="${esc(a.zone)}">J’ai appliqué ce réglage</button>`:''}</div></div>`).join('');
+  const kpi=(l,v,u,c)=>`<div class="kp ${c||''}"><span>${l}</span><b>${v}<small> ${u}</small></b></div>`;
+  const zones=A.zones.map(z=>{const s=STAT[z.statut]||STAT.config;const L=z.loi_eau;const pz=A.pac&&A.pac.zones.find(p=>p.id===z.id);
+    return `<div class="card"><h2>${esc(z.nom)} <span class="pill st-${s[0]}">${s[1]}</span></h2>
+     <div class="kv" style="margin:10px 0"><span>Loi d’eau</span><b>${L.ext_froid} °C → ${L.eau_froid} °C · ${L.ext_doux} °C → ${L.eau_doux} °C</b>
+     <span>Émetteurs</span><b>${esc(z.emetteurs||'')}</b>${pz&&pz.depart!=null?`<span>Départ d’eau</span><b>${nf(pz.depart)} °C${pz.decalage?` (décalage ${pz.decalage>0?'+':''}${pz.decalage})`:''}</b>`:''}
+     ${z.depuis?`<span>Dernier réglage</span><b>${new Date(z.depuis).toLocaleDateString('fr-FR')}</b>`:''}</div>
+     <p class="sub">${esc(z.message)}${z.proposition?` → <b>${esc(z.proposition.texte)}</b>`:''}</p>${svgScatter(z)}
+     ${pz&&pz.mode==='roomTemperature'?'<p class="sub">⚠️ Cette zone est pilotée par le thermostat d’ambiance : il coupe la PAC à la consigne, ce qui masque une loi d’eau trop haute. Pour régler la loi d’eau, passe en régulation sur départ d’eau (ou thermostat en simple limiteur).</p>':''}</div>`}).join('');
+  const conf=A.confort.length?`<table class="et"><tr><th>Pièce</th><th>Nuit</th><th>Consigne</th><th>Écart</th><th>Min / max 7 j</th><th>Hum.</th></tr>${A.confort.map(c=>{const e=c.nuit!=null&&c.consigne!=null?c.nuit-c.consigne:null;
+    return `<tr><td>${esc(c.nom)}</td><td>${nf(c.nuit)} °</td><td>${c.consigne!=null?nf(c.consigne):'–'} °</td><td class="${e>.3?'hot':e<-.3?'cold':''}">${e==null?'–':(e>0?'+':'')+nf(e)}</td><td>${nf(c.min)} / ${nf(c.max)}</td><td>${c.hum!=null?nf(c.hum,0)+' %':'–'}</td></tr>`}).join('')}</table>
+    <p class="sub">« Nuit » = moyenne sur la fenêtre d’analyse (${C.fenetre_analyse.debut} h–${C.fenetre_analyse.fin} h), sans soleil ni cuisine. Humidité idéale : 40–60 %.</p>`:'<p class="sub">Aucune mesure de pièce : importe un export X-Sense ci-dessous.</p>';
+  return head+(stale.length?`<div class="alert frost"><b>⏸</b> Données anciennes : ${stale.map(s=>s[0]+' '+ago(s[1])).join(', ')}.</div>`:'')+
+   `<div class="grid">
+    <div class="card"><h2>À faire</h2>${actions||'<p class="sub">Rien à corriger pour l’instant. L’appli propose un réglage dès que les mesures le justifient.</p>'}</div>
+    ${y?`<div class="card"><h2>Hier</h2><div class="kps">${kpi('Production',nf(y.prod),'kWh','sun')}${kpi('Consommation',nf(y.conso),'kWh','clay')}${kpi('Autoconsommation',nf(y.autoconso,0),'%')}${kpi('Autonomie',nf(y.autonomie,0),'%')}
+      ${kpi('Acheté',nf(y.imp),'kWh')}${kpi('Revendu',nf(y.exp),'kWh')}${y.pac_chauff!=null?kpi('PAC chauffage',nf(y.pac_chauff),'kWh'):''}${y.pac_ecs!=null?kpi('PAC eau chaude',nf(y.pac_ecs),'kWh'):''}${y.text!=null?kpi('Extérieur',nf(y.text),'°C'):''}${y.veille_w!=null?kpi('Conso de fond',nf(y.veille_w,0),'W'):''}</div>
+      ${t&&t.prod!=null?`<p class="sub">Aujourd’hui à ${new Date(A.genere).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})} : ${nf(t.prod)} kWh produits, ${nf(t.conso)} kWh consommés.</p>`:''}${svgDay(A.courbe)}</div>`:''}
+    <div class="grid g2">${zones}</div>
+    <div class="card"><h2>Confort des pièces</h2>${conf}</div>
+    <div class="card"><h2>Efficacité du chauffage (30 jours)</h2>${svgEff(A.jours,C.journal)}</div>
+    ${enImportCard(C,A)}
+   </div>`;
+}
+function enImportCard(C,A){
+  const P=C.pieces||[];
+  return `<div class="card"><h2>Importer les températures X-Sense</h2>
+   ${P.length?`<p class="sub" style="margin-top:0">Dans l’appli X-Sense : capteur → historique → exporter en CSV (une semaine ou un mois). Puis choisis la pièce et le fichier.</p>
+   <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><select class="in" id="enPiece" style="width:auto">${P.map(p=>`<option value="${esc(p.id)}">${esc(p.nom)}</option>`).join('')}</select>
+   <label class="btn" style="cursor:pointer">⬆︎ Choisir le CSV<input type="file" id="enCsv" accept=".csv,text/csv,text/plain" hidden></label></div>
+   ${A&&A.sources&&A.sources.pieces?`<p class="sub">Dernière mesure importée : ${new Date(A.sources.pieces).toLocaleString('fr-FR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}. Importe chaque semaine pour que la loi d’eau reste suivie.</p>`:''}
+   ${A&&A.erreur_import?`<div class="alert heat"><b>⚠️</b> Dernier import illisible : ${esc(A.erreur_import)}</div>`:''}`
+   :'<p class="sub" style="margin-top:0">Déclare d’abord tes pièces dans les réglages (bouton « Réglages » en haut).</p>'}</div>`;
+}
+function enSetupCard(){
+  const url=location.origin+location.pathname;
+  return `<div class="card"><h2>Connexion au dépôt de collecte</h2>
+   <p class="sub" style="margin-top:0">Les mesures sont collectées par GitHub dans un dépôt <b>privé</b>. Le jeton peut être celui de la synchro du jardin si tu lui as donné accès à ce dépôt.</p>
+   <div class="field"><label>Dépôt (nom-utilisateur/nom-du-dépôt)</label><input class="in" id="enRepo" value="${esc(EN.repo||'simonbernard8631-ui/ousse-energie')}" autocomplete="off" autocapitalize="off"></div>
+   <div class="field"><label>Jeton d’accès ${SY&&SY.token?'(vide = celui du jardin)':''}</label><input class="in" id="enTok" type="password" placeholder="github_pat_…" autocomplete="off"></div>
+   <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-act="enConnect">Connecter</button>${EN.repo?'<button class="btn warn sm" data-act="enOff">Déconnecter</button>':''}</div>
+   <p class="sub">Adresse de redirection à déclarer chez Daikin : <code>${esc(url)}</code></p></div>`;
+}
+function enSettingsCard(C){
+  const zs=C.zones||[],P=C.pieces||[],num=(id,v,st)=>`<input class="in" type="number" step="${st||1}" data-en="${id}" value="${v==null?'':v}" style="width:84px">`;
+  return `<div class="card"><h2>Réglages énergie</h2>
+   <h3 style="margin:14px 0 4px">Loi d’eau actuelle (relève-la sur la PAC)</h3>
+   ${zs.map((z,i)=>`<div class="sec2"><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><input class="in" data-en="z${i}.nom" value="${esc(z.nom)}" style="width:150px">
+     <select class="in" data-en="z${i}.emetteurs" style="width:auto">${['plancher','radiateurs','ventilo-convecteurs'].map(o=>`<option ${z.emetteurs===o?'selected':''}>${o}</option>`).join('')}</select></div>
+     <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:8px">Par ${num(`z${i}.ext_froid`,z.loi_eau.ext_froid)} °C dehors → eau ${num(`z${i}.eau_froid`,z.loi_eau.eau_froid)} °C</div>
+     <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:6px">Par ${num(`z${i}.ext_doux`,z.loi_eau.ext_doux)} °C dehors → eau ${num(`z${i}.eau_doux`,z.loi_eau.eau_doux)} °C</div></div>`).join('')}
+   <h3 style="margin:18px 0 4px">Pièces suivies</h3>
+   ${P.map((p,i)=>`<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:6px 0"><input class="in" data-en="p${i}.nom" value="${esc(p.nom)}" style="width:150px">
+     <select class="in" data-en="p${i}.zone" style="width:auto">${zs.map(z=>`<option value="${esc(z.id)}" ${p.zone===z.id?'selected':''}>${esc(z.nom)}</option>`).join('')}</select>
+     consigne ${num(`p${i}.consigne`,p.consigne,.5)} °C <button class="btn warn sm" data-act="enDelP" data-id="${i}">✕</button></div>`).join('')}
+   <button class="btn ghost sm" data-act="enAddP">+ Ajouter une pièce</button>
+   <h3 style="margin:18px 0 4px">Fenêtre d’analyse de la loi d’eau</h3>
+   <div style="display:flex;gap:6px;align-items:center">de ${num('w.debut',C.fenetre_analyse.debut)} h à ${num('w.fin',C.fenetre_analyse.fin)} h</div>
+   <p class="sub">La nuit par défaut : ni soleil ni cuisine qui faussent la mesure. Si tu baisses la consigne la nuit, choisis plutôt une plage de jour sans soleil direct, ou réduis la baisse à 1 °C maximum.</p>
+   <h3 style="margin:18px 0 4px">Prix de l’électricité (facultatif)</h3>
+   <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">achat ${num('t.achat',C.tarifs.achat_kwh,.0001)} €/kWh · revente ${num('t.revente',C.tarifs.revente_kwh,.0001)} €/kWh</div>
+   <p class="sub">Sert seulement à chiffrer les gains en euros.</p>
+   <button class="btn" data-act="enSaveSet" style="margin-top:14px">Enregistrer</button></div>`;
+}
+function enReadForm(c){
+  const v=k=>{const el=document.querySelector(`[data-en="${k}"]`);return el?el.value:null},n=k=>{const x=v(k);return x===''||x==null?null:+x};
+  (c.zones||[]).forEach((z,i)=>{z.nom=v(`z${i}.nom`)||z.nom;z.emetteurs=v(`z${i}.emetteurs`);['ext_froid','eau_froid','ext_doux','eau_doux'].forEach(k=>{const x=n(`z${i}.${k}`);if(x!=null)z.loi_eau[k]=x})});
+  (c.pieces||[]).forEach((p,i)=>{p.nom=v(`p${i}.nom`)||p.nom;p.zone=v(`p${i}.zone`);p.consigne=n(`p${i}.consigne`)});
+  if(n('w.debut')!=null)c.fenetre_analyse={debut:n('w.debut'),fin:n('w.fin')};
+  c.tarifs={achat_kwh:n('t.achat'),revente_kwh:n('t.revente')};
+  return c;
+}
+async function enAction(act,id){
+  try{switch(act){
+    case 'enConnect':{
+      const repo=($('#enRepo').value||'').trim().replace(/^https?:\/\/github\.com\//,'').replace(/\.git$/,'').replace(/\/$/,'');
+      if(!/^[\w.-]+\/[\w.-]+$/.test(repo)){toast('Nom de dépôt invalide');return}
+      EN={repo,token:($('#enTok').value||'').trim()||undefined};if(!enTok()){toast('Colle un jeton d’accès');return}
+      saveEN();ED=null;saveED();enSet=false;render();await enRefresh(true);break}
+    case 'enOff':if(confirm('Déconnecter l’onglet Énergie sur cet appareil ?')){EN={};ED=null;saveEN();saveED();render()}break;
+    case 'enRefresh':toast('Lecture des données…');await enRefresh(true);break;
+    case 'enSet':enSet=!enSet;render();break;
+    case 'enAddP':enReadForm(ED.cfg);ED.cfg.pieces.push({id:'p'+Date.now().toString(36),nom:'Chambre',zone:(ED.cfg.zones[0]||{}).id,consigne:19});render();break;
+    case 'enDelP':enReadForm(ED.cfg);ED.cfg.pieces.splice(+id,1);render();break;
+    case 'enSaveSet':{const local=enReadForm(ED.cfg);
+      await enSaveCfg(c=>{c.zones=local.zones;c.pieces=local.pieces;c.fenetre_analyse=local.fenetre_analyse;c.tarifs=local.tarifs},'Réglages depuis l’appli');
+      enSet=false;render();toast('Réglages enregistrés : analyse recalculée d’ici 1 à 2 min');setTimeout(()=>enRefresh(false),120e3);break}
+    case 'enApply':{
+      const z=ED.app.zones.find(x=>x.id===id);if(!z||!z.proposition)return;
+      if(!confirm(`As-tu réglé la PAC ainsi ?\n\n${z.nom} : ${z.proposition.texte}\n\nL’appli repart de zéro pour cette zone et jugera l’effet après 2 nuits de stabilisation.`))return;
+      const nl=z.proposition.loi_eau,today=new Date().toLocaleDateString('sv');
+      await enSaveCfg(c=>{const cz=c.zones.find(x=>x.id===id);c.journal=c.journal||[];c.journal.push({date:today,zone:id,type:'loi_eau',avant:cz.loi_eau,apres:nl,texte:z.proposition.texte});cz.loi_eau=nl},'Loi d’eau modifiée : '+z.proposition.texte);
+      toast('Noté. Prochaine analyse dans 1 à 2 min');setTimeout(()=>enRefresh(false),120e3);break}
+  }}catch(e){toast(e instanceof SyErr?e.message:'Action impossible (réseau ?)')}
+}
+async function enUpload(file){
+  if(!file)return;const pid=$('#enPiece').value;
+  if(file.size>900e3){toast('Fichier trop gros : exporte une période plus courte (un mois maximum)');return}
+  try{const text=await file.text();const stamp=new Date().toISOString().replace(/[-:]/g,'').slice(0,13);
+    toast('Envoi…');await enPut(`data/inbox/xsense/${pid}__${stamp}.csv`,text,null,'Import X-Sense '+pid);
+    toast('Import envoyé : analyse d’ici 1 à 2 min');setTimeout(()=>enRefresh(false),120e3)}
+  catch(e){toast(e instanceof SyErr?e.message:'Envoi impossible (réseau ?)')}
+}
+/* retour d'autorisation Daikin : afficher le code à recopier dans GitHub */
+(()=>{const q=new URLSearchParams(location.search),code=q.get('code');if(!code)return;
+  history.replaceState(null,'',location.pathname+'#energie');
+  setTimeout(()=>openSheet(`<div class="hd"><h2>Code d’autorisation Daikin</h2><button class="x" data-act="close">✕</button></div>
+   <p class="sub">Copie ce code puis colle-le tout de suite (il expire en quelques minutes) dans GitHub → dépôt ${esc(EN.repo||'ousse-energie')} → Actions → « Autoriser un service » → Run workflow → service : daikin.</p>
+   <input class="in" readonly value="${esc(code)}" onclick="this.select()"><button class="btn" style="margin-top:10px" onclick="navigator.clipboard&&navigator.clipboard.writeText(${esc(JSON.stringify(code))}).then(()=>toast('Code copié'))">Copier</button>`),300)})();
+
 /* ============ Démarrage ============ */
 if('serviceWorker' in navigator&&location.protocol.startsWith('http')){navigator.serviceWorker.register('sw.js').catch(()=>{})}
 render();
 refreshWx(false);
 syncNow(false);
+enRefresh(false);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&Date.now()-enAt>10*60e3)enRefresh(false)});
 setInterval(()=>refreshWx(false),30*60*1000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshWx(false)});
 </script>
