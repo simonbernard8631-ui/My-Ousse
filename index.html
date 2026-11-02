@@ -1694,16 +1694,17 @@ function svgBallonT(serie,prog){
   const id=chReg(serie.map(s=>({x:X(s),y:Y(s[1]),t:new Date(s[0]).toLocaleString('fr-FR',{weekday:'short',hour:'2-digit',minute:'2-digit'}),r:[['var(--c-achat)','ballon',nf(s[1],0)+' °C']]})),'x');
   return `<svg viewBox="0 0 ${W} ${H}" class="ech" ${chAttrs(id,'Température du ballon sur 7 jours, relevée chaque heure')}>${g}${rf}<path d="${line}" class="ln ach"/><circle cx="${X(l)}" cy="${Y(l[1])}" r="5" class="b-ach"/>${tk}<line class="xh" y1="${T}" y2="${H-B}"/></svg>`;
 }
-function svgBallonKwh(jours){
+function svgBallonKwh(jours,cr){
+  cr=cr||{matin:'4 h-8 h',solaire:'12 h-16 h'};
   const d=(jours||[]).filter(j=>!j.partiel);if(d.length<1)return '<p class="sub" style="margin:0">Pas encore de journée complète.</p>';
   const W=enW(),H=170,L=30,R=4,T=10,B=24,band=(W-L-R)/Math.max(d.length,4),bw=Math.min(24,band-6),tot=j=>(j.matin||0)+(j.solaire||0)+(j.autre||0),top=Math.max(2,Math.ceil(Math.max(...d.map(tot)))),Y=v=>H-B-v/top*(H-B-T);
   let g='';const st=top>6?2:1;for(let v=0;v<=top;v+=st)g+=`<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" class="gl"/><text x="${L-6}" y="${Y(v)+4}" text-anchor="end">${v}</text>`;
   const pts=[];const bars=d.map((j,i)=>{const cx=L+band*(i+.5),x=cx-bw/2;let b=0,o='';
     [['matin','b-ach'],['solaire','b-sol'],['autre','b-ven']].forEach(([k,c])=>{const v=j[k]||0;if(v<=0)return;const y0=Y(b),y1=Y(b+v);o+=`<rect x="${x}" y="${y1}" width="${bw}" height="${Math.max(1,y0-y1-2)}" rx="2" class="${c}"/>`;b+=v});
-    pts.push({x:cx,y:Y(b),t:new Date(j.date).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'}),r:[['var(--c-achat)','4 h-8 h',nf(j.matin)+' kWh'],['var(--c-sol)','12 h-16 h',nf(j.solaire)+' kWh'],['var(--c-vente)','autres heures',nf(j.autre)+' kWh']]});
+    pts.push({x:cx,y:Y(b),t:new Date(j.date).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'}),r:[['var(--c-achat)',cr.matin,nf(j.matin)+' kWh'],['var(--c-sol)',cr.solaire,nf(j.solaire)+' kWh'],['var(--c-vente)','autres heures',nf(j.autre)+' kWh']]});
     return o+`<text x="${cx}" y="${H-6}" text-anchor="middle">${new Date(j.date).toLocaleDateString('fr-FR',{weekday:'narrow'})}</text>`}).join('');
   const id=chReg(pts,'b');
-  return `<svg viewBox="0 0 ${W} ${H}" class="ech" ${chAttrs(id,'Consommation du ballon par créneau et par jour')}>${g}${bars}</svg><div class="lk box"><span style="--c:var(--c-achat)">4 h-8 h</span><span style="--c:var(--c-sol)">12 h-16 h</span><span style="--c:var(--c-vente)">Autres heures</span></div>`;
+  return `<svg viewBox="0 0 ${W} ${H}" class="ech" ${chAttrs(id,'Consommation du ballon par créneau et par jour')}>${g}${bars}</svg><div class="lk box"><span style="--c:var(--c-achat)">${cr.matin}</span><span style="--c:var(--c-sol)">${cr.solaire}</span><span style="--c:var(--c-vente)">Autres heures</span></div>`;
 }
 function partBar(title,total,segs){
   const s=segs.filter(x=>x.v>0.04);if(!(total>0.04)||!s.length)return '';
@@ -1784,13 +1785,15 @@ function viewEnChauffage(){
   const zones=A.zones.map(z=>{const s=STAT[z.statut]||STAT.config,L=z.loi_eau,pz=P&&P.zones.find(p=>p.id===z.id),cz=(C.zones||[]).find(x=>x.id===z.id)||{};
     const thermo=cz.thermostat||(pz&&['roomTemperature','externalRoomTemperature'].includes(pz.mode));
     return `<div class="card"><h2>${esc(z.nom)} <span class="pill st-${s[0]}">${s[1]}</span></h2>
-     <div class="kv" style="margin:10px 0"><span>Loi d’eau</span><b>${L.ext_froid} °C → ${L.eau_froid} °C · ${L.ext_doux} °C → ${L.eau_doux} °C</b>
+     <div class="kv" style="margin:10px 0"><span>Loi d’eau</span><b>${L.ext_froid} °C → ${L.eau_froid} °C · ${L.ext_doux} °C → ${L.eau_doux} °C${cz.decalage?` · décalage ${cz.decalage>0?'+':''}${cz.decalage}`:''}</b>
+     ${cz.thermostat==='limiteur'?`<span>Thermostat</span><b>limiteur à ${nf(cz.thermostat_reglage,1)} °C</b>`:''}
      <span>Émetteurs</span><b>${esc(z.emetteurs||'')}</b>${pz&&pz.depart!=null?`<span>Départ d’eau PAC</span><b>${nf(pz.depart)} °C${pz.decalage?` (décalage ${pz.decalage>0?'+':''}${pz.decalage})`:''}</b>`:''}
      ${z.depuis?`<span>Dernier réglage</span><b>${new Date(z.depuis).toLocaleDateString('fr-FR')}</b>`:''}</div>
      <p class="sub">${esc(z.message)}${z.proposition?` → <b>${esc(z.proposition.texte)}</b>`:''}</p>${svgScatter(z)}
      ${z.statut==='config'?'<button class="btn ghost sm" data-act="go" data-id="en_reglages">Renseigner les réglages</button>':''}
-     ${thermo&&['baisser','monter','collecte'].includes(z.statut)?`<div class="enote">${ni('info')}<div>Un thermostat coupe cette zone à sa consigne, ce qui masque une loi d’eau trop haute. Pour la juger, règle-le 1 à 2 °C au-dessus de la température voulue.</div></div>`:''}</div>`}).join('');
-  return enHead('Chauffage',enWhen(A))+`<div class="grid">${pac}<div class="grid g2">${zones}</div><div class="card"><h2>Efficacité du chauffage</h2>${svgEff(A.jours,C.journal)}</div></div>`;
+     ${thermo&&cz.thermostat!=='limiteur'&&['baisser','monter','collecte'].includes(z.statut)?`<div class="enote">${ni('info')}<div>Un thermostat coupe cette zone à sa consigne, ce qui masque une loi d’eau trop haute. Pour la juger, règle-le 1 à 2 °C au-dessus de la température voulue.</div></div>`:''}</div>`}).join('');
+  const arr=(C.pac||{}).arret_chauffage_ext;
+  return enHead('Chauffage',enWhen(A))+`<div class="grid">${pac}${arr!=null?`<div class="card"><h2>Arrêt du chauffage</h2><p class="sub" style="margin:0">La PAC arrête de chauffer au-dessus de <b>${nf(arr,0)} °C</b> dehors. Si elle chauffe encore les jours plus doux, une alerte apparaît dans le Bilan.</p></div>`:''}<div class="grid g2">${zones}</div><div class="card"><h2>Efficacité du chauffage</h2>${svgEff(A.jours,C.journal)}</div></div>`;
 }
 function viewEnBallon(){
   const g=enGate('Ballon');if(g)return g;
@@ -1808,11 +1811,12 @@ function viewEnBallon(){
   const rows=(B.jours||[]).filter(j=>!j.partiel).slice(-7).reverse().map(j=>`<tr><td>${new Date(j.date).toLocaleDateString('fr-FR',{weekday:'short',day:'numeric'})}</td><td>${nf(j.matin)}</td><td>${nf(j.solaire)}</td><td>${nf(j.autre)}</td><td>${j.t7h==null?'–':nf(j.t7h,0)+' °'}</td><td>${j.tmax==null?'–':nf(j.tmax,0)+' °'}</td></tr>`).join('');
   return enHead('Ballon',enWhen(A))+`<div class="grid">
     <div class="card"><h2>Maintenant</h2>${N?`<div class="enhero"><b>${nf(N.t,0)}<small>°C</small></b><span>dans le ballon, relevé ${ago(N.ts)}${N.consigne!=null?`. Consigne actuelle ${nf(N.consigne,0)} °C`:''}</span></div>`:'<p class="sub" style="margin:0">Pas encore de relevé.</p>'}</div>
-    <div class="card"><h2>Programme</h2>${test?`<p class="sub" style="margin:0 0 12px">${test}</p>`:''}${strip}</div>
+    <div class="card"><h2>Programme</h2>${test?`<p class="sub" style="margin:0 0 12px">${test}</p>`:''}${strip}${(()=>{const K=B.consignes,D=B.desinfection;if(!K&&!D)return '';
+      return `<div class="kv" style="margin-top:12px">${K&&K.rechauffement!=null?`<span>Réchauffement</span><b>${nf(K.rechauffement,0)} °C${K.hysteresis!=null?`, relance sous ${nf(K.rechauffement-K.hysteresis,0)} °C`:''}</b>`:''}${K&&K.eco!=null?`<span>Éco</span><b>${nf(K.eco,0)} °C</b>`:''}${D?`<span>Désinfection</span><b>${esc(D.jour)} ${esc(fh(D.heure))}, ${nf(D.temp,0)} °C pendant ${D.duree_min} min</b>`:''}</div>`})()}</div>
     <div class="card"><h2>Surveillance automatique</h2>${ver}<p class="sub">Contrôlé à chaque collecte. Les points à vérifier remontent aussi dans le Bilan.</p></div>
     <div class="card"><h2>Température sur 7 jours</h2>${svgBallonT(B.serie,prog)}</div>
-    <div class="card"><h2>Consommation par créneau</h2>${svgBallonKwh(B.jours)}<p class="sub" style="margin:6px 0 0">En kWh. Daikin arrondit sa mesure au kWh : à lire sur plusieurs jours.</p>
-     ${rows?`<details class="endet" style="margin-top:6px"><summary>Voir le tableau</summary><div class="et-wrap"><table class="et"><tr><th>Jour</th><th>4-8 h</th><th>12-16 h</th><th>Autres</th><th>À 7 h</th><th>Max</th></tr>${rows}</table></div></details>`:''}</div>
+    <div class="card"><h2>Consommation par créneau</h2>${svgBallonKwh(B.jours,B.creneaux)}<p class="sub" style="margin:6px 0 0">En kWh. Daikin arrondit sa mesure au kWh : à lire sur plusieurs jours.</p>
+     ${rows?`<details class="endet" style="margin-top:6px"><summary>Voir le tableau</summary><div class="et-wrap"><table class="et"><tr><th>Jour</th><th>${esc((B.creneaux||{}).matin||'4 h-8 h')}</th><th>${esc((B.creneaux||{}).solaire||'12 h-16 h')}</th><th>Autres</th><th>À 7 h</th><th>Max</th></tr>${rows}</table></div></details>`:''}</div>
    </div>`;
 }
 function viewEnPieces(){
@@ -1861,7 +1865,8 @@ function enSettingsCard(C){
      <select class="in" data-en="z${i}.emetteurs" style="width:auto">${['plancher','radiateurs','ventilo-convecteurs'].map(o=>`<option ${z.emetteurs===o?'selected':''}>${o}</option>`).join('')}</select></div>
      <div class="lo"><span></span><small>Dehors (°C)</small><small>Eau (°C)</small>
       <span>Point froid</span>${num(`z${i}.ext_froid`,z.loi_eau.ext_froid)}${num(`z${i}.eau_froid`,z.loi_eau.eau_froid)}
-      <span>Point doux</span>${num(`z${i}.ext_doux`,z.loi_eau.ext_doux)}${num(`z${i}.eau_doux`,z.loi_eau.eau_doux)}</div></div>`).join('')}
+      <span>Point doux</span>${num(`z${i}.ext_doux`,z.loi_eau.ext_doux)}${num(`z${i}.eau_doux`,z.loi_eau.eau_doux)}
+      <span>Décalage</span>${num(`z${i}.decalage`,z.decalage||0)}<small></small></div></div>`).join('')}
    <h3 style="margin:18px 0 4px">Pièces suivies</h3>
    <p class="sub" style="margin-top:0">Laisse la consigne vide pour suivre une pièce sans la compter dans la loi d’eau.</p>
    ${P.map((p,i)=>`<div class="ps"><input data-en="p${i}.nom" aria-label="Nom de la pièce" value="${esc(p.nom)}" class="in en-name">
@@ -1879,7 +1884,7 @@ function enSettingsCard(C){
 }
 function enReadForm(c){
   const v=k=>{const el=document.querySelector(`[data-en="${k}"]`);return el?el.value:null},n=k=>{const x=v(k);return x===''||x==null?null:+x};
-  (c.zones||[]).forEach((z,i)=>{z.nom=v(`z${i}.nom`)||z.nom;z.emetteurs=v(`z${i}.emetteurs`);['ext_froid','eau_froid','ext_doux','eau_doux'].forEach(k=>{const x=n(`z${i}.${k}`);if(x!=null)z.loi_eau[k]=x})});
+  (c.zones||[]).forEach((z,i)=>{z.nom=v(`z${i}.nom`)||z.nom;z.emetteurs=v(`z${i}.emetteurs`);['ext_froid','eau_froid','ext_doux','eau_doux'].forEach(k=>{const x=n(`z${i}.${k}`);if(x!=null)z.loi_eau[k]=x});const d=n(`z${i}.decalage`);if(d!=null)z.decalage=d});
   (c.pieces||[]).forEach((p,i)=>{p.nom=v(`p${i}.nom`)||p.nom;p.zone=v(`p${i}.zone`);p.consigne=n(`p${i}.consigne`)});
   if(n('w.debut')!=null)c.fenetre_analyse={debut:n('w.debut'),fin:n('w.fin')};
   c.tarifs={achat_kwh:n('t.achat'),revente_kwh:n('t.revente')};c.fournisseur_elec={...(c.fournisseur_elec||{}),abonnement_mois_ttc:n('t.abo')};
@@ -1905,7 +1910,7 @@ async function enAction(act,id){
       const z=ED.app.zones.find(x=>x.id===id);if(!z||!z.proposition)return;
       if(!confirm(`As-tu réglé la PAC ainsi ?\n\n${z.nom} : ${z.proposition.texte}\n\nL’appli repart de zéro pour cette zone et jugera l’effet après 2 nuits de stabilisation.`))return;
       const nl=z.proposition.loi_eau,today=new Date().toLocaleDateString('sv');
-      await enSaveCfg(c=>{const cz=c.zones.find(x=>x.id===id);c.journal=c.journal||[];c.journal.push({date:today,zone:id,type:'loi_eau',avant:cz.loi_eau,apres:nl,texte:z.proposition.texte});cz.loi_eau=nl},'Loi d’eau modifiée : '+z.proposition.texte);
+      await enSaveCfg(c=>{const cz=c.zones.find(x=>x.id===id);c.journal=c.journal||[];const nd=z.proposition.decalage;c.journal.push({date:today,zone:id,type:'loi_eau',avant:cz.loi_eau,apres:nl,...(nd!=null&&nd!==(cz.decalage||0)?{decalage_avant:cz.decalage||0,decalage_apres:nd}:{}),texte:z.proposition.texte});cz.loi_eau=nl;if(nd!=null)cz.decalage=nd},'Loi d’eau modifiée : '+z.proposition.texte);
       toast('Noté. Prochaine analyse dans 1 à 2 min');setTimeout(()=>enRefresh(false),120e3);break}
   }}catch(e){toast(e instanceof SyErr?e.message:'Action impossible (réseau ?)')}
 }
