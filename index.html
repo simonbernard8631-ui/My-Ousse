@@ -1793,7 +1793,32 @@ function viewEnChauffage(){
      ${z.statut==='config'?'<button class="btn ghost sm" data-act="go" data-id="en_reglages">Renseigner les réglages</button>':''}
      ${thermo&&cz.thermostat!=='limiteur'&&['baisser','monter','collecte'].includes(z.statut)?`<div class="enote">${ni('info')}<div>Un thermostat coupe cette zone à sa consigne, ce qui masque une loi d’eau trop haute. Pour la juger, règle-le 1 à 2 °C au-dessus de la température voulue.</div></div>`:''}</div>`}).join('');
   const arr=(C.pac||{}).arret_chauffage_ext;
-  return enHead('Chauffage',enWhen(A))+`<div class="grid">${pac}${arr!=null?`<div class="card"><h2>Arrêt du chauffage</h2><p class="sub" style="margin:0">La PAC arrête de chauffer au-dessus de <b>${nf(arr,0)} °C</b> dehors. Si elle chauffe encore les jours plus doux, une alerte apparaît dans le Bilan.</p></div>`:''}<div class="grid g2">${zones}</div><div class="card"><h2>Efficacité du chauffage</h2>${svgEff(A.jours,C.journal)}</div></div>`;
+  return enHead('Chauffage',enWhen(A))+`<div class="grid">${pac}${arr!=null?`<div class="card"><h2>Arrêt du chauffage</h2><p class="sub" style="margin:0">La PAC arrête de chauffer au-dessus de <b>${nf(arr,0)} °C</b> dehors. Si elle chauffe encore les jours plus doux, une alerte apparaît dans le Bilan.</p></div>`:''}<div class="grid g2">${zones}</div><div class="card"><h2>Efficacité du chauffage</h2>${svgEff(A.jours,C.journal)}</div>${enCyclesCard(A)}${enJournalCard(A,C)}</div>`;
+}
+const frD=d=>new Date(d+'T12:00').toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
+function enCyclesCard(A){
+  const Cy=(A.cycles||[]).filter(c=>c.demarrages!=null);
+  if(Cy.length<3)return '<div class="card"><h2>Cycles de la PAC</h2><p class="sub" style="margin:0">Pas assez de nuits mesurées pour estimer les cycles.</p></div>';
+  const L=Cy.slice(-7),n=L.length,dem=L.reduce((a,c)=>a+c.demarrages,0)/n,dd=L.filter(c=>c.duree_moy_min!=null),dur=dd.length?dd.reduce((a,c)=>a+c.duree_moy_min,0)/dd.length:null,
+    court=dur!=null&&dur<20&&dem>=4,etat=court?['hot','Cycles courts']:dur==null?['wait','Pas de cycle']:['ok','Cycles corrects'];
+  const rows=Cy.slice(-10).reverse().map(c=>`<tr><td>${frD(c.date)}</td><td>${c.ext!=null?nf(c.ext,0)+' °C':'–'}</td><td>${c.demarrages}</td><td>${c.duree_moy_min!=null?nf(c.duree_moy_min,0)+' min':'–'}</td><td>${nf(c.marche_min/60,1)} h</td></tr>`).join('');
+  return `<div class="card"><h2>Cycles de la PAC la nuit <span class="pill st-${etat[0]}">${etat[1]}</span></h2>
+   <div class="kps">${enKpi('Démarrages par nuit',nf(dem,1),'')}${enKpi('Durée moyenne d’un cycle',dur!=null?nf(dur,0):'–','min')}</div>
+   <p class="sub">Sur les ${n} dernières nuits (0 h à 6 h). Des cycles de moins de 20 minutes, répétés, usent la PAC et font perdre du rendement : ils apparaissent surtout quand il fait doux.</p>
+   <details class="endet"><summary>Voir les nuits</summary><table class="et"><tr><th>Nuit</th><th>Dehors</th><th>Départs</th><th>Durée moy.</th><th>En marche</th></tr>${rows}</table></details>
+   <div class="enote">${ni('info')}<div>Estimation à partir du compteur de la maison (Enphase) : Daikin ne donne pas le nombre de démarrages. Un autre appareil peut compter comme un cycle.</div></div></div>`;
+}
+function enJournalCard(A,C){
+  const J=(C.journal||[]).slice().sort((a,b)=>b.date.localeCompare(a.date)),E=A.journal_effets||[];
+  if(!J.length)return '';
+  const zn=id=>((C.zones||[]).find(z=>z.id===id)||{}).nom||(id==='ballon'?'Ballon':id||''),
+    TY={loi_eau:'Loi d’eau',thermostat:'Thermostat',tete:'Tête',ballon:'Ballon'};
+  const fx=e=>{const x=E.find(k=>k.date===e.date&&k.zone===e.zone&&k.type===e.type&&k.texte===e.texte);
+    if(!x||!x.avant||!x.apres)return e.zone==='ballon'?'':'<span class="sub" style="margin:0">Effet : pas encore assez de nuits après le réglage.</span>';
+    const d=x.apres.t-x.avant.t,dx=x.apres.ext!=null&&x.avant.ext!=null?x.apres.ext-x.avant.ext:null;
+    return `<span class="sub" style="margin:0">Nuits avant : <b>${nf(x.avant.t)} °C</b> (dehors ${nf(x.avant.ext,0)} °) → après : <b>${nf(x.apres.t)} °C</b> (dehors ${nf(x.apres.ext,0)} °), soit ${d>0?'+':''}${nf(d)} °C${dx!=null&&Math.abs(dx)>=3?` — mais il faisait ${dx>0?'plus doux':'plus froid'} de ${nf(Math.abs(dx),0)} °C : l’effet du réglage seul est incertain`:''}.</span>`};
+  const rows=J.map(e=>`<div class="row"><div class="ico">${ni(e.type==='ballon'?'drop':'temp')}</div><div class="tx"><b>${frD(e.date)} · ${esc(TY[e.type]||e.type)} · ${esc(zn(e.zone))}</b><span>${esc(e.texte||'')}</span>${fx(e)}</div></div>`);
+  return `<div class="card"><h2>Journal des réglages</h2><p class="sub" style="margin:0 0 6px">Chaque changement, avec la température des pièces avant et après (moyenne de 3 nuits).</p>${rows.slice(0,5).join('')}${rows.length>5?`<details class="endet"><summary>Les ${rows.length-5} plus anciens</summary>${rows.slice(5).join('')}</details>`:''}</div>`;
 }
 function viewEnBallon(){
   const g=enGate('Ballon');if(g)return g;
@@ -1828,9 +1853,9 @@ function viewEnPieces(){
     const row=c=>{const e=c.nuit!=null&&c.consigne!=null?c.nuit-c.consigne:null,pl=e==null?'':`<span class="pill ${e>.3?'st-hot':e<-.3?'st-cold':'st-ok'}">${e>0?'+':e<0?'−':''}${nf(Math.abs(e))} °C</span>`,hum=c.hum==null?'':c.hum>60?`Humidité <b>${nf(c.hum,0)} %</b> (élevée)`:c.hum<40?`Humidité <b>${nf(c.hum,0)} %</b> (basse)`:`Humidité ${nf(c.hum,0)} %`;
       return `<div class="pr"><div class="pr-h"><b>${esc(c.nom)}</b><span class="pr-n">${nf(c.nuit)} °<small>la nuit</small></span></div>
        ${c.min!=null&&c.max!=null?`<div class="pr-b" aria-hidden="true"><i style="left:${pc(c.min)}%;width:${pc(c.max)-pc(c.min)}%"></i>${c.nuit!=null?`<u style="left:${pc(c.nuit)}%"></u>`:''}</div>`:''}
-       <div class="pr-f"><span>7 jours : ${nf(c.min)} à ${nf(c.max)} °C</span><span>${hum}</span>${c.consigne!=null?`<span>Consigne ${nf(c.consigne)} ° ${pl}</span>`:'<span>Sans consigne</span>'}</div></div>`};
+       <div class="pr-f">${c.matin!=null||c.soir!=null?`<span>Matin <b>${nf(c.matin)} °C</b> · Soir <b>${nf(c.soir)} °C</b></span>`:''}<span>7 jours : ${nf(c.min)} à ${nf(c.max)} °C</span><span>${hum}${c.hum_48h!=null&&c.hum_48h>65?` <span class="pill st-hot">À aérer · ${nf(c.hum_48h,0)} % ces 48 h</span>`:''}</span>${c.plage?`<span>Plage ${nf(c.plage[0])}–${nf(c.plage[1])} ° ${c.dans_plage!=null?`<span class="pill ${c.dans_plage>=90?'st-ok':c.dans_plage>=60?'st-wait':'st-hot'}">${nf(c.dans_plage,0)} % du temps dedans</span>`:''}</span>`:c.consigne!=null?`<span>Consigne ${nf(c.consigne)} ° ${pl}</span>`:'<span>Sans consigne</span>'}</div></div>`};
     const grp=(C.zones||[]).map(z=>({n:z.nom,r:R.filter(c=>c.zone===z.id)})).concat([{n:'Autres pièces',r:R.filter(c=>!(C.zones||[]).some(z=>z.id===c.zone))}]).filter(x=>x.r.length);
-    conf=grp.map(x=>`<div class="pz"><h3>${esc(x.n)}</h3>${x.r.map(row).join('')}</div>`).join('')+`<p class="sub">Nuit : moyenne de ${C.fenetre_analyse.debut} h à ${C.fenetre_analyse.fin} h, sans soleil ni cuisine. Humidité conseillée : 40 à 60 %.</p>`;
+    conf=grp.map(x=>`<div class="pz"><h3>${esc(x.n)}</h3>${x.r.map(row).join('')}</div>`).join('')+`<p class="sub">Nuit : moyenne de ${C.fenetre_analyse.debut} h à ${C.fenetre_analyse.fin} h, sans soleil ni cuisine. Matin : 6 h à 8 h. Soir : 19 h à 22 h. Plage de confort : ${nf((C.plage_confort||[18.5,20.5])[0])} à ${nf((C.plage_confort||[18.5,20.5])[1])} °C. Humidité conseillée : 40 à 60 %, à aérer au-delà de 65 %.</p>`;
   }
   return enHead('Pièces',enWhen(A))+`<div class="grid"><div class="card"><h2>Confort des 7 derniers jours</h2>${conf}</div>${enImportCard(C,A)}</div>`;
 }
