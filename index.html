@@ -839,6 +839,7 @@ const NAV=[
  ['en_ballon','Ballon','<path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.500 6-11 6-11z"/>'],
  ['en_pieces','Pièces','<path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>'],
  ['en_reglages','Réglages','<path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/>'],
+ ['en_cop','COP','<path d="M4 19V9M10 19V5M16 19v-8M22 19H2"/>'],
  ['home','Modules','<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>']
 ];
 const MOD_TABS={jardin:['today','garden','calendar','plantation','settings','home'],energie:['en_bilan','en_chauffage','en_ballon','en_pieces','en_reglages','home']};
@@ -857,7 +858,7 @@ function render(){
   $('#brand').innerHTML=`<i><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${en?ICO_ENERGIE:ICO_JARDIN}</svg></i>${en?'Mon Énergie':'Mon Jardin'}`;
   $('#syncState').hidden=en;
   $('#syncState').textContent=fileHandle?'☁︎ Sauvegarde liée au fichier':'Données stockées sur cet appareil';
-  const v={today:viewToday,garden:viewGarden,calendar:viewCalendar,plantation:viewPlantation,settings:viewSettings,home:viewHome,en_bilan:viewEnBilan,en_chauffage:viewEnChauffage,en_ballon:viewEnBallon,en_pieces:viewEnPieces,en_reglages:viewEnReglages}[tab]();
+  const v={today:viewToday,garden:viewGarden,calendar:viewCalendar,plantation:viewPlantation,settings:viewSettings,home:viewHome,en_bilan:viewEnBilan,en_chauffage:viewEnChauffage,en_ballon:viewEnBallon,en_pieces:viewEnPieces,en_reglages:viewEnReglages,en_cop:viewEnCop}[tab]();
   const keep=document.activeElement&&document.activeElement.id==='gq';
   $('#main').innerHTML=v;
   if(keep){const el=$('#gq');el.focus();el.setSelectionRange(el.value.length,el.value.length)}
@@ -1557,7 +1558,7 @@ async function enRefresh(manual){
     ED={app:app&&app.data,cfg:cfg.data,cfgSha:cfg.sha,at:Date.now()};saveED();enErr='';
     if(manual)toast(app?'Données énergie à jour':'Dépôt connecté : en attente de la première collecte');
   }catch(e){enErr=e instanceof SyErr?e.message:(navigator.onLine===false?'Hors ligne : dernières données affichées.':'Lecture impossible pour le moment.');if(manual)toast(enErr)}
-  enBusy=false;if(tab==='home'||(isEn(tab)&&(tab!=='en_reglages'||manual)))render();
+  enBusy=false;if(tab==='home'||(isEn(tab)&&(!['en_reglages','en_cop'].includes(tab)||manual)))render();
 }
 async function enSaveCfg(mut,msg){
   for(let i=0;i<2;i++){
@@ -1609,7 +1610,7 @@ document.addEventListener('focusin',ev=>{const s=ev.target.closest&&ev.target.cl
 document.addEventListener('focusout',ev=>{if(ev.target.closest&&ev.target.closest('svg[data-ch]'))chHide()});
 document.addEventListener('keydown',ev=>{const s=ev.target.closest&&ev.target.closest('svg[data-ch]');if(!s||(ev.key!=='ArrowLeft'&&ev.key!=='ArrowRight'))return;ev.preventDefault();const c=CH[s.dataset.ch];chShow(s,Math.max(0,Math.min(c.pts.length-1,c.i+(ev.key==='ArrowLeft'?-1:1))))});
 window.addEventListener('scroll',chHide,{passive:true});
-let enRW=innerWidth;window.addEventListener('resize',()=>{if(innerWidth!==enRW&&isEn(tab)&&tab!=='en_reglages'){enRW=innerWidth;render()}});
+let enRW=innerWidth;window.addEventListener('resize',()=>{if(innerWidth!==enRW&&isEn(tab)&&!['en_reglages','en_cop'].includes(tab)){enRW=innerWidth;render()}});
 
 const kw=wh=>wh==null?null:wh*4/1000;
 function svgHours(pts,label,unit){
@@ -1793,9 +1794,49 @@ function viewEnChauffage(){
      ${z.statut==='config'?'<button class="btn ghost sm" data-act="go" data-id="en_reglages">Renseigner les réglages</button>':''}
      ${thermo&&cz.thermostat!=='limiteur'&&['baisser','monter','collecte'].includes(z.statut)?`<div class="enote">${ni('info')}<div>Un thermostat coupe cette zone à sa consigne, ce qui masque une loi d’eau trop haute. Pour la juger, règle-le 1 à 2 °C au-dessus de la température voulue.</div></div>`:''}</div>`}).join('');
   const arr=(C.pac||{}).arret_chauffage_ext;
-  return enHead('Chauffage',enWhen(A))+`<div class="grid">${pac}${arr!=null?`<div class="card"><h2>Arrêt du chauffage</h2><p class="sub" style="margin:0">La PAC arrête de chauffer au-dessus de <b>${nf(arr,0)} °C</b> dehors. Si elle chauffe encore les jours plus doux, une alerte apparaît dans le Bilan.</p></div>`:''}<div class="grid g2">${zones}</div><div class="card"><h2>Efficacité du chauffage</h2>${svgEff(A.jours,C.journal)}</div>${enCyclesCard(A)}${enJournalCard(A,C)}</div>`;
+  return enHead('Chauffage',enWhen(A))+`<div class="grid">${pac}${arr!=null?`<div class="card"><h2>Arrêt du chauffage</h2><p class="sub" style="margin:0">La PAC arrête de chauffer au-dessus de <b>${nf(arr,0)} °C</b> dehors. Si elle chauffe encore les jours plus doux, une alerte apparaît dans le Bilan.</p></div>`:''}<div class="grid g2">${zones}</div><div class="card"><h2>Efficacité du chauffage</h2>${svgEff(A.jours,C.journal)}</div>${enCopLink(C)}${enCyclesCard(A)}${enJournalCard(A,C)}</div>`;
 }
 const frD=d=>new Date(d+'T12:00').toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
+const enCopLink=C=>{const R=(C.cop_releves||[]),l=R[R.length-1],cp=l?enCop(l):null;
+  return `<div class="card"><h2>COP de la PAC</h2><p class="sub" style="margin:0 0 8px">${cp&&cp.glob!=null?`Dernier relevé (${new Date(l.releve+'T12:00').toLocaleDateString('fr-FR',{day:'numeric',month:'long'})}) : COP <b>${nf(cp.glob)}</b>.`:'Ta PAC mesure la chaleur qu’elle produit : note-la ici pour calculer ton COP réel.'}</p><button class="btn sm" data-act="go" data-id="en_cop">${R.length?'Voir et ajouter un relevé':'Saisir un premier relevé'}</button></div>`};
+const enCop=r=>{const q=a=>a&&a.elec>0?a.chaleur/a.elec:null,ch=q(r.chauffage),ec=q(r.ecs),h=(r.chauffage?r.chauffage.chaleur:0)+(r.ecs?r.ecs.chaleur:0),e=(r.chauffage?r.chauffage.elec:0)+(r.ecs?r.ecs.elec:0);return{ch,ec,glob:e>0?h/e:null,h,e}};
+function enCopCls(v,t){const L=t==='ecs'?[2,3]:[3,4];return v==null?'wait':v<L[0]?'hot':v<L[1]?'wait':'ok'}
+function viewEnCop(){
+  const g=enGate('COP');if(g)return g;
+  const A=ED.app,C=ED.cfg,R=(C.cop_releves||[]).slice(),td=new Date(),iso=td.toISOString().slice(0,10),mois=iso.slice(0,7);
+  const api=(r,k)=>{const a=(A.jours||[]).filter(j=>j.date.slice(0,7)===r.mois&&j.date<=r.releve&&j[k]!=null);return a.length?a.reduce((x,j)=>x+j[k],0):null};
+  const card=r=>{const c=enCop(r),x=(k,t)=>r[k]?`<tr><td>${t}</td><td>${nf(r[k].chaleur,0)}</td><td>${nf(r[k].elec,0)}</td><td><span class="pill st-${enCopCls(r[k].chaleur/r[k].elec,k)}">${nf(r[k].chaleur/r[k].elec)}</span></td></tr>`:'';
+    const ac=r.chauffage?api(r,'pac_chauff'):null,ae=r.ecs?api(r,'pac_ecs'):null,chk=[];
+    if(ac!=null)chk.push(`chauffage ${nf(ac,0)} kWh`);if(ae!=null)chk.push(`eau chaude ${nf(ae,0)} kWh`);
+    return `<div class="row"><div class="ico">${ni('temp')}</div><div class="tx"><b>${new Date(r.mois+'-15T12:00').toLocaleDateString('fr-FR',{month:'long',year:'numeric'})} · relevé du ${new Date(r.releve+'T12:00').toLocaleDateString('fr-FR',{day:'numeric',month:'short'})}${c.glob!=null?` · COP <span class="pill st-${enCopCls(c.glob)}">${nf(c.glob)}</span>`:''}</b>
+     <table class="et"><tr><th></th><th>Chaleur (kWh)</th><th>Électricité (kWh)</th><th>COP</th></tr>${x('chauffage','Chauffage')}${x('ecs','Eau chaude')}</table>
+     ${chk.length?`<span class="sub" style="margin:4px 0 0">Compteur Daikin de l’appli sur la même période : ${chk.join(' · ')} (électricité). Les deux doivent rester proches.</span>`:''}${r.note?`<span>${esc(r.note)}</span>`:''}
+     <button class="btn warn sm" style="margin-top:6px" data-act="enCopDel" data-id="${esc(r.mois+'|'+r.releve)}">Supprimer</button></div></div>`};
+  const last=new Map();R.forEach(r=>last.set(r.mois,r));const tot=[...last.values()].reduce((a,r)=>{const c=enCop(r);a.h+=c.h;a.e+=c.e;return a},{h:0,e:0});
+  const hist=R.slice().reverse().map(card).join('');
+  return enHead('COP',enWhen(A))+`<div class="grid"><div><button class="btn ghost sm" data-act="go" data-id="en_chauffage">← Chauffage</button></div>
+   ${last.size?`<div class="card"><h2>Ton COP</h2><div class="kps">${enKpi('COP sur les relevés',nf(tot.e>0?tot.h/tot.e:null),'')}${enKpi('Chaleur produite',nf(tot.h,0),'kWh')}${enKpi('Électricité',nf(tot.e,0),'kWh')}</div><p class="sub">Un seul relevé retenu par mois (le plus récent). Repères courants pour une PAC air-eau en hiver : chauffage autour de 3 à 4, eau chaude autour de 2 à 3,5. Plus il fait froid dehors et plus l’eau est chaude, plus le COP baisse.</p></div>`:''}
+   <div class="card"><h2>Où trouver les chiffres sur la PAC</h2>
+    <p class="sub" style="margin:0 0 6px">Ta PAC calcule elle-même la chaleur qu’elle produit (avec le débit et les températures d’eau). C’est un relevé de 2 minutes devant l’écran de l’unité intérieure, une fois par mois :</p>
+    <ol class="sub" style="margin:0;padding-left:20px"><li>Sur l’écran de la PAC, ouvre les <b>informations / données d’énergie</b> (rubrique « mesure de l’énergie »). Le chemin exact dépend de ta version : si tu ne trouves pas, c’est dans le guide utilisateur, au chapitre sur la consommation d’énergie.</li>
+     <li>Choisis l’affichage <b>par mois</b> et le <b>mois en cours</b> (ou le mois dernier une fois fini).</li>
+     <li>Note, pour le <b>chauffage</b> et pour l’<b>eau chaude</b> : la <b>chaleur produite</b> et l’<b>énergie consommée</b>, en kWh.</li>
+     <li>Reviens ici et saisis-les. Le mieux : toujours le même jour du mois, ou en fin de mois pour un mois complet.</li></ol>
+    <div class="enote">${ni('info')}<div>Daikin précise que ces valeurs sont des estimations. Si ton installateur a posé des compteurs d’électricité externes, la consommation est mesurée et plus fiable. L’appli Onecta ne donne que l’électricité, pas la chaleur.</div></div></div>
+   <div class="card"><h2>Nouveau relevé</h2>
+    <div class="field"><label>Mois concerné</label><input class="in" type="month" id="cpMois" value="${mois}"></div>
+    <div class="field"><label>Relevé fait le</label><input class="in" type="date" id="cpDate" value="${iso}"></div>
+    <h3 style="margin:12px 0 4px">Chauffage</h3>
+    <div class="field"><label>Chaleur produite (kWh)</label><input class="in" id="cpHc" inputmode="decimal" autocomplete="off"></div>
+    <div class="field"><label>Énergie consommée (kWh)</label><input class="in" id="cpEc" inputmode="decimal" autocomplete="off"></div>
+    <h3 style="margin:12px 0 4px">Eau chaude</h3>
+    <div class="field"><label>Chaleur produite (kWh)</label><input class="in" id="cpHe" inputmode="decimal" autocomplete="off"></div>
+    <div class="field"><label>Énergie consommée (kWh)</label><input class="in" id="cpEe" inputmode="decimal" autocomplete="off"></div>
+    <div class="field"><label>Note (facultatif)</label><input class="in" id="cpNote" autocomplete="off" placeholder="ex. mois en cours, jusqu’au 20"></div>
+    <button class="btn" data-act="enCopSave" style="margin-top:8px">Enregistrer et calculer</button>
+    <p class="sub">Tu peux ne remplir que le chauffage ou que l’eau chaude. Un relevé du même mois et de la même date est remplacé.</p></div>
+   ${hist?`<div class="card"><h2>Mes relevés</h2>${hist}</div>`:''}</div>`;
+}
 function enCyclesCard(A){
   const Cy=(A.cycles||[]).filter(c=>c.demarrages!=null);
   if(Cy.length<3)return '<div class="card"><h2>Cycles de la PAC</h2><p class="sub" style="margin:0">Pas assez de nuits mesurées pour estimer les cycles.</p></div>';
@@ -1928,6 +1969,18 @@ async function enAction(act,id){
     case 'enRefresh':toast('Lecture des données…');await enRefresh(true);break;
     case 'enAddP':enReadForm(ED.cfg);ED.cfg.pieces.push({id:'p'+Date.now().toString(36),nom:'Chambre',zone:(ED.cfg.zones[0]||{}).id,consigne:19});render();break;
     case 'enDelP':enReadForm(ED.cfg);ED.cfg.pieces.splice(+id,1);render();break;
+    case 'enCopSave':{
+      const g=k=>{const v=$('#'+k).value.replace(',','.');return v===''?null:+v},mois=$('#cpMois').value,rel=$('#cpDate').value;
+      const r={mois,releve:rel,chauffage:{chaleur:g('cpHc'),elec:g('cpEc')},ecs:{chaleur:g('cpHe'),elec:g('cpEe')}};
+      const ok=(a)=>a.chaleur!=null&&a.elec!=null&&a.elec>0&&a.chaleur>=0;
+      if(!mois||!rel){toast('Renseigne le mois et la date du relevé');return}
+      if(!ok(r.chauffage)&&!ok(r.ecs)){toast('Saisis au moins chaleur et électricité pour le chauffage ou l’eau chaude');return}
+      if(!ok(r.chauffage))delete r.chauffage;if(!ok(r.ecs))delete r.ecs;
+      const n=$('#cpNote').value.trim();if(n)r.note=n;
+      await enSaveCfg(c=>{c.cop_releves=(c.cop_releves||[]).filter(x=>!(x.mois===r.mois&&x.releve===r.releve));c.cop_releves.push(r);c.cop_releves.sort((a,b)=>a.releve.localeCompare(b.releve))},'Relevé COP '+mois);
+      render();toast('Relevé enregistré');break}
+    case 'enCopDel':{if(!confirm('Supprimer ce relevé ?'))return;const[m,d]=id.split('|');
+      await enSaveCfg(c=>{c.cop_releves=(c.cop_releves||[]).filter(x=>!(x.mois===m&&x.releve===d))},'Relevé COP supprimé');render();break}
     case 'enSaveSet':{const local=enReadForm(ED.cfg);
       await enSaveCfg(c=>{c.zones=local.zones;c.pieces=local.pieces;c.fenetre_analyse=local.fenetre_analyse;c.tarifs=local.tarifs;c.fournisseur_elec=local.fournisseur_elec},'Réglages depuis l’appli');
       render();toast('Réglages enregistrés : analyse recalculée d’ici 1 à 2 min');setTimeout(()=>enRefresh(false),120e3);break}
